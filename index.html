@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareBridge - Acesso Final</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* =========================================
+           PALETA ORIGINAL E DESIGN MODERNO
+           ========================================= */
+        :root {
+            --primary: #0a192f;
+            --primary-hover: #112240;
+            --accent: #ffc107;
+            --accent-hover: #e0a800;
+            --bg-color: #f4f5f7;
+            --surface: #FFFFFF;
+            --text-main: #0a192f;
+            --text-muted: #6b7280;
+            --border: #d1d5db;
+            --danger: #d32f2f;
+            --danger-bg: #ffebee;
+            --success: #2e7d32;
+            --success-bg: #e8f5e9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
+
+        /* AUTENTICAÇÃO */
+        .auth-wrapper { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .auth-container { background-color: var(--surface); width: 100%; max-width: 480px; border-radius: 20px; box-shadow: 0 10px 25px rgba(10, 25, 47, 0.08); overflow: hidden; }
+        .auth-header { background-color: var(--primary); padding: 40px 20px 20px; text-align: center; }
+        .auth-header h1 { font-size: 2.2rem; font-weight: 700; color: var(--accent); letter-spacing: -1px;}
+        .auth-header p { font-size: 0.95rem; margin-top: 5px; color: var(--border); }
+        .auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin: 0 25px; }
+        .tab-btn-auth { flex: 1; padding: 15px; background: transparent; border: none; font-weight: 600; font-size: 1rem; color: var(--text-muted); cursor: pointer; transition: 0.3s; }
+        .tab-btn-auth.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+        .auth-body { padding: 30px 25px 40px; }
+        .form-section { display: none; animation: fadeIn 0.4s ease; }
+        .form-section.active { display: block; }
+        .password-hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; display: block; line-height: 1.4;}
+        .forgot-password { display: block; text-align: right; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none; margin-top: -5px; margin-bottom: 25px; }
+        .forgot-password:hover { text-decoration: underline; color: var(--accent-hover); }
+        #msg-sucesso { display: none; background-color: var(--success-bg); color: var(--success); padding: 12px; border-radius: 8px; text-align: center; font-size: 0.9rem; margin-bottom: 20px; font-weight: 600; }
+
+        /* APP PRINCIPAL */
+        header.app-header { background-color: var(--primary); padding: 20px; border-bottom: 1px solid var(--primary-hover); display: flex; justify-content: space-between; align-items: center; }
+        .app-header-text h1 { font-size: 1.6rem; font-weight: 700; color: var(--accent); letter-spacing: -0.5px;}
+        .app-header-text p { font-size: 0.85rem; color: var(--border); font-weight: 500;}
+        .btn-logout { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
+        .btn-logout:hover { background-color: rgba(255, 193, 7, 0.1); }
+
+        nav.app-nav { display: flex; background-color: var(--surface); padding: 10px 15px; overflow-x: auto; gap: 10px; border-bottom: 1px solid var(--border); scrollbar-width: none; }
+        nav.app-nav::-webkit-scrollbar { display: none; } 
+        .tab-btn-app { flex: 1; min-width: 105px; padding: 10px 15px; border: none; background: transparent; color: var(--text-muted); font-weight: 600; font-size: 0.9rem; cursor: pointer; border-radius: 100px; transition: all 0.3s; }
+        .tab-btn-app.active { background-color: var(--primary); color: var(--surface); }
+        
+        .tab-content { display: none; padding: 25px 20px; max-width: 700px; margin: 0 auto; animation: fadeIn 0.4s ease;}
+        .tab-content.active { display: block; }
+
+        .card { background-color: var(--surface); padding: 20px; margin-bottom: 20px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: all 0.2s ease; border-left: 5px solid var(--primary); }
+        .card.alert { border-left-color: var(--danger); background-color: var(--danger-bg); }
+        .card.warning { border-left-color: var(--accent); }
+        .card.inativo { opacity: 0.6; filter: grayscale(100%); background-color: #e5e7eb; border-left-color: #9ca3af; }
+        
+        .card strong { color: var(--text-main); font-size: 1.05rem; }
+        .card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-top: 4px;}
+
+        h2.section-title { margin-bottom: 20px; font-size: 1.25rem; font-weight: 700; color: var(--text-main); border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 4px;}
+        
+        ul.list-clean { list-style-type: none; padding-left: 0; margin-top: 15px;}
+        ul.list-clean li { padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 0.95rem; display: flex; align-items: center; justify-content: space-between;}
+        ul.list-clean li:last-child { border-bottom: none; }
+        
+        .task-done { background-color: var(--success-bg); padding: 10px; border-radius: 12px; border: none !important; margin-bottom: 5px;}
+        .status-tag { display: block; font-size: 0.85rem; font-weight: bold; margin-top: 10px; }
+
+        /* BOTOES E MODAIS */
+        .btn-main { background-color: var(--accent); color: var(--primary); border: none; padding: 14px 20px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; width: 100%; margin-top: 15px; transition: all 0.2s; box-shadow: 0 4px 6px rgba(255, 193, 7, 0.3); }
+        .btn-main:hover { background-color: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 8px rgba(255, 193, 7, 0.4); }
+        .btn-outline { background-color: transparent; color: var(--primary); border: 1px solid var(--primary); margin-top: 15px; padding: 8px 16px; font-size: 0.9rem; font-weight: 600; width: auto; display: inline-block; cursor: pointer; border-radius: 8px; transition: 0.2s; }
+        .btn-outline:hover { background-color: var(--border); }
+        .btn-danger { background-color: var(--danger-bg); color: var(--danger); border: none; font-weight: 600; margin-top: 15px; padding: 12px; width: 100%; border-radius: 10px; cursor: pointer; transition: 0.2s;}
+        .btn-success { background-color: var(--success-bg); color: var(--success); border: none; font-weight: 600; margin-top: 15px; padding: 12px; width: 100%; border-radius: 10px; cursor: pointer;}
+        
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 25, 47, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; overflow-y: auto; padding: 20px 0; }
+        .modal { background: var(--surface); padding: 30px 25px; border-radius: 20px; width: 90%; max-width: 450px; position: relative; margin: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); animation: slideUp 0.3s ease;}
+        .close-btn { position: absolute; top: 15px; right: 20px; cursor: pointer; font-size: 1.8rem; border: none; background: none; color: var(--text-muted); transition: 0.2s;}
+        
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600; color: var(--text-main);}
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; background-color: var(--bg-color); color: var(--text-main); transition: all 0.2s; resize: vertical; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background-color: var(--surface); box-shadow: 0 0 0 4px rgba(10, 25, 47, 0.1); }
+        .flex-row { display: flex; gap: 10px; align-items: flex-start; }
+        .flex-1 { flex: 1; }
+
+        /* GRÁFICOS */
+        .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 15px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!-- TELA 1: AUTENTICAÇÃO -->
+    <!-- ========================================== -->
+    <div id="auth-view" class="auth-wrapper">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>CareBridge</h1>
+                <p>O hub de saúde da sua família</p>
+            </div>
+            <div class="auth-tabs">
+                <button class="tab-btn-auth active" onclick="mudarAbaAuth('login')">Entrar</button>
+                <button class="tab-btn-auth" onclick="mudarAbaAuth('cadastro')">Criar Conta</button>
+            </div>
+            <div class="auth-body">
+                <div id="msg-sucesso"></div>
+
+                <div id="form-login" class="form-section active">
+                    <div class="form-group"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com"></div>
+                    <div class="form-group"><label>Senha</label><input type="password" id="login-senha" placeholder="••••••••"></div>
+                    <a href="#" class="forgot-password" onclick="recuperarSenha()">Esqueci minha senha</a>
+                    <button class="btn-main" onclick="fazerLogin()">Acessar Painel</button>
+                </div>
+
+                <div id="form-cadastro" class="form-section">
+                    <div class="form-group"><label>Nome Completo</label><input type="text" id="cad-nome"></div>
+                    <div class="flex-row">
+                        <div class="form-group flex-1"><label>CPF</label><input type="text" id="cad-cpf" maxlength="14" oninput="mascaraCPF(this)"></div>
+                        <div class="form-group flex-1"><label>Nascimento</label><input type="date" id="cad-nascimento"></div>
+                    </div>
+                    <div class="form-group"><label>E-mail</label><input type="email" id="cad-email"></div>
+                    <div class="form-group"><label>Criar Senha</label><input type="password" id="cad-senha"><span class="password-hint">10+ caracteres, letras, números e @#$!</span></div>
+                    <div class="form-group"><label>Confirmar Senha</label><input type="password" id="cad-confirma"></div>
+                    <button class="btn-main" onclick="fazerCadastro()">Finalizar Cadastro</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TELA 2: O APLICATIVO -->
+    <!-- ========================================== -->
+    <div id="app-view" style="display: none;">
+        
+        <header class="app-header">
+            <div class="app-header-text">
+                <h1>CareBridge</h1><p>Painel do Administrador</p>
+            </div>
+            <button class="btn-logout" onclick="fazerLogout()">Sair da Conta</button>
+        </header>
+
+        <nav class="app-nav">
+            <button class="tab-btn-app active" onclick="openTabApp('timeline')">Linha do Tempo</button>
+            <button class="tab-btn-app" onclick="openTabApp('saude')">Saúde</button>
+            <button class="tab-btn-app" onclick="openTabApp('gestao')">Turnos</button>
+            <button class="tab-btn-app" onclick="openTabApp('relatorios')">Relatórios</button>
+            <button class="tab-btn-app" onclick="openTabApp('configuracoes')">Configurações</button>
+        </nav>
+
+        <!-- ABA 1: LINHA DO TEMPO -->
+        <main id="timeline" class="tab-content active">
+            <h2 class="section-title">Últimas Atualizações</h2>
+            <div id="timeline-feed">
+                <div class="card warning"><strong>⚠️ Alerta de Sistema</strong><p>Bem-vindo ao CareBridge! O painel está pronto para uso.</p></div>
+            </div>
+        </main>
+
+        <!-- ABA 2: SAÚDE E PRONTUÁRIO -->
+        <main id="saude" class="tab-content">
+            <h2 class="section-title">Prontuário Unificado</h2>
+            
+            <div class="card">
+                <strong>Sinais Vitais</strong>
+                <ul class="list-clean" id="lista-vitais"></ul>
+                <button class="btn-outline" style="width: 100%;" onclick="openModal('modal-vitais')">Registrar Sinal Vital +</button>
+            </div>
+            
+            <div class="card">
+                <strong>Medicamentos Ativos</strong>
+                <ul class="list-clean" id="lista-medicamentos"></ul>
+                <button class="btn-outline" style="width: 100%;" onclick="openModal('modal-medicamento')">Adicionar Medicamento</button>
+            </div>
+        </main>
+
+        <!-- ABA 3: GESTÃO DE TURNOS -->
+        <main id="gestao" class="tab-content">
+            <h2 class="section-title">Escala Operacional</h2>
+            
+            <div class="card" style="border-left-color: var(--text-muted); background-color: #f8fafc;">
+                <strong>Planejamento Estrutural</strong>
+                <p>Configure a rotina semanal e os horários das tarefas.</p>
+                <button class="btn-outline" style="width: 100%; border-style: dashed;" onclick="openModal('modal-itinerario')">+ Configurar Novo Turno</button>
+            </div>
+
+            <div class="card">
+                <strong>Rotina Pendente</strong>
+                <ul class="list-clean" id="lista-tarefas"></ul>
+                <button class="btn-main" onclick="abrirModalCheckin()">📷 Fazer Check-in de Tarefa</button>
+            </div>
+        </main>
+
+        <!-- ABA 4: RELATÓRIOS (GRÁFICOS) -->
+        <main id="relatorios" class="tab-content">
+            <h2 class="section-title">Evolução Clínica</h2>
+            <div id="charts-container">
+                <!-- Gráficos gerados dinamicamente via JS -->
+            </div>
+        </main>
+
+        <!-- ABA 5: CONFIGURAÇÕES -->
+        <main id="configuracoes" class="tab-content">
+            <h2 class="section-title">Ajustes do Sistema</h2>
+            <div class="card">
+                <strong>Gerenciamento de Usuários</strong>
+                <div id="lista-usuarios">
+                    <div class="card" data-admin="true" style="border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top: 15px;">
+                        <strong>Você (Administrador)</strong>
+                        <p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">admin@carebridge.com.br</span> • <span class="user-tel">(11) 99999-0000</span></p>
+                        <button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>
+                    </div>
+                    <div class="card" id="card-joao" style="border-left: 3px solid var(--border); box-shadow: none; padding: 15px;">
+                        <strong>Sr. João (Paciente / Idoso)</strong>
+                        <p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">joao@email.com</span> • <span class="user-tel"></span></p>
+                        <p class="status-tag" style="display: none; color: var(--danger);"></p>
+                        <button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>
+                    </div>
+                </div>
+                <button class="btn-main" onclick="openModal('modal-usuario')">Convidar Novo Usuário +</button>
+            </div>
+
+            <div class="card">
+                <strong>Parâmetros de Sinais Vitais</strong>
+                <p>Edite os limites para alertas automáticos.</p>
+                <ul class="list-clean" id="lista-config-vitais"></ul>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAIS DO APLICATIVO -->
+    <!-- ========================================================================= -->
+
+    <!-- Modal: Configurar Turno -->
+    <div id="modal-itinerario" class="modal-overlay">
+        <div class="modal"><button class="close-btn" onclick="closeModal('modal-itinerario')">&times;</button>
+            <h3 style="margin-bottom: 20px;">Configurar Turno</h3>
+            <div class="flex-row">
+                <div class="form-group flex-1">
+                    <label>Período</label>
+                    <select id="itin-nome"><option value="Manhã">Manhã</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option></select>
+                </div>
+                <div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div>
+            </div>
+            <div class="flex-row">
+                <div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div>
+                <div class="form-group flex-1">
+                    <label>Frequência</label>
+                    <select id="itin-freq" onchange="verificarFrequencia()">
+                        <option value="Diariamente">Diariamente</option>
+                        <option value="A cada X horas">A cada X horas</option>
+                        <option value="Semanalmente">Semanalmente</option>
+                        <option value="Mensalmente">Mensalmente</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" id="grupo-itin-horas" style="display: none;">
+                <label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8">
+            </div>
+            <div class="form-group">
+                <label>Fim da Repetição</label>
+                <select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser excluído)</option><option value="data">Até data específica</option><option value="qtd">Por quantidade</option></select>
+            </div>
+            <div class="form-group" id="grupo-itin-fim" style="display: none;">
+                <input type="text" id="itin-fim-valor" placeholder="">
+            </div>
+            <div class="form-group">
+                <label>Tarefas (Separe por vírgula)</label>
+                <textarea id="itin-tarefas" rows="3" placeholder="Ex: Antibiótico 500mg, Fisioterapia, Banho"></textarea>
+            </div>
+            <button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button>
+        </div>
+    </div>
+
+    <!-- Modal: Sinais Vitais -->
+    <div id="modal-vitais" class="modal-overlay">
+        <div class="modal"><button class="close-btn" onclick="closeModal('modal-vitais')">&times;</button>
+            <h3 style="margin-bottom: 20px;">Registrar Sinal Vital</h3>
+            <div class="form-group"><label>Sinal Vital</label><select id="vital-tipo"></select><span class="password-hint" id="vital-hint"></span></div>
+            <div class="form-group"><label>Resultado Medido</label><input type="text" id="vital-valor" placeholder="Ex: 120/80 ou 95"></div>
+            <div class="form-group"><label>Observações (Opcional)</label><input type="text" id="vital-obs" placeholder="Ex: Paciente estava deitado"></div>
+            <button class="btn-main" onclick="salvarSinalVital()">Salvar Medição</button>
+        </div>
+    </div>
+
+    <!-- Modal: Medicamentos -->
+    <div id="modal-medicamento" class="modal-overlay">
+        <div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button>
+            <h3 style="margin-bottom: 20px;">Novo Medicamento</h3>
+            <div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div>
+            <div class="form-group"><label>Horário(s)</label><input type="text" id="med-hora" placeholder="Ex: 08:00, 14:00"></div>
+            <div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div>
+            <button class="btn-main" onclick="salvarMedicamento()">Confirmar</button>
+        </div>
+    </div>
+    
+    <!-- Modal: Check-in Turno -->
+    <div id="modal-checkin" class="modal-overlay">
+        <div class="modal"><button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button>
+            <h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3>
+            <div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div>
+            <div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div>
+            <div class="form-group"><label>Comprovante (Foto):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div>
+            <button class="btn-main" onclick="salvarCheckin()">Concluir Tarefa</button>
+        </div>
+    </div>
+
+    <!-- Modal: Convidar Usuário -->
+    <div id="modal-usuario" class="modal-overlay">
+        <div class="modal"><button class="close-btn" onclick="closeModal('modal-usuario')">&times;</button>
+            <h3 style="margin-bottom: 20px;">Convidar Usuário</h3>
+            <div class="form-group"><label>Nome Completo</label><input type="text" id="usr-nome"></div>
+            <div class="flex-row">
+                <div class="form-group flex-1"><label>CPF</label><input type="text" id="usr-cpf" maxlength="14" oninput="mascaraCPF(this)"></div>
+                <div class="form-group flex-1"><label>Telefone</label><input type="text" id="usr-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div>
+            </div>
+            <div class="form-group"><label>E-mail</label><input type="email" id="usr-email"></div>
+            <div class="form-group"><label>Perfil</label><select id="usr-perfil"><option>Cuidador</option><option>Observador</option></select></div>
+            <button class="btn-main" onclick="salvarUsuarioApp()">Enviar Convite Seguro</button>
+        </div>
+    </div>
+
+    <!-- Modal: Gerenciar Usuário -->
+    <div id="modal-personalizar" class="modal-overlay">
+        <div class="modal"><button class="close-btn" onclick="closeModal('modal-personalizar')">&times;</button>
+            <h3 style="margin-bottom: 20px;">Gerenciar Cadastro</h3>
+            <div class="form-group"><label>E-mail</label><input type="email" id="edit-email"></div>
+            <div class="form-group"><label>Telefone</label><input type="text" id="edit-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div>
+            <button class="btn-outline" style="width:100%;" onclick="enviarLinkSenha()">✉️ Enviar Link de Redefinição de Senha</button>
+            <button class="btn-main" onclick="salvarPersonalizacao()">Salvar Alterações</button>
+            <div id="secao-inativar">
+                <hr style="margin:25px 0;border-top:1px solid var(--border);">
+                <div style="text-align: center;">
+                    <p id="texto-aviso-status" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">O usuário perderá acesso imediato.</p>
+                    <button id="btn-status-usuario" class="btn-danger" onclick="alternarStatusUsuario()">🚫 Inativar Acesso</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Parâmetros de Sinais Vitais -->
+    <div id="modal-parametro" class="modal-overlay">
+        <div class="modal"><button class="close-btn" onclick="closeModal('modal-parametro')">&times;</button>
+            <h3 style="margin-bottom: 20px;" id="param-titulo">Editar Parâmetro</h3>
+            <!-- Inputs Dinâmicos inseridos via JS -->
+            <div id="param-inputs"></div>
+            <button class="btn-main" onclick="salvarParametro()">Atualizar Referência</button>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- LÓGICA JAVASCRIPT MASTER -->
+    <!-- ========================================================================= -->
+    <script>
+        // --- 1. BASE DE DADOS & ESTADOS ---
+        let taskCounter = 0;
+        let paramSendoEditado = "";
+        let cartaoSendoEditado = null;
+        
+        let referenciasVitais = {
+            "Pressão Arterial": { minSist: 90, maxSist: 130, minDiast: 60, maxDiast: 85, formato: "sist/diast", desc: "90/60 a 130/85 mmHg" },
+            "Glicemia": { min: 70, max: 99, formato: "num", desc: "70 a 99 mg/dL" },
+            "Temperatura": { min: 36.1, max: 37.5, formato: "num", desc: "36.1 a 37.5 °C" },
+            "SpO2 (Saturação)": { min: 95, max: 100, formato: "num", desc: "95% a 100%" },
+            "Frequência Cardíaca": { min: 60, max: 100, formato: "num", desc: "60 a 100 bpm" }
+        };
+
+        // Estrutura para os 5 Gráficos
+        let historicoDados = {};
+        let graficos = {};
+
+        window.onload = () => {
+            carregarOpcoesSinaisVitais();
+            renderizarConfigVitais();
+            inicializarGraficos();
+        };
+
+        // --- 2. VALIDADORES E MÁSCARAS ---
+        function mascaraCPF(c) { let v=c.value.replace(/\D/g,""); v=v.replace(/(\d{3})(\d)/,"$1.$2"); v=v.replace(/(\d{3})(\d)/,"$1.$2"); c.value=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2"); }
+        function mascaraTelefone(c) { let v=c.value.replace(/\D/g,""); v=v.replace(/^(\d{2})(\d)/g,"($1) $2"); c.value=v.replace(/(\d)(\d{4})$/,"$1-$2"); }
+        function validarEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+        function validarCPF(c) { return /^\d{3}\.\d{3}\.\d{3}\-\d{2}$/.test(c); }
+        function validarTelefone(t) { return t.length === 14 || t.length === 15; }
+        function validarSenha(s) { return /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@#$!]).{10,}$/.test(s); }
+
+        // --- 3. AUTENTICAÇÃO ---
+        function mudarAbaAuth(aba) {
+            document.querySelectorAll('.tab-btn-auth').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+            document.getElementById('msg-sucesso').style.display = 'none';
+            if(aba==='login'){ document.querySelectorAll('.tab-btn-auth')[0].classList.add('active'); document.getElementById('form-login').classList.add('active'); }
+            else { document.querySelectorAll('.tab-btn-auth')[1].classList.add('active'); document.getElementById('form-cadastro').classList.add('active'); }
+        }
+
+        function recuperarSenha() {
+            const em = document.getElementById('login-email').value;
+            if(!em || !validarEmail(em)) return alert("⚠️ Insira um e-mail válido para recuperar a senha.");
+            const msg = document.getElementById('msg-sucesso');
+            msg.innerText = `Link de redefinição enviado para ${em}`;
+            msg.style.display = 'block';
+        }
+
+        function abrirPainel() { 
+            document.getElementById('auth-view').style.display='none'; 
+            document.getElementById('app-view').style.display='block'; 
+            window.scrollTo(0,0);
+        }
+
+        function fazerLogout() {
+            if(confirm("Deseja realmente sair da conta?")) {
+                document.getElementById('login-senha').value = '';
+                document.getElementById('cad-senha').value = '';
+                document.getElementById('cad-confirma').value = '';
+                document.getElementById('app-view').style.display='none'; 
+                document.getElementById('auth-view').style.display='flex';
+            }
+        }
+
+        function fazerLogin() {
+            const em = document.getElementById('login-email').value;
+            const sn = document.getElementById('login-senha').value;
+            if(!em || !sn) return alert("⚠️ Preencha e-mail e senha.");
+            if(!validarEmail(em)) return alert("⚠️ E-mail com formato inválido.");
+            abrirPainel();
+        }
+
+        function fazerCadastro() {
+            const nm = document.getElementById('cad-nome').value;
+            const cpf = document.getElementById('cad-cpf').value;
+            const dt = document.getElementById('cad-nascimento').value;
+            const em = document.getElementById('cad-email').value;
+            const sn = document.getElementById('cad-senha').value;
+            const conf = document.getElementById('cad-confirma').value;
+
+            if(!nm || !cpf || !dt || !em || !sn || !conf) return alert("⚠️ Preencha todos os campos.");
+            if(!validarCPF(cpf)) return alert("⚠️ CPF inválido.");
+            if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
+
+            const parts = dt.split('-');
+            const nasc = new Date(parts[0], parts[1]-1, parts[2]);
+            const hoje = new Date();
+            let idade = hoje.getFullYear() - nasc.getFullYear();
+            if(hoje.getMonth() < nasc.getMonth() || (hoje.getMonth() === nasc.getMonth() && hoje.getDate() < nasc.getDate())) idade--;
+            
+            if(idade < 18) return alert("⚠️ Cadastro bloqueado: Necessário ter 18 anos ou mais.");
+            if(!validarSenha(sn)) return alert("⚠️ Senha fraca. Siga os requisitos solicitados.");
+            if(sn !== conf) return alert("⚠️ As senhas digitadas não coincidem.");
+
+            alert("✅ Conta criada com sucesso!");
+            abrirPainel();
+        }
+
+        // --- 4. NAVEGAÇÃO E MODAIS ---
+        function openTabApp(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn-app').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { 
+            document.getElementById(id).style.display = 'none'; 
+            limparFormularios(id); 
+        }
+
+        function limparFormularios(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.querySelectorAll('input').forEach(i => { if(i.type !== 'button') i.value = ''; });
+            modal.querySelectorAll('textarea').forEach(t => t.value = '');
+            // Reseta displays dinâmicos
+            if(modalId === 'modal-itinerario') {
+                document.getElementById('grupo-itin-horas').style.display = 'none';
+                document.getElementById('grupo-itin-fim').style.display = 'none';
+                document.getElementById('itin-freq').selectedIndex = 0;
+                document.getElementById('itin-fim').selectedIndex = 0;
+            }
+        }
+
+        function adicionarNaTimeline(titulo, descricao, alerta = false) {
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const classe = alerta ? 'card alert' : 'card';
+            const flag = alerta ? '🚨 ' : '';
+            const html = `<div class="${classe}" style="animation: fadeIn 0.4s;"><strong>${flag}${titulo} (${time})</strong><p>${descricao}</p></div>`;
+            document.getElementById('timeline-feed').insertAdjacentHTML('afterbegin', html);
+        }
+
+        // --- 5. GRÁFICOS (CHART.JS) ---
+        function inicializarGraficos() {
+            const container = document.getElementById('charts-container');
+            container.innerHTML = '';
+            
+            for(let chave in referenciasVitais) {
+                historicoDados[chave] = { labels: [], dataset1: [], dataset2: [] };
+                
+                // Cria os elementos HTML
+                container.innerHTML += `
+                    <div class="card">
+                        <strong>${chave}</strong>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Evolução das últimas medições</p>
+                        <div class="chart-container"><canvas id="chart-${chave.replace(/\s+/g, '')}"></canvas></div>
+                    </div>
+                `;
+            }
+
+            // Inicializa as instâncias do Chart.js
+            setTimeout(() => {
+                for(let chave in referenciasVitais) {
+                    const ctx = document.getElementById(`chart-${chave.replace(/\s+/g, '')}`).getContext('2d');
+                    let config = { type: 'line', data: { labels: historicoDados[chave].labels, datasets: [] }, options: { responsive: true, maintainAspectRatio: false } };
+                    
+                    if(referenciasVitais[chave].formato === "sist/diast") {
+                        config.data.datasets.push({ label: 'Sistólica', data: historicoDados[chave].dataset1, borderColor: '#d32f2f', backgroundColor: '#d32f2f', tension: 0.3 });
+                        config.data.datasets.push({ label: 'Diastólica', data: historicoDados[chave].dataset2, borderColor: '#1976d2', backgroundColor: '#1976d2', tension: 0.3 });
+                    } else {
+                        config.data.datasets.push({ label: 'Valor', data: historicoDados[chave].dataset1, borderColor: '#ffc107', backgroundColor: '#ffc107', tension: 0.3 });
+                    }
+                    graficos[chave] = new Chart(ctx, config);
+                }
+            }, 100);
+        }
+
+        // --- 6. TURNOS MATEMÁTICOS E CHECK-IN ---
+        function verificarFrequencia() {
+            const freq = document.getElementById('itin-freq').value;
+            document.getElementById('grupo-itin-horas').style.display = (freq === 'A cada X horas') ? 'block' : 'none';
+        }
+        function verificarFimCondicao() {
+            const fim = document.getElementById('itin-fim').value;
+            const grp = document.getElementById('grupo-itin-fim');
+            const input = document.getElementById('itin-fim-valor');
+            if (fim === 'manual') { grp.style.display = 'none'; }
+            else {
+                grp.style.display = 'block';
+                input.type = fim === 'data' ? 'date' : 'number';
+                input.placeholder = fim === 'data' ? '' : 'Ex: 10 vezes';
+            }
+        }
+
+        function salvarItinerario() {
+            const horStr = document.getElementById('itin-horario').value;
+            const freq = document.getElementById('itin-freq').value;
+            const hrExtra = parseInt(document.getElementById('itin-freq-horas').value);
+            const strTarefas = document.getElementById('itin-tarefas').value;
+
+            if(!horStr || !strTarefas) return alert("⚠️ Preencha o horário de início e as tarefas.");
+            if(freq === 'A cada X horas' && (!hrExtra || hrExtra <= 0)) return alert("⚠️ Informe um número válido de horas.");
+
+            let tarefasArray = strTarefas.split(',').map(t => t.trim()).filter(t => t);
+            
+            // LÓGICA DE REPETIÇÃO (Matemática de horas limitadas ao MVP - Max 3 execuções em 24h)
+            let iteracoes = (freq === 'A cada X horas') ? Math.floor(24 / hrExtra) : 1;
+            if(iteracoes > 4) iteracoes = 4; // trava de segurança visual
+            
+            let [h, m] = horStr.split(':').map(Number);
+            
+            for(let i = 0; i < iteracoes; i++) {
+                let horaAtual = (h + (i * (hrExtra || 0))) % 24;
+                let horaFormatada = `${horaAtual.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+                
+                tarefasArray.forEach(tarefa => {
+                    taskCounter++;
+                    let idTarefa = `task-${taskCounter}`;
+                    let label = `${tarefa} (${horaFormatada})`;
+                    
+                    document.getElementById('lista-tarefas').insertAdjacentHTML('beforeend', `
+                        <li id="li-${idTarefa}">
+                            <span>⚙️ <strong>${tarefa}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
+                            <span style="color: var(--accent-hover); font-weight: 600; font-size: 0.85rem;">Pendente</span>
+                        </li>
+                    `);
+                    document.getElementById('checkin-tarefa').insertAdjacentHTML('beforeend', `<option value="${idTarefa}">${label}</option>`);
+                });
+            }
+
+            adicionarNaTimeline(`Novo Turno Configurado`, `Tarefas inseridas com sucesso na escala operacional.`);
+            closeModal('modal-itinerario');
+        }
+
+        function abrirModalCheckin() {
+            if(document.getElementById('checkin-tarefa').options.length === 0) return alert("✅ Todas as tarefas do dia foram concluídas!");
+            openModal('modal-checkin');
+        }
+
+        function salvarCheckin() {
+            const sel = document.getElementById('checkin-tarefa');
+            const idTarefa = sel.value;
+            const nomeT = sel.options[sel.selectedIndex].text;
+            const obs = document.getElementById('checkin-obs').value;
+            const temFoto = document.getElementById('checkin-foto').files.length > 0;
+
+            const li = document.getElementById(`li-${idTarefa}`);
+            li.classList.add('task-done');
+            li.innerHTML = `<span><s>${nomeT}</s> ${obs?`<br><span style="font-size:0.8rem;color:var(--text-main);">Obs: ${obs}</span>`:''}</span> <span style="color: var(--success); font-weight:bold; font-size: 0.85rem;">✔ Concluído ${temFoto? '(📷)':''}</span>`;
+            
+            sel.remove(sel.selectedIndex);
+            adicionarNaTimeline(`Tarefa Concluída`, `A tarefa <strong>${nomeT}</strong> foi finalizada. ${obs ? `Obs: ${obs}` : ''}`);
+            closeModal('modal-checkin');
+        }
+
+        // --- 7. SINAIS VITAIS, REFERÊNCIAS E MEDICAMENTOS ---
+        function carregarOpcoesSinaisVitais() {
+            const sel = document.getElementById('vital-tipo');
+            sel.innerHTML = '';
+            for (let chave in referenciasVitais) sel.innerHTML += `<option value="${chave}">${chave}</option>`;
+            sel.addEventListener('change', (e) => { document.getElementById('vital-hint').innerText = `Referência segura: ${referenciasVitais[e.target.value].desc}`; });
+            document.getElementById('vital-hint').innerText = `Referência segura: ${referenciasVitais["Pressão Arterial"].desc}`;
+        }
+
+        function renderizarConfigVitais() {
+            const ul = document.getElementById('lista-config-vitais');
+            ul.innerHTML = '';
+            for (let chave in referenciasVitais) {
+                ul.innerHTML += `
+                <li>
+                    <div style="display: flex; flex-direction: column;"><strong>${chave}</strong><span style="font-size: 0.85rem; color: var(--text-muted);">Referência: ${referenciasVitais[chave].desc}</span></div>
+                    <button class="btn-outline" style="margin-top:0; padding:4px 10px;" onclick="abrirEditarParametro('${chave}')">Editar</button>
+                </li>`;
+            }
+        }
+
+        function abrirEditarParametro(chave) {
+            paramSendoEditado = chave;
+            const ref = referenciasVitais[chave];
+            document.getElementById('param-titulo').innerText = `Editar ${chave}`;
+            const div = document.getElementById('param-inputs');
+            div.innerHTML = '';
+
+            if(ref.formato === "sist/diast") {
+                div.innerHTML = `
+                    <div class="flex-row">
+                        <div class="form-group flex-1"><label>Mín Sistólica</label><input type="number" id="p-minsist" value="${ref.minSist}"></div>
+                        <div class="form-group flex-1"><label>Máx Sistólica</label><input type="number" id="p-maxsist" value="${ref.maxSist}"></div>
+                    </div>
+                    <div class="flex-row">
+                        <div class="form-group flex-1"><label>Mín Diastólica</label><input type="number" id="p-mindiast" value="${ref.minDiast}"></div>
+                        <div class="form-group flex-1"><label>Máx Diastólica</label><input type="number" id="p-maxdiast" value="${ref.maxDiast}"></div>
+                    </div>`;
+            } else {
+                div.innerHTML = `
+                    <div class="flex-row">
+                        <div class="form-group flex-1"><label>Valor Mínimo</label><input type="number" step="0.1" id="p-min" value="${ref.min}"></div>
+                        <div class="form-group flex-1"><label>Valor Máximo</label><input type="number" step="0.1" id="p-max" value="${ref.max}"></div>
+                    </div>`;
+            }
+            openModal('modal-parametro');
+        }
+
+        function salvarParametro() {
+            const ref = referenciasVitais[paramSendoEditado];
+            if(ref.formato === "sist/diast") {
+                ref.minSist = parseInt(document.getElementById('p-minsist').value);
+                ref.maxSist = parseInt(document.getElementById('p-maxsist').value);
+                ref.minDiast = parseInt(document.getElementById('p-mindiast').value);
+                ref.maxDiast = parseInt(document.getElementById('p-maxdiast').value);
+                ref.desc = `${ref.minSist}/${ref.minDiast} a ${ref.maxSist}/${ref.maxDiast} mmHg`;
+            } else {
+                ref.min = parseFloat(document.getElementById('p-min').value);
+                ref.max = parseFloat(document.getElementById('p-max').value);
+                let un = paramSendoEditado === "Temperatura" ? "°C" : paramSendoEditado === "Glicemia" ? "mg/dL" : paramSendoEditado === "Frequência Cardíaca" ? "bpm" : "%";
+                ref.desc = `${ref.min} a ${ref.max} ${un}`;
+            }
+            alert(`✅ Parâmetros de ${paramSendoEditado} atualizados.`);
+            renderizarConfigVitais();
+            carregarOpcoesSinaisVitais(); // Atualiza os hints
+            closeModal('modal-parametro');
+        }
+
+        function salvarSinalVital() {
+            const tipo = document.getElementById('vital-tipo').value;
+            let valor = document.getElementById('vital-valor').value;
+            const obs = document.getElementById('vital-obs').value;
+            if(!valor) return alert("⚠️ Preencha o valor medido.");
+
+            let foraRef = false, ref = referenciasVitais[tipo], s = null, d = null, num = null;
+            const horaStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            try {
+                if (ref.formato === "sist/diast") {
+                    let p = valor.split('/');
+                    if (p.length === 2) {
+                        s = parseInt(p[0]); d = parseInt(p[1]);
+                        if (s < ref.minSist || s > ref.maxSist || d < ref.minDiast || d > ref.maxDiast) foraRef = true;
+                    } else { return alert("⚠️ Formato inválido. Use Ex: 120/80"); }
+                } else {
+                    num = parseFloat(valor.replace(',', '.'));
+                    if (num < ref.min || num > ref.max) foraRef = true;
+                }
+            } catch(e) {}
+
+            let txtAlerta = foraRef ? `Atenção Clínica: ${tipo} (${valor}) fora da referência segura!` : `Sinal vital ${tipo} registrado: ${valor}.`;
+            if (obs) txtAlerta += ` <br><em>Obs: ${obs}</em>`;
+            adicionarNaTimeline(`Medição de ${tipo}`, txtAlerta, foraRef);
+            if(foraRef) alert(`🚨 ALERTA MÉDICO: A medição de ${tipo} está fora da referência segura configurada (${ref.desc}).`);
+
+            let cor = foraRef ? 'var(--danger)' : 'var(--text-main)';
+            document.getElementById('lista-vitais').innerHTML += `<li><span style="color: var(--text-muted); font-size: 0.85rem;">${horaStr}</span> <span>${tipo}: <strong style="color: ${cor}">${valor}</strong> <br><span style="font-size:0.8rem; color:var(--text-muted);">${obs? `Obs: ${obs}`:''}</span></span></li>`;
+
+            // Alimentando Gráficos
+            historicoDados[tipo].labels.push(horaStr);
+            if(ref.formato === "sist/diast") { historicoDados[tipo].dataset1.push(s); historicoDados[tipo].dataset2.push(d); } 
+            else { historicoDados[tipo].dataset1.push(num); }
+            graficos[tipo].update();
+
+            closeModal('modal-vitais');
+        }
+
+        function salvarMedicamento() {
+            const nm = document.getElementById('med-nome').value;
+            const hr = document.getElementById('med-hora').value;
+            const obs = document.getElementById('med-obs').value;
+            if(!nm || !hr) return alert("⚠️ Preencha nome e horário.");
+            
+            document.getElementById('lista-medicamentos').innerHTML += `<li><div><strong>${nm}</strong> <br><span style="font-size:0.8rem; color:var(--text-muted);">${obs? `Obs: ${obs}`:''}</span></div> <span style="color: var(--primary); font-weight:600;">${hr}</span></li>`;
+            adicionarNaTimeline(`Medicação Cadastrada`, `${nm} programado para as ${hr}. ${obs? `Obs: ${obs}`:''}`);
+            closeModal('modal-medicamento');
+        }
+
+        // --- 8. GERENCIAMENTO DE USUÁRIOS ---
+        function salvarUsuarioApp() {
+            const nm = document.getElementById('usr-nome').value;
+            const cpf = document.getElementById('usr-cpf').value;
+            const tel = document.getElementById('usr-telefone').value;
+            const em = document.getElementById('usr-email').value;
+            
+            if(!nm || !cpf || !tel || !em) return alert("⚠️ Preencha todos os campos.");
+            if(!validarCPF(cpf)) return alert("⚠️ CPF inválido.");
+            if(!validarTelefone(tel)) return alert("⚠️ Telefone incompleto.");
+            if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
+
+            alert(`✅ Convite seguro enviado para ${em}.`);
+            
+            const nCard = document.createElement('div'); 
+            nCard.className = 'card';
+            nCard.style = 'border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top:15px;';
+            nCard.innerHTML = `<strong>${nm}</strong><p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">${em}</span> • <span class="user-tel">${tel}</span></p><p class="status-tag" style="display: block; color: var(--accent-hover);">⏳ Aguardando aceite</p><button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>`;
+            document.getElementById('lista-usuarios').appendChild(nCard);
+            closeModal('modal-usuario');
+        }
+
+        function abrirPersonalizar(btn) {
+            cartaoSendoEditado = btn.closest('.card');
+            const em = cartaoSendoEditado.querySelector('.user-email').innerText;
+            const tl = cartaoSendoEditado.querySelector('.user-tel').innerText;
+            
+            document.getElementById('edit-email').value = em;
+            document.getElementById('edit-telefone').value = tl;
+            
+            const isAdm = cartaoSendoEditado.getAttribute('data-admin') === 'true';
+            document.getElementById('secao-inativar').style.display = isAdm ? 'none' : 'block';
+
+            if(!isAdm) {
+                const btnStat = document.getElementById('btn-status-usuario');
+                const txt = document.getElementById('texto-aviso-status');
+                if(cartaoSendoEditado.classList.contains('inativo')) {
+                    btnStat.className = 'btn-success'; btnStat.innerText = '✅ Reativar Acesso'; txt.innerText = 'Usuário voltará a ter acesso.';
+                } else {
+                    btnStat.className = 'btn-danger'; btnStat.innerText = '🚫 Inativar Acesso'; txt.innerText = 'Usuário perderá acesso imediato.';
+                }
+            }
+            openModal('modal-personalizar');
+        }
+
+        function enviarLinkSenha() {
+            const em = document.getElementById('edit-email').value;
+            if(!em || !validarEmail(em)) return alert("⚠️ E-mail atual é inválido para recebimento do link.");
+            alert(`✅ Um link de redefinição de senha foi enviado para ${em}.`);
+        }
+
+        function salvarPersonalizacao() {
+            const em = document.getElementById('edit-email').value;
+            const tl = document.getElementById('edit-telefone').value;
+            if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
+            if(tl && !validarTelefone(tl)) return alert("⚠️ Telefone inválido.");
+
+            cartaoSendoEditado.querySelector('.user-email').innerText = em;
+            cartaoSendoEditado.querySelector('.user-tel').innerText = tl;
+            
+            alert("✅ Cadastro atualizado com sucesso!");
+            closeModal('modal-personalizar');
+        }
+
+        function alternarStatusUsuario() {
+            const inativo = cartaoSendoEditado.classList.contains('inativo');
+            let tag = cartaoSendoEditado.querySelector('.status-tag');
+            
+            if(inativo && confirm("Deseja restaurar o acesso deste usuário?")) {
+                cartaoSendoEditado.classList.remove('inativo');
+                if(tag) tag.style.display = 'none';
+            } else if (!inativo && confirm("Deseja bloquear o acesso deste usuário imediatamente?")) {
+                cartaoSendoEditado.classList.add('inativo');
+                if(!tag) {
+                    tag = document.createElement('p'); tag.className = 'status-tag'; 
+                    tag.style = "display: block; color: var(--danger);";
+                    cartaoSendoEditado.insertBefore(tag, cartaoSendoEditado.querySelector('button'));
+                }
+                tag.style.display = 'block'; tag.style.color = 'var(--danger)'; tag.innerText = '🚫 Acesso Inativado';
+            }
+            closeModal('modal-personalizar');
+        }
+    </script>
+</body>
+</html>
