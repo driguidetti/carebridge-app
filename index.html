@@ -112,9 +112,7 @@
 </head>
 <body>
 
-    <!-- ========================================== -->
     <!-- TELA 1: AUTENTICAÇÃO -->
-    <!-- ========================================== -->
     <div id="auth-view" class="auth-wrapper">
         <div class="auth-container">
             <div class="auth-header">
@@ -150,9 +148,7 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
     <!-- TELA 2: O APLICATIVO -->
-    <!-- ========================================== -->
     <div id="app-view" style="display: none;">
         
         <header class="app-header">
@@ -203,11 +199,8 @@
                 <strong>Gerenciamento de Usuários</strong>
                 <div id="lista-usuarios">
                     <div class="card" data-admin="true" style="border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top: 15px;">
-                       <strong id="admin-nome">Carregando seus dados...</strong>
-<p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email" id="admin-email">carregando...</span></p>
-                        <button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>
-                    </div>
-                        <p class="status-tag" style="display: none; color: var(--danger);"></p>
+                        <strong id="admin-nome">Carregando seus dados...</strong>
+                        <p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email" id="admin-email">carregando...</span></p>
                         <button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>
                     </div>
                 </div>
@@ -236,12 +229,11 @@
     <!-- ========================================================================= -->
     <script>
         // ---------------------------------------------------------
-        // 1. CREDENCIAIS DO SUPABASE (COLE AS SUAS AQUI!)
+        // 1. CREDENCIAIS DO SUPABASE
         // ---------------------------------------------------------
         const supabaseUrl = 'https://vlvpffaathuksyqvpkpd.supabase.co'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsdnBmZmFhdGh1a3N5cXZwa3BkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxODk5MTgsImV4cCI6MjEwMjc2NTkxOH0.WnibeFstwbt2CR1lLkS5pB9GaH7slCd_y6pBA1PNdrU';
         
-        // MUDANÇA AQUI: Criamos a variável com o nome clienteSupabase para evitar o conflito!
         const clienteSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         // ---------------------------------------------------------
@@ -267,9 +259,8 @@
             renderizarConfigVitais();
             inicializarGraficos();
 
-            // Usando clienteSupabase
             const { data: { session } } = await clienteSupabase.auth.getSession();
-            if(session) ;
+            if(session) abrirPainel();
         };
 
         // --- VALIDADORES ---
@@ -322,7 +313,6 @@
 
             btn.innerText = "Cadastrando...";
             
-            // Usando clienteSupabase
             const { data, error } = await clienteSupabase.auth.signUp({
                 email: em,
                 password: sn,
@@ -335,7 +325,7 @@
                 alert("❌ Erro ao criar conta: " + error.message);
             } else {
                 alert("✅ Bem-vindo ao CareBridge! Conta criada com sucesso.");
-                ;
+                abrirPainel();
             }
         }
 
@@ -349,7 +339,6 @@
 
             btn.innerText = "Acessando...";
 
-            // Usando clienteSupabase
             const { data, error } = await clienteSupabase.auth.signInWithPassword({
                 email: em,
                 password: sn,
@@ -360,7 +349,7 @@
             if (error) {
                 alert("❌ Acesso Negado: E-mail ou senha incorretos.");
             } else {
-                ;
+                abrirPainel();
             }
         }
 
@@ -377,22 +366,22 @@
             }
         }
 
-     async function abrirPainel() { 
-    document.getElementById('auth-view').style.display='none'; 
-    document.getElementById('app-view').style.display='block'; 
-    window.scrollTo(0,0);
+        async function abrirPainel() { 
+            document.getElementById('auth-view').style.display='none'; 
+            document.getElementById('app-view').style.display='block'; 
+            window.scrollTo(0,0);
 
-    // MÁGICA: Busca os dados reais do usuário logado no Supabase
-    const { data: { user } } = await clienteSupabase.auth.getUser();
-    
-    if (user) {
-        document.getElementById('admin-email').innerText = user.email;
-        // Pega o nome que ele digitou no cadastro
-        if(user.user_metadata && user.user_metadata.full_name) {
-            document.getElementById('admin-nome').innerText = user.user_metadata.full_name + " (Administrador)";
+            const { data: { user } } = await clienteSupabase.auth.getUser();
+            
+            if (user) {
+                document.getElementById('admin-email').innerText = user.email;
+                if(user.user_metadata && user.user_metadata.full_name) {
+                    document.getElementById('admin-nome').innerText = user.user_metadata.full_name + " (Administrador)";
+                } else {
+                    document.getElementById('admin-nome').innerText = "Administrador";
+                }
+            }
         }
-    }
-}
 
         // --- NAVEGAÇÃO E MODAIS ---
         function openTabApp(tabId) {
