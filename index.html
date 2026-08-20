@@ -203,13 +203,10 @@
                 <strong>Gerenciamento de Usuários</strong>
                 <div id="lista-usuarios">
                     <div class="card" data-admin="true" style="border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top: 15px;">
-                        <strong>Você (Administrador)</strong>
-                        <p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">admin@carebridge.com.br</span> • <span class="user-tel">(11) 99999-0000</span></p>
+                       <strong id="admin-nome">Carregando seus dados...</strong>
+<p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email" id="admin-email">carregando...</span></p>
                         <button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>
                     </div>
-                    <div class="card" id="card-joao" style="border-left: 3px solid var(--border); box-shadow: none; padding: 15px;">
-                        <strong>Sr. João (Paciente / Idoso)</strong>
-                        <p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">joao@email.com</span> • <span class="user-tel"></span></p>
                         <p class="status-tag" style="display: none; color: var(--danger);"></p>
                         <button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>
                     </div>
@@ -272,7 +269,7 @@
 
             // Usando clienteSupabase
             const { data: { session } } = await clienteSupabase.auth.getSession();
-            if(session) abrirPainel();
+            if(session) ;
         };
 
         // --- VALIDADORES ---
@@ -338,7 +335,7 @@
                 alert("❌ Erro ao criar conta: " + error.message);
             } else {
                 alert("✅ Bem-vindo ao CareBridge! Conta criada com sucesso.");
-                abrirPainel();
+                ;
             }
         }
 
@@ -363,7 +360,7 @@
             if (error) {
                 alert("❌ Acesso Negado: E-mail ou senha incorretos.");
             } else {
-                abrirPainel();
+                ;
             }
         }
 
@@ -380,11 +377,22 @@
             }
         }
 
-        function abrirPainel() { 
-            document.getElementById('auth-view').style.display='none'; 
-            document.getElementById('app-view').style.display='block'; 
-            window.scrollTo(0,0);
+     async function abrirPainel() { 
+    document.getElementById('auth-view').style.display='none'; 
+    document.getElementById('app-view').style.display='block'; 
+    window.scrollTo(0,0);
+
+    // MÁGICA: Busca os dados reais do usuário logado no Supabase
+    const { data: { user } } = await clienteSupabase.auth.getUser();
+    
+    if (user) {
+        document.getElementById('admin-email').innerText = user.email;
+        // Pega o nome que ele digitou no cadastro
+        if(user.user_metadata && user.user_metadata.full_name) {
+            document.getElementById('admin-nome').innerText = user.user_metadata.full_name + " (Administrador)";
         }
+    }
+}
 
         // --- NAVEGAÇÃO E MODAIS ---
         function openTabApp(tabId) {
