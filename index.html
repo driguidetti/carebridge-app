@@ -68,6 +68,8 @@
         .flex-row { display: flex; gap: 10px; align-items: flex-start; }
         .flex-1 { flex: 1; }
         .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 15px; }
+        .btn-trash { background:transparent; border:none; cursor:pointer; font-size:1.2rem; opacity:0.5; transition:0.2s; padding: 5px; }
+        .btn-trash:hover { opacity:1; transform: scale(1.1); }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -227,6 +229,18 @@
             <button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button>
         </div>
     </div>
+
+    <!-- MODAL DE EXCLUSÃO (NOVO) -->
+    <div id="modal-excluir-rotina" class="modal-overlay">
+        <div class="modal">
+            <h3 style="margin-bottom: 15px;">Excluir Rotina</h3>
+            <p style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.95rem;">Esta tarefa faz parte de uma série de repetições agendadas. O que você deseja fazer?</p>
+            <button class="btn-outline" style="width: 100%; margin-bottom: 10px;" onclick="executarExclusaoRotina('unica')">🗑️ Excluir APENAS esta tarefa</button>
+            <button class="btn-danger" style="width: 100%; margin-bottom: 15px; margin-top: 0;" onclick="executarExclusaoRotina('serie')">🚨 Excluir TODA a série futura</button>
+            <button class="btn-outline" style="width: 100%; border: none; color: var(--text-muted);" onclick="closeModal('modal-excluir-rotina')">Cancelar</button>
+        </div>
+    </div>
+
     <div id="modal-vitais" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-vitais')">&times;</button><h3 style="margin-bottom: 20px;">Registrar Sinal Vital</h3><div class="form-group"><label>Sinal Vital</label><select id="vital-tipo"></select><span class="password-hint" id="vital-hint"></span></div><div class="form-group"><label>Resultado Medido</label><input type="text" id="vital-valor" placeholder="Ex: 120/80 ou 95"></div><div class="form-group"><label>Observações (Opcional)</label><input type="text" id="vital-obs" placeholder="Ex: Paciente estava deitado"></div><button class="btn-main" onclick="salvarSinalVital()">Salvar Medição</button></div></div>
     <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Novo Medicamento</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário do Primeiro Consumo</label><input type="time" id="med-hora"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
     <div id="modal-checkin" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button><h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3><div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div><div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div><div class="form-group"><label>Comprovante (Foto):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div><button class="btn-main" onclick="salvarCheckin()">Concluir Tarefa</button></div></div>
@@ -255,6 +269,7 @@
         let tempoAtualizacao = 60; // Cronômetro regressivo de tela
         let paramSendoEditado = "";
         let cartaoSendoEditado = null;
+        let rotinaParaExcluir = null; // Controle de exclusão
         
         let referenciasVitais = {
             "Pressão Arterial": { minSist: 90, maxSist: 130, minDiast: 60, maxDiast: 85, formato: "sist/diast", desc: "90/60 a 130/85 mmHg" },
@@ -543,7 +558,7 @@
             }, 100);
         }
 
-        // --- TURNOS MATEMÁTICOS E CHECK-IN ---
+        // --- TURNOS MATEMÁTICOS, CHECK-IN E LIXEIRA ---
         function verificarFrequencia() {
             const freq = document.getElementById('itin-freq').value;
             const selectFim = document.getElementById('itin-fim');
@@ -589,6 +604,16 @@
         function limparFiltroRotina() {
             document.getElementById('filtro-data-rotina').value = '';
             renderizarRotinas();
+        }
+
+        // Função utilitária para calcular próximas datas
+        function calcularProximaData(dataAtual, freq, hrExtra) {
+            let nd = new Date(dataAtual);
+            if (freq === 'A cada X horas') nd.setHours(nd.getHours() + (hrExtra || 0));
+            else if (freq === 'Diariamente') nd.setDate(nd.getDate() + 1);
+            else if (freq === 'Mensal') nd.setMonth(nd.getMonth() + 1);
+            else if (freq === 'Anual') nd.setFullYear(nd.getFullYear() + 1);
+            return nd;
         }
 
         // NOVA FUNÇÃO: O Cérebro das Cores e Filtro
@@ -641,9 +666,12 @@
                         </li>`;
                 } else {
                     ul.innerHTML += `
-                        <li data-id="${rotina.id}" style="border-left: 4px solid transparent; padding-left: 10px; transition: all 0.3s ease;">
-                            <span>⚙️ <strong>${rotina.nome}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
-                            <span class="status-texto" style="font-weight: 600; font-size: 0.85rem;"></span>
+                        <li data-id="${rotina.id}" style="border-left: 4px solid transparent; padding-left: 10px; transition: all 0.3s ease; display:flex; justify-content:space-between; align-items: center;">
+                            <div>
+                                <span>⚙️ <strong>${rotina.nome}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
+                                <br><span class="status-texto" style="font-weight: 600; font-size: 0.85rem;"></span>
+                            </div>
+                            <button class="btn-trash" onclick="abrirModalExclusao('${rotina.id}')" title="Excluir rotina">🗑️</button>
                         </li>`;
                     selCheckin.innerHTML += `<option value="${rotina.id}">${rotina.nome} (${dataCurta} às ${horaFormatada})</option>`;
                 }
@@ -681,8 +709,10 @@
             const dataStr = document.getElementById('itin-data').value;
             const horStr = document.getElementById('itin-horario').value;
             const freq = document.getElementById('itin-freq').value;
-            const hrExtra = parseInt(document.getElementById('itin-freq-horas').value);
+            const hrExtra = parseInt(document.getElementById('itin-freq-horas').value) || 0;
             const strTarefas = document.getElementById('itin-tarefas').value;
+            const fimTipo = document.getElementById('itin-fim').value;
+            const fimValor = document.getElementById('itin-fim-valor').value;
 
             if(!dataStr || !horStr || !strTarefas) return alert("⚠️ Preencha a data, o horário e as tarefas.");
             
@@ -691,26 +721,33 @@
             if (dataBase < new Date()) return alert("⚠️ Bloqueado: Não é possível agendar novas rotinas no passado.");
 
             let tarefasArray = strTarefas.split(',').map(t => t.trim()).filter(t => t);
-            let iteracoes = (freq === 'A cada X horas') ? Math.floor(24 / hrExtra) : 1;
-            if(iteracoes > 4) iteracoes = 4;
+            const groupId = Date.now().toString(); // Identificador único da série
             
-            for(let i = 0; i < iteracoes; i++) {
-                let dataTarefa = new Date(dataBase.getTime() + (i * (hrExtra || 0) * 60 * 60 * 1000));
-                
+            let limitMax = 365; // Trava de segurança para não explodir o navegador
+            let count = 0; 
+            let curDate = new Date(dataBase);
+
+            let condicao = () => {
+                if(freq === 'Único' || fimTipo === 'manual') return count < 1; // Cria apenas 1 inicial
+                if(fimTipo === 'qtd') return count < parseInt(fimValor);
+                if(fimTipo === 'data') return curDate <= new Date(fimValor + "T23:59:59");
+                return false;
+            };
+
+            while(condicao() && count < limitMax) {
                 tarefasArray.forEach(tarefa => {
                     taskCounter++;
                     listaDeRotinas.push({
-                        id: `task-${taskCounter}`,
-                        nome: tarefa,
-                        dataHora: dataTarefa,
-                        status: 'pendente',
-                        obs: ''
+                        id: `task-${taskCounter}`, groupId: groupId, nome: tarefa, dataHora: new Date(curDate), status: 'pendente', obs: '',
+                        freq: freq, hrExtra: hrExtra, fimTipo: fimTipo, tarefaBase: tarefa
                     });
                 });
+                curDate = calcularProximaData(curDate, freq, hrExtra);
+                count++;
             }
             
             renderizarRotinas();
-            adicionarNaTimeline(`Novas Rotinas Agendadas`, `Foram criadas rotinas a partir de ${dataBase.toLocaleDateString('pt-BR')}.`);
+            adicionarNaTimeline(`Novas Rotinas Agendadas`, `Configuração salva a partir de ${dataBase.toLocaleDateString('pt-BR')}.`);
             closeModal('modal-itinerario');
         }
 
@@ -729,10 +766,50 @@
                 rotina.status = 'concluido';
                 rotina.obs = obs;
                 adicionarNaTimeline(`Tarefa Concluída`, `A tarefa <strong>${rotina.nome}</strong> foi finalizada. ${obs ? `Obs: ${obs}` : ''}`);
+                
+                // MÁGICA DA REPETIÇÃO MANUAL: cria a próxima exatamente no check-in
+                if (rotina.freq !== 'Único' && rotina.fimTipo === 'manual') {
+                    const proxData = calcularProximaData(rotina.dataHora, rotina.freq, rotina.hrExtra);
+                    taskCounter++;
+                    listaDeRotinas.push({
+                        id: `task-${taskCounter}`, groupId: rotina.groupId, nome: rotina.tarefaBase, dataHora: proxData, status: 'pendente', obs: '',
+                        freq: rotina.freq, hrExtra: rotina.hrExtra, fimTipo: rotina.fimTipo, tarefaBase: rotina.tarefaBase
+                    });
+                }
             }
             
             renderizarRotinas();
             closeModal('modal-checkin');
+        }
+
+        // --- SISTEMA DE EXCLUSÃO DE ROTINAS ---
+        function abrirModalExclusao(id) {
+            rotinaParaExcluir = listaDeRotinas.find(r => r.id === id);
+            if(!rotinaParaExcluir) return;
+            
+            // Verifica se pertence a uma série ou tem repetição manual infinita configurada
+            const repetiu = listaDeRotinas.filter(r => r.groupId === rotinaParaExcluir.groupId).length > 1 || rotinaParaExcluir.fimTipo === 'manual';
+            
+            if (repetiu) { 
+                openModal('modal-excluir-rotina'); 
+            } else { 
+                if(confirm(`Deseja excluir a tarefa pontual "${rotinaParaExcluir.nome}"?`)) executarExclusaoRotina('unica'); 
+            }
+        }
+
+        function executarExclusaoRotina(modo) {
+            if(!rotinaParaExcluir) return;
+            if(modo === 'serie') {
+                // Filtra tudo que é dessa série, EXCETO se já foi concluído (para não perder o histórico do paciente)
+                listaDeRotinas = listaDeRotinas.filter(r => r.groupId !== rotinaParaExcluir.groupId || r.status === 'concluido');
+                adicionarNaTimeline('Série Excluída', `A série de tarefas futuras para "${rotinaParaExcluir.nome}" foi apagada.`);
+            } else {
+                listaDeRotinas = listaDeRotinas.filter(r => r.id !== rotinaParaExcluir.id);
+                adicionarNaTimeline('Rotina Excluída', `A tarefa pontual "${rotinaParaExcluir.nome}" foi apagada.`);
+            }
+            renderizarRotinas(); 
+            closeModal('modal-excluir-rotina'); 
+            rotinaParaExcluir = null;
         }
 
         // --- SINAIS VITAIS, REFERÊNCIAS E MEDICAMENTOS ---
@@ -896,7 +973,7 @@
         }
 
         // --- GERENCIAMENTO DE USUÁRIOS ---
-        function salvarUsuarioApp() {
+        async function salvarUsuarioApp() {
             const nm = document.getElementById('usr-nome').value;
             const cpf = document.getElementById('usr-cpf').value;
             const tel = document.getElementById('usr-telefone').value;
@@ -914,22 +991,24 @@
                 if(qtdAdmins >= 2) return alert("⚠️ Limite atingido: O plano atual permite apenas 2 Administradores.");
             }
 
-            alert(`✅ Usuário ${nm} cadastrado com sucesso!`);
-            
-            const isAdmStr = prf === 'Administrador' ? 'true' : 'false';
-            const displayNome = prf === 'Administrador' ? `${nm} (Administrador)` : nm;
+            // TRAVA DE DUPLICIDADE (Local na tela para impedir clones)
+            const cards = Array.from(document.querySelectorAll('#lista-usuarios .card'));
+            const duplicado = cards.some(c => c.getAttribute('data-cpf') === cpf || c.querySelector('.user-email').innerText === em || c.querySelector('.user-tel').innerText === tel);
+            if(duplicado) return alert("⚠️ Cadastro Bloqueado: Já existe um usuário cadastrado com este E-mail, CPF ou Telefone.");
 
-            const nCard = document.createElement('div'); 
-            nCard.className = 'card';
-            nCard.style = 'border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top:15px;';
-            nCard.setAttribute('data-admin', isAdmStr);
-            nCard.setAttribute('data-cpf', cpf);
-            nCard.setAttribute('data-perfil', prf);
+            // INTEGRAÇÃO REAL COM O SUPABASE
+            const { data, error } = await clienteSupabase.auth.signUp({
+                email: em,
+                password: sn,
+                options: { data: { full_name: nm, cpf: cpf, perfil: prf, telefone: tel } }
+            });
 
-            nCard.innerHTML = `<strong>${displayNome}</strong><p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">${em}</span> • <span class="user-tel">${tel}</span></p><p class="status-tag" style="display: block; color: var(--success);">✅ Acesso Liberado</p><button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>`;
+            if(error) return alert("❌ Erro ao salvar no banco de dados Supabase: " + error.message);
+
+            alert(`✅ Usuário ${nm} cadastrado com sucesso!\n\n⚠️ Atenção: Por medida de segurança (comportamento Serverless), seu acesso atual de administrador foi encerrado e a página será recarregada. Faça login novamente.`);
             
-            document.getElementById('lista-usuarios').appendChild(nCard);
-            closeModal('modal-usuario');
+            // Recarrega a página devido ao auto-login do Supabase em novos signUps.
+            window.location.reload(); 
         }
 
         function salvarNovoSinal() {
