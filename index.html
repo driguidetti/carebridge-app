@@ -507,16 +507,55 @@
         // --- TURNOS MATEMÁTICOS E CHECK-IN ---
         function verificarFrequencia() {
     const freq = document.getElementById('itin-freq').value;
+    const selectFim = document.getElementById('itin-fim');
+    const valorAtualFim = selectFim.value; // Guarda o que estava selecionado
+    
+    // 1. Regra para mostrar o campo "A cada X horas"
     document.getElementById('grupo-itin-horas').style.display = (freq === 'A cada X horas') ? 'block' : 'none';
     
-    // Regra de Ocultação: Se for evento único, não faz sentido ter "Fim da Repetição"
-    const campoFimRepeticao = document.getElementById('itin-fim').closest('.form-group');
-    if(freq === 'Único') {
+    // 2. Regra para o campo "Fim da Repetição"
+    const campoFimRepeticao = selectFim.closest('.form-group');
+    
+    if (freq === 'Único') {
         campoFimRepeticao.style.display = 'none';
         document.getElementById('grupo-itin-fim').style.display = 'none';
     } else {
         campoFimRepeticao.style.display = 'block';
-        verificarFimCondicao(); // Reavalia se o campo extra precisa aparecer
+        
+        // Limpa o menu atual e recria de forma inteligente
+        selectFim.innerHTML = ''; 
+        selectFim.add(new Option('Manual (Até ser excluído)', 'manual'));
+        
+        // Só adiciona a opção "data específica" se for Diário ou em Horas
+        if (freq === 'Diariamente' || freq === 'A cada X horas') {
+            selectFim.add(new Option('Até data específica', 'data'));
+        }
+        
+        // Quantidade serve para todos (menos o Único)
+        selectFim.add(new Option('Por quantidade', 'qtd'));
+
+        // Se a pessoa tinha escolhido "data" e mudou pra "Mensal", voltamos para "manual" para não bugar
+        let opcaoAindaExiste = Array.from(selectFim.options).some(opt => opt.value === valorAtualFim);
+        selectFim.value = opcaoAindaExiste ? valorAtualFim : 'manual';
+
+        // Aciona a verificação do input extra (data/número) para destravar a tela
+        verificarFimCondicao();
+    }
+}
+
+function verificarFimCondicao() {
+    const fim = document.getElementById('itin-fim').value;
+    const freq = document.getElementById('itin-freq').value;
+    const grp = document.getElementById('grupo-itin-fim');
+    const input = document.getElementById('itin-fim-valor');
+    
+    // Trava de segurança extra
+    if (freq === 'Único' || fim === 'manual') { 
+        grp.style.display = 'none'; 
+    } else {
+        grp.style.display = 'block';
+        input.type = (fim === 'data') ? 'date' : 'number';
+        input.placeholder = (fim === 'data') ? '' : 'Ex: 10 vezes';
     }
 }
 
