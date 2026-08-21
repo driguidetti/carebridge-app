@@ -202,9 +202,9 @@
     <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Novo Medicamento</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário do Primeiro Consumo</label><input type="time" id="med-hora"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
     <div id="modal-checkin" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button><h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3><div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div><div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div><div class="form-group"><label>Comprovante (Foto):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div><button class="btn-main" onclick="salvarCheckin()">Concluir Tarefa</button></div></div>
     <div id="modal-parametro" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-parametro')">&times;</button><h3 style="margin-bottom: 20px;" id="param-titulo">Editar Parâmetro</h3><div id="param-inputs"></div><button class="btn-main" onclick="salvarParametro()">Atualizar Referência</button></div></div>
-    <div id="modal-usuario" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-usuario')">&times;</button><h3 style="margin-bottom: 20px;">Cadastrar Novo Usuário</h3><div class="form-group"><label>Nome Completo</label><input type="text" id="usr-nome"></div><div class="flex-row"><div class="form-group flex-1"><label>CPF</label><input type="text" id="usr-cpf" maxlength="14" oninput="mascaraCPF(this)"></div><div class="form-group flex-1"><label>Telefone</label><input type="text" id="usr-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div></div><div class="form-group"><label>E-mail</label><input type="email" id="usr-email"></div><div class="form-group"><label>Definir Senha de Acesso</label><input type="password" id="usr-senha" placeholder="Mínimo 10 caracteres"></div><div class="form-group"><label>Perfil</label><select id="usr-perfil"><option>Cuidador</option><option>Observador</option></select></div><button class="btn-main" onclick="salvarUsuarioApp()">Finalizar Cadastro</button></div></div>
+    <div id="modal-usuario" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-usuario')">&times;</button><h3 style="margin-bottom: 20px;">Cadastrar Novo Usuário</h3><div class="form-group"><label>Nome Completo</label><input type="text" id="usr-nome"></div><div class="flex-row"><div class="form-group flex-1"><label>CPF</label><input type="text" id="usr-cpf" maxlength="14" oninput="mascaraCPF(this)"></div><div class="form-group flex-1"><label>Telefone</label><input type="text" id="usr-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div></div><div class="form-group"><label>E-mail</label><input type="email" id="usr-email"></div><div class="form-group"><label>Definir Senha de Acesso</label><input type="password" id="usr-senha" placeholder="Mínimo 10 caracteres"></div><div class="form-group"><label>Perfil</label><select id="usr-perfil"><option value="Cuidador">Cuidador</option><option value="Observador">Observador</option><option value="Administrador">Administrador</option></select></div><button class="btn-main" onclick="salvarUsuarioApp()">Finalizar Cadastro</button></div></div>
     <div id="modal-novo-sinal" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-novo-sinal')">&times;</button><h3 style="margin-bottom: 20px;">Novo Sinal Vital</h3><div class="form-group"><label>Nome do Sinal (Ex: Nível de Dor)</label><input type="text" id="ns-nome"></div><div class="flex-row"><div class="form-group flex-1"><label>Mínimo Ideal</label><input type="number" step="0.1" id="ns-min"></div><div class="form-group flex-1"><label>Máximo Ideal</label><input type="number" step="0.1" id="ns-max"></div></div><div class="form-group"><label>Unidade de Medida (Ex: mg/dL, bpm)</label><input type="text" id="ns-unidade" placeholder="Opcional"></div><button class="btn-main" onclick="salvarNovoSinal()">Criar Parâmetro</button></div></div>
-    <div id="modal-personalizar" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-personalizar')">&times;</button><h3 style="margin-bottom: 20px;">Gerenciar Cadastro</h3><div class="form-group"><label>E-mail</label><input type="email" id="edit-email"></div><div class="form-group"><label>Telefone</label><input type="text" id="edit-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div><button class="btn-outline" style="width:100%;" onclick="enviarLinkSenha(true)">✉️ Enviar Link de Redefinição de Senha</button><button class="btn-main" onclick="salvarPersonalizacao()">Salvar Alterações</button><div id="secao-inativar"><hr style="margin:25px 0;border-top:1px solid var(--border);"><div style="text-align: center;"><p id="texto-aviso-status" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">O usuário perderá acesso imediato.</p><button id="btn-status-usuario" class="btn-danger" onclick="alternarStatusUsuario()">🚫 Inativar Acesso</button></div></div></div></div>
+    <div id="modal-personalizar" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-personalizar')">&times;</button><h3 style="margin-bottom: 20px;">Gerenciar Cadastro</h3><div class="form-group"><label>Nome</label><input type="text" id="edit-nome"></div><div class="flex-row"><div class="form-group flex-1"><label>CPF</label><input type="text" id="edit-cpf" maxlength="14" oninput="mascaraCPF(this)"></div><div class="form-group flex-1"><label>Perfil</label><select id="edit-perfil"><option value="Cuidador">Cuidador</option><option value="Observador">Observador</option><option value="Administrador">Administrador</option></select></div></div><div class="form-group"><label>E-mail</label><input type="email" id="edit-email"></div><div class="form-group"><label>Telefone</label><input type="text" id="edit-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div><button class="btn-outline" style="width:100%;" onclick="enviarLinkSenha(true)">✉️ Enviar Link de Redefinição de Senha</button><button class="btn-main" onclick="salvarPersonalizacao()">Salvar Alterações</button><div id="secao-inativar"><hr style="margin:25px 0;border-top:1px solid var(--border);"><div style="text-align: center;"><p id="texto-aviso-status" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">O usuário perderá acesso imediato.</p><button id="btn-status-usuario" class="btn-danger" onclick="alternarStatusUsuario()">🚫 Inativar Acesso</button></div></div></div></div>
 
     <!-- ========================================================================= -->
     <!-- LÓGICA JAVASCRIPT MASTER COM SUPABASE -->
@@ -633,63 +633,130 @@ function verificarFimCondicao() {
             document.getElementById('vital-hint').innerText = `Referência segura: ${referenciasVitais["Pressão Arterial"].desc}`;
         }
 
-        function renderizarConfigVitais() {
-            const ul = document.getElementById('lista-config-vitais');
-            ul.innerHTML = '';
-            for (let chave in referenciasVitais) {
-                ul.innerHTML += `
-                <li>
-                    <div style="display: flex; flex-direction: column;"><strong>${chave}</strong><span style="font-size: 0.85rem; color: var(--text-muted);">Referência: ${referenciasVitais[chave].desc}</span></div>
-                    <button class="btn-outline" style="margin-top:0; padding:4px 10px;" onclick="abrirEditarParametro('${chave}')">Editar</button>
-                </li>`;
+        function inicializarGraficos() {
+    const container = document.getElementById('charts-container');
+    container.innerHTML = '';
+    const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
+    
+    for(let chave of padroes) {
+        if(!historicoDados[chave]) historicoDados[chave] = { labels: [], dataset1: [], dataset2: [] };
+        container.innerHTML += `
+            <div class="card">
+                <strong>${chave}</strong>
+                <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Evolução das últimas medições</p>
+                <div class="chart-container"><canvas id="chart-${chave.replace(/\s+/g, '')}"></canvas></div>
+            </div>
+        `;
+    }
+
+    setTimeout(() => {
+        for(let chave of padroes) {
+            const ctx = document.getElementById(`chart-${chave.replace(/\s+/g, '')}`).getContext('2d');
+            let config = { type: 'line', data: { labels: historicoDados[chave].labels, datasets: [] }, options: { responsive: true, maintainAspectRatio: false } };
+            
+            if(referenciasVitais[chave] && referenciasVitais[chave].formato === "sist/diast") {
+                config.data.datasets.push({ label: 'Sistólica', data: historicoDados[chave].dataset1, borderColor: '#d32f2f', backgroundColor: '#d32f2f', tension: 0.3 });
+                config.data.datasets.push({ label: 'Diastólica', data: historicoDados[chave].dataset2, borderColor: '#1976d2', backgroundColor: '#1976d2', tension: 0.3 });
+            } else {
+                config.data.datasets.push({ label: 'Valor', data: historicoDados[chave].dataset1, borderColor: '#ffc107', backgroundColor: '#ffc107', tension: 0.3 });
             }
+            graficos[chave] = new Chart(ctx, config);
         }
+    }, 100);
+}
+
+        function renderizarConfigVitais() {
+    const ul = document.getElementById('lista-config-vitais');
+    ul.innerHTML = '';
+    const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
+    
+    for (let chave in referenciasVitais) {
+        const isPadrao = padroes.includes(chave);
+        const tag = isPadrao ? `<span style="background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 8px;">Padrão</span>` : '';
+        
+        ul.innerHTML += `
+        <li>
+            <div style="display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: center;"><strong>${chave}</strong>${tag}</div>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Referência: ${referenciasVitais[chave].desc}</span>
+            </div>
+            <button class="btn-outline" style="margin-top:0; padding:4px 10px;" onclick="abrirEditarParametro('${chave}')">Editar</button>
+        </li>`;
+    }
+}
 
         function abrirEditarParametro(chave) {
-            paramSendoEditado = chave;
-            const ref = referenciasVitais[chave];
-            document.getElementById('param-titulo').innerText = `Editar ${chave}`;
-            const div = document.getElementById('param-inputs');
-            
-            if(ref.formato === "sist/diast") {
-                div.innerHTML = `
-                    <div class="flex-row">
-                        <div class="form-group flex-1"><label>Mín Sistólica</label><input type="number" id="p-minsist" value="${ref.minSist}"></div>
-                        <div class="form-group flex-1"><label>Máx Sistólica</label><input type="number" id="p-maxsist" value="${ref.maxSist}"></div>
-                    </div>
-                    <div class="flex-row">
-                        <div class="form-group flex-1"><label>Mín Diastólica</label><input type="number" id="p-mindiast" value="${ref.minDiast}"></div>
-                        <div class="form-group flex-1"><label>Máx Diastólica</label><input type="number" id="p-maxdiast" value="${ref.maxDiast}"></div>
-                    </div>`;
-            } else {
-                div.innerHTML = `
-                    <div class="flex-row">
-                        <div class="form-group flex-1"><label>Valor Mínimo</label><input type="number" step="0.1" id="p-min" value="${ref.min}"></div>
-                        <div class="form-group flex-1"><label>Valor Máximo</label><input type="number" step="0.1" id="p-max" value="${ref.max}"></div>
-                    </div>`;
-            }
-            openModal('modal-parametro');
-        }
+    paramSendoEditado = chave;
+    const ref = referenciasVitais[chave];
+    document.getElementById('param-titulo').innerText = `Editar Parâmetro`;
+    const div = document.getElementById('param-inputs');
+    
+    const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
+    const isPadrao = padroes.includes(chave);
+    const disableName = isPadrao ? 'disabled title="Nomes padrões são fixos para manter os gráficos sincronizados."' : '';
+    const styleBlock = isPadrao ? 'background: #e5e7eb;' : '';
+    
+    let un = ref.desc.split(' ').pop(); 
+    
+    let htmlInputs = `<div class="form-group"><label>Nome do Sinal</label><input type="text" id="p-nome" value="${chave}" ${disableName} style="${styleBlock}"></div>`;
+    
+    if(ref.formato === "sist/diast") {
+        htmlInputs += `
+            <div class="flex-row">
+                <div class="form-group flex-1"><label>Mín Sistólica</label><input type="number" id="p-minsist" value="${ref.minSist}"></div>
+                <div class="form-group flex-1"><label>Máx Sistólica</label><input type="number" id="p-maxsist" value="${ref.maxSist}"></div>
+            </div>
+            <div class="flex-row">
+                <div class="form-group flex-1"><label>Mín Diastólica</label><input type="number" id="p-mindiast" value="${ref.minDiast}"></div>
+                <div class="form-group flex-1"><label>Máx Diastólica</label><input type="number" id="p-maxdiast" value="${ref.maxDiast}"></div>
+            </div>
+            <div class="form-group"><label>Unidade de Medida</label><input type="text" id="p-unidade" value="${un}"></div>`;
+    } else {
+        htmlInputs += `
+            <div class="flex-row">
+                <div class="form-group flex-1"><label>Valor Mínimo</label><input type="number" step="0.1" id="p-min" value="${ref.min}"></div>
+                <div class="form-group flex-1"><label>Valor Máximo</label><input type="number" step="0.1" id="p-max" value="${ref.max}"></div>
+            </div>
+            <div class="form-group"><label>Unidade de Medida</label><input type="text" id="p-unidade" value="${un}"></div>`;
+    }
+    div.innerHTML = htmlInputs;
+    openModal('modal-parametro');
+}
 
         function salvarParametro() {
-            const ref = referenciasVitais[paramSendoEditado];
-            if(ref.formato === "sist/diast") {
-                ref.minSist = parseInt(document.getElementById('p-minsist').value);
-                ref.maxSist = parseInt(document.getElementById('p-maxsist').value);
-                ref.minDiast = parseInt(document.getElementById('p-mindiast').value);
-                ref.maxDiast = parseInt(document.getElementById('p-maxdiast').value);
-                ref.desc = `${ref.minSist}/${ref.minDiast} a ${ref.maxSist}/${ref.maxDiast} mmHg`;
-            } else {
-                ref.min = parseFloat(document.getElementById('p-min').value);
-                ref.max = parseFloat(document.getElementById('p-max').value);
-                let un = paramSendoEditado === "Temperatura" ? "°C" : paramSendoEditado === "Glicemia" ? "mg/dL" : paramSendoEditado === "Frequência Cardíaca" ? "bpm" : "%";
-                ref.desc = `${ref.min} a ${ref.max} ${un}`;
-            }
-            alert(`✅ Parâmetros atualizados!`);
-            renderizarConfigVitais();
-            carregarOpcoesSinaisVitais();
-            closeModal('modal-parametro');
+    const novoNome = document.getElementById('p-nome').value;
+    const un = document.getElementById('p-unidade').value;
+    const ref = referenciasVitais[paramSendoEditado];
+    
+    if(!novoNome || !un) return alert("⚠️ Preencha o nome e a unidade de medida.");
+
+    if(ref.formato === "sist/diast") {
+        ref.minSist = parseInt(document.getElementById('p-minsist').value);
+        ref.maxSist = parseInt(document.getElementById('p-maxsist').value);
+        ref.minDiast = parseInt(document.getElementById('p-mindiast').value);
+        ref.maxDiast = parseInt(document.getElementById('p-maxdiast').value);
+        ref.desc = `${ref.minSist}/${ref.minDiast} a ${ref.maxSist}/${ref.maxDiast} ${un}`;
+    } else {
+        ref.min = parseFloat(document.getElementById('p-min').value);
+        ref.max = parseFloat(document.getElementById('p-max').value);
+        ref.desc = `${ref.min} a ${ref.max} ${un}`;
+    }
+
+    if (novoNome !== paramSendoEditado) {
+        referenciasVitais[novoNome] = ref;
+        delete referenciasVitais[paramSendoEditado];
+        
+        if (historicoDados[paramSendoEditado]) {
+            historicoDados[novoNome] = historicoDados[paramSendoEditado];
+            delete historicoDados[paramSendoEditado];
         }
+    }
+
+    alert(`✅ Parâmetro atualizado com sucesso!`);
+    renderizarConfigVitais();
+    carregarOpcoesSinaisVitais();
+    closeModal('modal-parametro');
+}
 
         function salvarSinalVital() {
             const tipo = document.getElementById('vital-tipo').value;
@@ -756,20 +823,32 @@ function verificarFimCondicao() {
     const tel = document.getElementById('usr-telefone').value;
     const em = document.getElementById('usr-email').value;
     const sn = document.getElementById('usr-senha').value;
+    const prf = document.getElementById('usr-perfil').value;
     
     if(!nm || !cpf || !tel || !em || !sn) return alert("⚠️ Preencha todos os campos.");
     if(!validarCPF(cpf)) return alert("⚠️ CPF inválido.");
     if(!validarTelefone(tel)) return alert("⚠️ Telefone incompleto.");
     if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
-    if(sn.length < 10) return alert("⚠️ A senha deve ter no mínimo 10 caracteres.");
-
-    // No futuro, isso conectará com o painel de Admin do Supabase
-    alert(`✅ Usuário ${nm} cadastrado com sucesso e já pode acessar o aplicativo!`);
     
+    if(prf === 'Administrador') {
+        const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length;
+        if(qtdAdmins >= 2) return alert("⚠️ Limite atingido: O plano atual permite apenas 2 Administradores.");
+    }
+
+    alert(`✅ Usuário ${nm} cadastrado com sucesso!`);
+    
+    const isAdmStr = prf === 'Administrador' ? 'true' : 'false';
+    const displayNome = prf === 'Administrador' ? `${nm} (Administrador)` : nm;
+
     const nCard = document.createElement('div'); 
     nCard.className = 'card';
     nCard.style = 'border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top:15px;';
-    nCard.innerHTML = `<strong>${nm}</strong><p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">${em}</span> • <span class="user-tel">${tel}</span></p><p class="status-tag" style="display: block; color: var(--success);">✅ Acesso Liberado</p><button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>`;
+    nCard.setAttribute('data-admin', isAdmStr);
+    nCard.setAttribute('data-cpf', cpf);
+    nCard.setAttribute('data-perfil', prf);
+
+    nCard.innerHTML = `<strong>${displayNome}</strong><p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">${em}</span> • <span class="user-tel">${tel}</span></p><p class="status-tag" style="display: block; color: var(--success);">✅ Acesso Liberado</p><button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>`;
+    
     document.getElementById('lista-usuarios').appendChild(nCard);
     closeModal('modal-usuario');
 }
@@ -778,59 +857,55 @@ function salvarNovoSinal() {
     const nome = document.getElementById('ns-nome').value;
     const min = document.getElementById('ns-min').value;
     const max = document.getElementById('ns-max').value;
-    const un = document.getElementById('ns-unidade').value;
+    const un = document.getElementById('ns-unidade').value || '';
 
     if(!nome || !min || !max) return alert("⚠️ Preencha o nome, o mínimo e o máximo.");
 
-    // Adiciona ao banco de referências
     referenciasVitais[nome] = {
         min: parseFloat(min), max: parseFloat(max), formato: "num",
         desc: `${min} a ${max} ${un}`
     };
 
-    // Inicializa a memória para o gráfico
     historicoDados[nome] = { labels: [], dataset1: [], dataset2: [] };
     
-    // Atualiza as listas na tela
     renderizarConfigVitais();
     carregarOpcoesSinaisVitais();
     
-    // Adiciona o gráfico novo na aba Relatórios
-    const container = document.getElementById('charts-container');
-    const chartId = `chart-${nome.replace(/\s+/g, '')}`;
-    container.innerHTML += `<div class="card"><strong>${nome}</strong><p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Evolução das últimas medições</p><div class="chart-container"><canvas id="${chartId}"></canvas></div></div>`;
-    
-    setTimeout(() => {
-        const ctx = document.getElementById(chartId).getContext('2d');
-        graficos[nome] = new Chart(ctx, { type: 'line', data: { labels: historicoDados[nome].labels, datasets: [{ label: 'Valor', data: historicoDados[nome].dataset1, borderColor: '#ffc107', backgroundColor: '#ffc107', tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false } });
-    }, 100);
-
-    alert(`✅ Parâmetro "${nome}" criado! Ele já aparece na aba de Saúde e nos Relatórios.`);
+    alert(`✅ Parâmetro "${nome}" criado! Ele já está disponível no registro de Sinais Vitais.`);
     closeModal('modal-novo-sinal');
 }
 
         function abrirPersonalizar(btn) {
-            cartaoSendoEditado = btn.closest('.card');
-            const em = cartaoSendoEditado.querySelector('.user-email').innerText;
-            const tl = cartaoSendoEditado.querySelector('.user-tel').innerText;
-            
-            document.getElementById('edit-email').value = em;
-            document.getElementById('edit-telefone').value = tl;
-            
-            const isAdm = cartaoSendoEditado.getAttribute('data-admin') === 'true';
-            document.getElementById('secao-inativar').style.display = isAdm ? 'none' : 'block';
+    cartaoSendoEditado = btn.closest('.card');
+    
+    const nmRaw = cartaoSendoEditado.querySelector('strong').innerText;
+    const nm = nmRaw.split(' (')[0]; 
+    const em = cartaoSendoEditado.querySelector('.user-email').innerText;
+    const tl = cartaoSendoEditado.querySelector('.user-tel').innerText;
+    
+    const cpf = cartaoSendoEditado.getAttribute('data-cpf') || '';
+    const perfil = cartaoSendoEditado.getAttribute('data-perfil') || 'Cuidador';
+    
+    document.getElementById('edit-nome').value = nm;
+    document.getElementById('edit-cpf').value = cpf;
+    document.getElementById('edit-email').value = em;
+    document.getElementById('edit-telefone').value = tl;
+    document.getElementById('edit-perfil').value = perfil;
+    
+    const isAdm = cartaoSendoEditado.getAttribute('data-admin') === 'true';
+    document.getElementById('secao-inativar').style.display = isAdm ? 'none' : 'block';
 
-            if(!isAdm) {
-                const btnStat = document.getElementById('btn-status-usuario');
-                const txt = document.getElementById('texto-aviso-status');
-                if(cartaoSendoEditado.classList.contains('inativo')) {
-                    btnStat.className = 'btn-success'; btnStat.innerText = '✅ Reativar Acesso'; txt.innerText = 'Usuário voltará a ter acesso.';
-                } else {
-                    btnStat.className = 'btn-danger'; btnStat.innerText = '🚫 Inativar Acesso'; txt.innerText = 'Usuário perderá acesso imediato.';
-                }
-            }
-            openModal('modal-personalizar');
+    if(!isAdm) {
+        const btnStat = document.getElementById('btn-status-usuario');
+        const txt = document.getElementById('texto-aviso-status');
+        if(cartaoSendoEditado.classList.contains('inativo')) {
+            btnStat.className = 'btn-success'; btnStat.innerText = '✅ Reativar Acesso'; txt.innerText = 'Usuário voltará a ter acesso.';
+        } else {
+            btnStat.className = 'btn-danger'; btnStat.innerText = '🚫 Inativar Acesso'; txt.innerText = 'Usuário perderá acesso imediato.';
         }
+    }
+    openModal('modal-personalizar');
+}
 
         // FUNÇÃO ATUALIZADA (Para administradores enviarem link aos pacientes)
         async function enviarLinkSenha(doPainel = false) {
@@ -849,18 +924,35 @@ function salvarNovoSinal() {
         }
 
         function salvarPersonalizacao() {
-            const em = document.getElementById('edit-email').value;
-            const tl = document.getElementById('edit-telefone').value;
-            if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
-            if(tl && !validarTelefone(tl)) return alert("⚠️ Telefone inválido.");
+    const nm = document.getElementById('edit-nome').value;
+    const cpf = document.getElementById('edit-cpf').value;
+    const em = document.getElementById('edit-email').value;
+    const tl = document.getElementById('edit-telefone').value;
+    const perfil = document.getElementById('edit-perfil').value;
+    
+    if(!nm || !em) return alert("⚠️ Nome e E-mail são obrigatórios.");
+    if(cpf && !validarCPF(cpf)) return alert("⚠️ CPF inválido.");
+    if(tl && !validarTelefone(tl)) return alert("⚠️ Telefone inválido.");
 
-            cartaoSendoEditado.querySelector('.user-email').innerText = em;
-            cartaoSendoEditado.querySelector('.user-tel').innerText = tl;
-            
-            alert("✅ Cadastro atualizado com sucesso!");
-            closeModal('modal-personalizar');
-        }
+    const isJaAdmin = cartaoSendoEditado.getAttribute('data-admin') === 'true';
+    if (perfil === 'Administrador' && !isJaAdmin) {
+        const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length;
+        if (qtdAdmins >= 2) return alert("⚠️ Limite atingido: Você já possui o máximo de 2 Administradores.");
+    }
 
+    cartaoSendoEditado.setAttribute('data-cpf', cpf);
+    cartaoSendoEditado.setAttribute('data-perfil', perfil);
+    cartaoSendoEditado.setAttribute('data-admin', perfil === 'Administrador' ? 'true' : 'false');
+    
+    cartaoSendoEditado.querySelector('strong').innerText = perfil === 'Administrador' ? `${nm} (Administrador)` : nm;
+    cartaoSendoEditado.querySelector('.user-email').innerText = em;
+    cartaoSendoEditado.querySelector('.user-tel').innerText = tl;
+    
+    if(perfil === 'Administrador') document.getElementById('secao-inativar').style.display = 'none';
+    
+    alert("✅ Cadastro atualizado com sucesso!");
+    closeModal('modal-personalizar');
+}
         function alternarStatusUsuario() {
             const inativo = cartaoSendoEditado.classList.contains('inativo');
             let tag = cartaoSendoEditado.querySelector('.status-tag');
