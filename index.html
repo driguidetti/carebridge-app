@@ -689,22 +689,23 @@
             if(errDep) return alert("❌ Erro ao criar login do paciente: " + errDep.message);
 
             if (depAuth.user) {
-    const { error: errInsertDep } = await clienteSupabase.from('usuarios').insert([{
-        id: depAuth.user.id,
-        email: depEm,
-        nome: depNm,
-        cpf: depCpf,
-        telefone: depTel,
-        data_nascimento: depDt,
-        familia_id: novaFamilia.id,
-        perfil: 'Dependente'
-    }]);
+                // AQUI FOI FEITA A CORREÇÃO: TROCADO INSERT POR UPSERT
+                const { error: errInsertDep } = await clienteSupabase.from('usuarios').upsert([{
+                    id: depAuth.user.id,
+                    email: depEm,
+                    nome: depNm,
+                    cpf: depCpf,
+                    telefone: depTel,
+                    data_nascimento: depDt,
+                    familia_id: novaFamilia.id,
+                    perfil: 'Dependente'
+                }]);
 
-    if (errInsertDep) {
-        alert("❌ Erro ao salvar os dados do paciente na tabela: " + errInsertDep.message);
-        console.error(errInsertDep);
-    }
-}
+                if (errInsertDep) {
+                    alert("❌ Erro ao salvar os dados do paciente na tabela: " + errInsertDep.message);
+                    console.error("Erro no Upsert:", errInsertDep);
+                }
+            }
 
             await clienteSupabase.auth.signOut();
             alert("✅ Família criada e Paciente cadastrado com sucesso!\n\n⚠️ O sistema redirecionará para o Login. Acesse agora com sua conta de Administrador.");
