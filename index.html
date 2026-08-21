@@ -111,7 +111,7 @@
                     <button class="btn-main" id="btn-cad" onclick="fazerCadastro()">Finalizar Cadastro</button>
                 </div>
 
-                <!-- TELA DE REDEFINIÇÃO DE SENHA (Oculta por padrão) -->
+                <!-- TELA DE REDEFINIÇÃO DE SENHA -->
                 <div id="form-redefinir" class="form-section">
                     <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Criar Nova Senha</h3>
                     <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">Digite sua nova senha de acesso abaixo.</p>
@@ -126,17 +126,17 @@
     <div id="app-view" style="display: none;">
         
         <header class="app-header">
-    <div class="app-header-text">
-        <h1>CareBridge</h1><p>Painel do Administrador</p>
-    </div>
-    <div style="display: flex; align-items: center; gap: 20px;">
-        <div style="position: relative; cursor: pointer;" onclick="openTabApp('timeline')">
-            <span style="font-size: 1.4rem;">🔔</span>
-            <span id="notificacao-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 10px;">0</span>
-        </div>
-        <button class="btn-logout" onclick="fazerLogout()">Sair</button>
-    </div>
-</header>
+            <div class="app-header-text">
+                <h1>CareBridge</h1><p>Painel do Administrador</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div style="position: relative; cursor: pointer;" onclick="openTabApp('timeline')">
+                    <span style="font-size: 1.4rem;">🔔</span>
+                    <span id="notificacao-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 10px;">0</span>
+                </div>
+                <button class="btn-logout" onclick="fazerLogout()">Sair</button>
+            </div>
+        </header>
 
         <nav class="app-nav">
             <button class="tab-btn-app active" onclick="openTabApp('timeline')">Linha do Tempo</button>
@@ -165,6 +165,18 @@
                 <strong>Planejamento Estrutural</strong><p>Configure a rotina semanal e os horários das tarefas.</p>
                 <button class="btn-outline" style="width: 100%; border-style: dashed;" onclick="openModal('modal-itinerario')">+ Configurar Novo Turno</button>
             </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label style="font-size: 0.9rem; font-weight: 600;">Filtrar Dia:</label>
+                    <input type="date" id="filtro-data-rotina" onchange="renderizarRotinas()" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
+                    <button class="btn-outline" style="margin-top: 0; padding: 6px 10px;" onclick="limparFiltroRotina()">Limpar</button>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500; background: #e5e7eb; padding: 4px 10px; border-radius: 12px;">
+                    ⏱ Atualiza status em: <strong id="contador-atualizacao" style="color: var(--primary);">60</strong>s
+                </div>
+            </div>
+
             <div class="card"><strong>Rotina Pendente</strong><ul class="list-clean" id="lista-tarefas"></ul><button class="btn-main" onclick="abrirModalCheckin()">📷 Fazer Check-in de Tarefa</button></div>
         </main>
 
@@ -174,47 +186,47 @@
         </main>
 
         <main id="configuracoes" class="tab-content">
-    <h2 class="section-title">Ajustes do Sistema</h2>
-    <div class="card">
-        <strong>Gerenciamento de Usuários</strong>
-        <div id="lista-usuarios">
-            <div class="card" data-admin="true" style="border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top: 15px;">
-                <strong id="admin-nome">Carregando seus dados...</strong>
-                <p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email" id="admin-email">carregando...</span> • <span class="user-tel" id="admin-tel">(Não informado)</span></p>
-                <button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>
+            <h2 class="section-title">Ajustes do Sistema</h2>
+            <div class="card">
+                <strong>Gerenciamento de Usuários</strong>
+                <div id="lista-usuarios">
+                    <div class="card" data-admin="true" style="border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top: 15px;">
+                        <strong id="admin-nome">Carregando seus dados...</strong>
+                        <p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email" id="admin-email">carregando...</span> • <span class="user-tel" id="admin-tel">(Não informado)</span></p>
+                        <button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>
+                    </div>
+                </div>
+                <button class="btn-main" onclick="openModal('modal-usuario')">Cadastrar Novo Usuário +</button>
             </div>
-        </div>
-        <button class="btn-main" onclick="openModal('modal-usuario')">Cadastrar Novo Usuário +</button>
-    </div>
 
-    <div class="card">
-        <strong>Parâmetros de Sinais Vitais</strong>
-        <p>Edite os limites ou crie novos alertas médicos.</p>
-        <ul class="list-clean" id="lista-config-vitais"></ul>
-        <button class="btn-outline" style="width: 100%; border-style: dashed;" onclick="openModal('modal-novo-sinal')">+ Adicionar Novo Sinal Vital</button>
-    </div>
-</main>
+            <div class="card">
+                <strong>Parâmetros de Sinais Vitais</strong>
+                <p>Edite os limites ou crie novos alertas médicos.</p>
+                <ul class="list-clean" id="lista-config-vitais"></ul>
+                <button class="btn-outline" style="width: 100%; border-style: dashed;" onclick="openModal('modal-novo-sinal')">+ Adicionar Novo Sinal Vital</button>
+            </div>
+        </main>
     </div>
 
     <!-- Modais -->
     <div id="modal-itinerario" class="modal-overlay">
-    <div class="modal">
-        <button class="close-btn" onclick="closeModal('modal-itinerario')">&times;</button>
-        <h3 style="margin-bottom: 20px;">Configurar Turno</h3>
-        
-        <div class="flex-row">
-            <div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div>
-            <div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div>
+        <div class="modal">
+            <button class="close-btn" onclick="closeModal('modal-itinerario')">&times;</button>
+            <h3 style="margin-bottom: 20px;">Configurar Turno</h3>
+            
+            <div class="flex-row">
+                <div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div>
+                <div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div>
+            </div>
+            
+            <div class="form-group"><label>Frequência</label><select id="itin-freq" onchange="verificarFrequencia()"><option value="Único">Único (Sem repetição)</option><option value="Diariamente">Diariamente</option><option value="A cada X horas">A cada X horas</option><option value="Mensal">Mensal</option><option value="Anual">Anual</option></select></div>
+            <div class="form-group" id="grupo-itin-horas" style="display: none;"><label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8"></div>
+            <div class="form-group"><label>Fim da Repetição</label><select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser excluído)</option></select></div>
+            <div class="form-group" id="grupo-itin-fim" style="display: none;"><input type="text" id="itin-fim-valor" placeholder=""></div>
+            <div class="form-group"><label>Tarefas (Separe por vírgula)</label><textarea id="itin-tarefas" rows="3" placeholder="Ex: Antibiótico 500mg, Fisioterapia, Banho"></textarea></div>
+            <button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button>
         </div>
-        
-        <div class="form-group"><label>Frequência</label><select id="itin-freq" onchange="verificarFrequencia()"><option value="Único">Único (Sem repetição)</option><option value="Diariamente">Diariamente</option><option value="A cada X horas">A cada X horas</option><option value="Mensal">Mensal</option><option value="Anual">Anual</option></select></div>
-        <div class="form-group" id="grupo-itin-horas" style="display: none;"><label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8"></div>
-        <div class="form-group"><label>Fim da Repetição</label><select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser excluído)</option></select></div>
-        <div class="form-group" id="grupo-itin-fim" style="display: none;"><input type="text" id="itin-fim-valor" placeholder=""></div>
-        <div class="form-group"><label>Tarefas (Separe por vírgula)</label><textarea id="itin-tarefas" rows="3" placeholder="Ex: Antibiótico 500mg, Fisioterapia, Banho"></textarea></div>
-        <button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button>
     </div>
-</div>
     <div id="modal-vitais" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-vitais')">&times;</button><h3 style="margin-bottom: 20px;">Registrar Sinal Vital</h3><div class="form-group"><label>Sinal Vital</label><select id="vital-tipo"></select><span class="password-hint" id="vital-hint"></span></div><div class="form-group"><label>Resultado Medido</label><input type="text" id="vital-valor" placeholder="Ex: 120/80 ou 95"></div><div class="form-group"><label>Observações (Opcional)</label><input type="text" id="vital-obs" placeholder="Ex: Paciente estava deitado"></div><button class="btn-main" onclick="salvarSinalVital()">Salvar Medição</button></div></div>
     <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Novo Medicamento</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário do Primeiro Consumo</label><input type="time" id="med-hora"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
     <div id="modal-checkin" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button><h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3><div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div><div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div><div class="form-group"><label>Comprovante (Foto):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div><button class="btn-main" onclick="salvarCheckin()">Concluir Tarefa</button></div></div>
@@ -240,6 +252,7 @@
         // ---------------------------------------------------------
         let taskCounter = 0;
         let listaDeRotinas = []; // Cérebro que agrupa e ordena as tarefas por dia
+        let tempoAtualizacao = 60; // Cronômetro regressivo de tela
         let paramSendoEditado = "";
         let cartaoSendoEditado = null;
         
@@ -258,7 +271,6 @@
         // --- VERIFICAR SE O USUÁRIO VEIO DO E-MAIL DE RECUPERAÇÃO ---
         clienteSupabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'PASSWORD_RECOVERY') {
-                // Esconde as abas padrão e mostra apenas a tela de nova senha
                 document.getElementById('auth-tabs-container').style.display = 'none';
                 document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
                 document.getElementById('form-redefinir').classList.add('active');
@@ -270,8 +282,16 @@
             renderizarConfigVitais();
             inicializarGraficos();
 
-            // MÁGICA 1: Liga o relógio invisível que atualiza as cores das tarefas a cada 1 minuto (60000ms)
-            setInterval(atualizarStatusRotina, 60000);
+            // Cronômetro Visual: Atualiza a tela a cada 1 segundo e checa as cores a cada 60s
+            setInterval(() => {
+                tempoAtualizacao--;
+                if(tempoAtualizacao <= 0) {
+                    atualizarStatusRotina(); 
+                    tempoAtualizacao = 60;
+                }
+                const contadorEl = document.getElementById('contador-atualizacao');
+                if(contadorEl) contadorEl.innerText = tempoAtualizacao.toString().padStart(2, '0');
+            }, 1000);
 
             if (!window.location.hash.includes('type=recovery')) {
                 const { data: { session } } = await clienteSupabase.auth.getSession();
@@ -296,7 +316,6 @@
             else { document.querySelectorAll('.tab-btn-auth')[1].classList.add('active'); document.getElementById('form-cadastro').classList.add('active'); }
         }
 
-        // FUNÇÃO ATUALIZADA: Dispara o e-mail real de recuperação
         async function recuperarSenha() {
             const em = document.getElementById('login-email').value;
             if(!em || !validarEmail(em)) return alert("⚠️ Digite o seu e-mail no campo acima antes de clicar em recuperar a senha.");
@@ -320,7 +339,6 @@
             }
         }
 
-        // FUNÇÃO NOVA: Salva a nova senha no banco de dados
         async function salvarNovaSenha() {
             const btn = document.getElementById('btn-salvar-senha');
             const novaSenha = document.getElementById('nova-senha').value;
@@ -338,8 +356,8 @@
                 btn.innerText = "Atualizar Senha";
             } else {
                 alert("✅ Senha atualizada com sucesso! Você já pode acessar o sistema.");
-                window.location.hash = ''; // Limpa a URL
-                window.location.reload(); // Recarrega a página para o estado de login normal
+                window.location.hash = '';
+                window.location.reload(); 
             }
         }
 
@@ -411,13 +429,7 @@
         async function fazerLogout() {
             if(confirm("Deseja realmente sair da conta?")) {
                 await clienteSupabase.auth.signOut();
-                
-                document.getElementById('login-senha').value = '';
-                document.getElementById('cad-senha').value = '';
-                document.getElementById('cad-confirma').value = '';
-                
-                document.getElementById('app-view').style.display='none'; 
-                document.getElementById('auth-view').style.display='flex';
+                window.location.reload();
             }
         }
 
@@ -449,7 +461,6 @@
                 document.getElementById('notificacao-badge').style.display = 'none';
             }
             
-            // MÁGICA 2: Atualiza as cores instantaneamente sempre que você entra na aba "Turnos"
             if(tabId === 'gestao') {
                 atualizarStatusRotina();
             }
@@ -462,10 +473,10 @@
         }
 
         function openModal(id) { 
-    document.getElementById(id).style.display = 'flex'; 
-    // Garante que as regras de frequência sejam aplicadas logo ao abrir
-    if (id === 'modal-itinerario') verificarFrequencia();
-}
+            document.getElementById(id).style.display = 'flex'; 
+            if (id === 'modal-itinerario') verificarFrequencia();
+        }
+
         function closeModal(id) { 
             document.getElementById(id).style.display = 'none'; 
             const modal = document.getElementById(id);
@@ -480,32 +491,33 @@
         }
 
         function adicionarNaTimeline(titulo, descricao, alerta = false, retroativo = false) {
-    const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    let classe = 'card';
-    let flag = '';
-    
-    if(alerta) { classe = 'card alert'; flag = '🚨 '; }
-    else if(retroativo) { classe = 'card warning'; flag = '⚠️ [Retroativo] '; }
-    
-    const html = `<div class="${classe}" style="animation: fadeIn 0.4s;"><strong>${flag}${titulo} (${time})</strong><p>${descricao}</p></div>`;
-    document.getElementById('timeline-feed').insertAdjacentHTML('afterbegin', html);
-    
-    const timelineAtiva = document.getElementById('timeline').classList.contains('active');
-    if(!timelineAtiva) {
-        contadorNotificacoes++;
-        const badge = document.getElementById('notificacao-badge');
-        badge.style.display = 'block';
-        badge.innerText = contadorNotificacoes;
-    }
-}
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            let classe = 'card';
+            let flag = '';
+            
+            if(alerta) { classe = 'card alert'; flag = '🚨 '; }
+            else if(retroativo) { classe = 'card warning'; flag = '⚠️ [Retroativo] '; }
+            
+            const html = `<div class="${classe}" style="animation: fadeIn 0.4s;"><strong>${flag}${titulo} (${time})</strong><p>${descricao}</p></div>`;
+            document.getElementById('timeline-feed').insertAdjacentHTML('afterbegin', html);
+            
+            const timelineAtiva = document.getElementById('timeline').classList.contains('active');
+            if(!timelineAtiva) {
+                contadorNotificacoes++;
+                const badge = document.getElementById('notificacao-badge');
+                badge.style.display = 'block';
+                badge.innerText = contadorNotificacoes;
+            }
+        }
 
         // --- GRÁFICOS (CHART.JS) ---
         function inicializarGraficos() {
             const container = document.getElementById('charts-container');
             container.innerHTML = '';
+            const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
             
-            for(let chave in referenciasVitais) {
-                historicoDados[chave] = { labels: [], dataset1: [], dataset2: [] };
+            for(let chave of padroes) {
+                if(!historicoDados[chave]) historicoDados[chave] = { labels: [], dataset1: [], dataset2: [] };
                 container.innerHTML += `
                     <div class="card">
                         <strong>${chave}</strong>
@@ -516,11 +528,11 @@
             }
 
             setTimeout(() => {
-                for(let chave in referenciasVitais) {
+                for(let chave of padroes) {
                     const ctx = document.getElementById(`chart-${chave.replace(/\s+/g, '')}`).getContext('2d');
                     let config = { type: 'line', data: { labels: historicoDados[chave].labels, datasets: [] }, options: { responsive: true, maintainAspectRatio: false } };
                     
-                    if(referenciasVitais[chave].formato === "sist/diast") {
+                    if(referenciasVitais[chave] && referenciasVitais[chave].formato === "sist/diast") {
                         config.data.datasets.push({ label: 'Sistólica', data: historicoDados[chave].dataset1, borderColor: '#d32f2f', backgroundColor: '#d32f2f', tension: 0.3 });
                         config.data.datasets.push({ label: 'Diastólica', data: historicoDados[chave].dataset2, borderColor: '#1976d2', backgroundColor: '#1976d2', tension: 0.3 });
                     } else {
@@ -533,90 +545,94 @@
 
         // --- TURNOS MATEMÁTICOS E CHECK-IN ---
         function verificarFrequencia() {
-    const freq = document.getElementById('itin-freq').value;
-    const selectFim = document.getElementById('itin-fim');
-    const valorAtualFim = selectFim.value; // Guarda o que estava selecionado
-    
-    // 1. Regra para mostrar o campo "A cada X horas"
-    document.getElementById('grupo-itin-horas').style.display = (freq === 'A cada X horas') ? 'block' : 'none';
-    
-    // 2. Regra para o campo "Fim da Repetição"
-    const campoFimRepeticao = selectFim.closest('.form-group');
-    
-    if (freq === 'Único') {
-        campoFimRepeticao.style.display = 'none';
-        document.getElementById('grupo-itin-fim').style.display = 'none';
-    } else {
-        campoFimRepeticao.style.display = 'block';
-        
-        // Limpa o menu atual e recria de forma inteligente
-        selectFim.innerHTML = ''; 
-        selectFim.add(new Option('Manual (Até ser excluído)', 'manual'));
-        
-        // Só adiciona a opção "data específica" se for Diário ou em Horas
-        if (freq === 'Diariamente' || freq === 'A cada X horas') {
-            selectFim.add(new Option('Até data específica', 'data'));
+            const freq = document.getElementById('itin-freq').value;
+            const selectFim = document.getElementById('itin-fim');
+            const valorAtualFim = selectFim.value; 
+            
+            document.getElementById('grupo-itin-horas').style.display = (freq === 'A cada X horas') ? 'block' : 'none';
+            const campoFimRepeticao = selectFim.closest('.form-group');
+            
+            if (freq === 'Único') {
+                campoFimRepeticao.style.display = 'none';
+                document.getElementById('grupo-itin-fim').style.display = 'none';
+            } else {
+                campoFimRepeticao.style.display = 'block';
+                selectFim.innerHTML = ''; 
+                selectFim.add(new Option('Manual (Até ser excluído)', 'manual'));
+                
+                if (freq === 'Diariamente' || freq === 'A cada X horas') {
+                    selectFim.add(new Option('Até data específica', 'data'));
+                }
+                selectFim.add(new Option('Por quantidade', 'qtd'));
+
+                let opcaoAindaExiste = Array.from(selectFim.options).some(opt => opt.value === valorAtualFim);
+                selectFim.value = opcaoAindaExiste ? valorAtualFim : 'manual';
+                verificarFimCondicao();
+            }
         }
-        
-        // Quantidade serve para todos (menos o Único)
-        selectFim.add(new Option('Por quantidade', 'qtd'));
 
-        // Se a pessoa tinha escolhido "data" e mudou pra "Mensal", voltamos para "manual" para não bugar
-        let opcaoAindaExiste = Array.from(selectFim.options).some(opt => opt.value === valorAtualFim);
-        selectFim.value = opcaoAindaExiste ? valorAtualFim : 'manual';
+        function verificarFimCondicao() {
+            const fim = document.getElementById('itin-fim').value;
+            const freq = document.getElementById('itin-freq').value;
+            const grp = document.getElementById('grupo-itin-fim');
+            const input = document.getElementById('itin-fim-valor');
+            
+            if (freq === 'Único' || fim === 'manual') { 
+                grp.style.display = 'none'; 
+            } else {
+                grp.style.display = 'block';
+                input.type = (fim === 'data') ? 'date' : 'number';
+                input.placeholder = (fim === 'data') ? '' : 'Ex: 10 vezes';
+            }
+        }
 
-        // Aciona a verificação do input extra (data/número) para destravar a tela
-        verificarFimCondicao();
-    }
-}
+        function limparFiltroRotina() {
+            document.getElementById('filtro-data-rotina').value = '';
+            renderizarRotinas();
+        }
 
-function verificarFimCondicao() {
-    const fim = document.getElementById('itin-fim').value;
-    const freq = document.getElementById('itin-freq').value;
-    const grp = document.getElementById('grupo-itin-fim');
-    const input = document.getElementById('itin-fim-valor');
-    
-    // Trava de segurança extra
-    if (freq === 'Único' || fim === 'manual') { 
-        grp.style.display = 'none'; 
-    } else {
-        grp.style.display = 'block';
-        input.type = (fim === 'data') ? 'date' : 'number';
-        input.placeholder = (fim === 'data') ? '' : 'Ex: 10 vezes';
-    }
-}
-
-        // NOVA FUNÇÃO: O Cérebro das Cores
+        // NOVA FUNÇÃO: O Cérebro das Cores e Filtro
         function renderizarRotinas() {
             const ul = document.getElementById('lista-tarefas');
             const selCheckin = document.getElementById('checkin-tarefa');
+            const filtroData = document.getElementById('filtro-data-rotina').value;
             
             ul.innerHTML = ''; selCheckin.innerHTML = '';
             
-            if (listaDeRotinas.length === 0) {
-                ul.innerHTML = '<li style="text-align:center; color: var(--text-muted); border: none;">Nenhuma rotina agendada.</li>';
+            // Clonamos a lista para aplicar o filtro sem apagar os dados originais
+            let rotinasFiltradas = [...listaDeRotinas];
+            
+            if(filtroData) {
+                // Separa YYYY-MM-DD para comparar de forma blindada contra fuso horário
+                const [ano, mes, dia] = filtroData.split('-').map(Number);
+                rotinasFiltradas = rotinasFiltradas.filter(r => {
+                    return r.dataHora.getFullYear() === ano &&
+                           r.dataHora.getMonth() === (mes - 1) &&
+                           r.dataHora.getDate() === dia;
+                });
+            }
+
+            if (rotinasFiltradas.length === 0) {
+                ul.innerHTML = '<li style="text-align:center; color: var(--text-muted); border: none;">Nenhuma rotina para exibir.</li>';
                 return;
             }
 
             // Ordena tudo do mais antigo/próximo para o mais distante no futuro
-            listaDeRotinas.sort((a, b) => a.dataHora - b.dataHora);
+            rotinasFiltradas.sort((a, b) => a.dataHora - b.dataHora);
 
             let dataAtualAgrupamento = "";
 
-            listaDeRotinas.forEach(rotina => {
-                // Formatação do separador de dias
+            rotinasFiltradas.forEach(rotina => {
                 const diaSemana = rotina.dataHora.toLocaleDateString('pt-BR', { weekday: 'long' });
                 const dataCurta = rotina.dataHora.toLocaleDateString('pt-BR');
                 const dataFormatada = `${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dataCurta}`;
                 const horaFormatada = rotina.dataHora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
 
-                // Se mudou o dia, cria um divisor visual na lista
                 if (dataFormatada !== dataAtualAgrupamento) {
                     ul.innerHTML += `<li style="background: var(--bg-color); font-size: 0.85rem; font-weight: bold; color: var(--primary); padding: 8px 10px; border-radius: 6px; margin-top: 15px; border-bottom: none;">📅 ${dataFormatada}</li>`;
                     dataAtualAgrupamento = dataFormatada;
                 }
 
-                // Renderiza o item
                 if(rotina.status === 'concluido') {
                     ul.innerHTML += `
                         <li class="task-done" style="border-left: 4px solid var(--success); background-color: var(--success-bg);">
@@ -633,7 +649,7 @@ function verificarFimCondicao() {
                 }
             });
 
-            atualizarStatusRotina(); // Aplica as cores logo após criar a lista
+            atualizarStatusRotina(); 
         }
 
         function atualizarStatusRotina() {
@@ -679,7 +695,6 @@ function verificarFimCondicao() {
             if(iteracoes > 4) iteracoes = 4;
             
             for(let i = 0; i < iteracoes; i++) {
-                // Matemágica: Adiciona as horas na data (ele vira o dia automaticamente se passar da meia-noite)
                 let dataTarefa = new Date(dataBase.getTime() + (i * (hrExtra || 0) * 60 * 60 * 1000));
                 
                 tarefasArray.forEach(tarefa => {
@@ -719,19 +734,6 @@ function verificarFimCondicao() {
             renderizarRotinas();
             closeModal('modal-checkin');
         }
-            
-            // CONCLUÍDO (Verde + Riscado)
-            li.setAttribute('data-status', 'concluido');
-            li.classList.add('task-done');
-            li.style.borderLeftColor = 'var(--success)';
-            li.style.backgroundColor = 'var(--success-bg)';
-            
-            li.innerHTML = `<span><s>${nomeT}</s> ${obs?`<br><span style="font-size:0.8rem;color:var(--text-main);">Obs: ${obs}</span>`:''}</span> <span style="color: var(--success); font-weight:bold; font-size: 0.85rem;">✔ Concluído ${temFoto? '(📷)':''}</span>`;
-            
-            sel.remove(sel.selectedIndex);
-            adicionarNaTimeline(`Tarefa Concluída`, `A tarefa <strong>${nomeT}</strong> foi finalizada. ${obs ? `Obs: ${obs}` : ''}`);
-            closeModal('modal-checkin');
-        }
 
         // --- SINAIS VITAIS, REFERÊNCIAS E MEDICAMENTOS ---
         function carregarOpcoesSinaisVitais() {
@@ -742,130 +744,98 @@ function verificarFimCondicao() {
             document.getElementById('vital-hint').innerText = `Referência segura: ${referenciasVitais["Pressão Arterial"].desc}`;
         }
 
-        function inicializarGraficos() {
-    const container = document.getElementById('charts-container');
-    container.innerHTML = '';
-    const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
-    
-    for(let chave of padroes) {
-        if(!historicoDados[chave]) historicoDados[chave] = { labels: [], dataset1: [], dataset2: [] };
-        container.innerHTML += `
-            <div class="card">
-                <strong>${chave}</strong>
-                <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Evolução das últimas medições</p>
-                <div class="chart-container"><canvas id="chart-${chave.replace(/\s+/g, '')}"></canvas></div>
-            </div>
-        `;
-    }
-
-    setTimeout(() => {
-        for(let chave of padroes) {
-            const ctx = document.getElementById(`chart-${chave.replace(/\s+/g, '')}`).getContext('2d');
-            let config = { type: 'line', data: { labels: historicoDados[chave].labels, datasets: [] }, options: { responsive: true, maintainAspectRatio: false } };
-            
-            if(referenciasVitais[chave] && referenciasVitais[chave].formato === "sist/diast") {
-                config.data.datasets.push({ label: 'Sistólica', data: historicoDados[chave].dataset1, borderColor: '#d32f2f', backgroundColor: '#d32f2f', tension: 0.3 });
-                config.data.datasets.push({ label: 'Diastólica', data: historicoDados[chave].dataset2, borderColor: '#1976d2', backgroundColor: '#1976d2', tension: 0.3 });
-            } else {
-                config.data.datasets.push({ label: 'Valor', data: historicoDados[chave].dataset1, borderColor: '#ffc107', backgroundColor: '#ffc107', tension: 0.3 });
-            }
-            graficos[chave] = new Chart(ctx, config);
-        }
-    }, 100);
-}
-
         function renderizarConfigVitais() {
-    const ul = document.getElementById('lista-config-vitais');
-    ul.innerHTML = '';
-    const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
-    
-    for (let chave in referenciasVitais) {
-        const isPadrao = padroes.includes(chave);
-        const tag = isPadrao ? `<span style="background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 8px;">Padrão</span>` : '';
-        
-        ul.innerHTML += `
-        <li>
-            <div style="display: flex; flex-direction: column;">
-                <div style="display: flex; align-items: center;"><strong>${chave}</strong>${tag}</div>
-                <span style="font-size: 0.85rem; color: var(--text-muted);">Referência: ${referenciasVitais[chave].desc}</span>
-            </div>
-            <button class="btn-outline" style="margin-top:0; padding:4px 10px;" onclick="abrirEditarParametro('${chave}')">Editar</button>
-        </li>`;
-    }
-}
+            const ul = document.getElementById('lista-config-vitais');
+            ul.innerHTML = '';
+            const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
+            
+            for (let chave in referenciasVitais) {
+                const isPadrao = padroes.includes(chave);
+                const tag = isPadrao ? `<span style="background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 8px;">Padrão</span>` : '';
+                
+                ul.innerHTML += `
+                <li>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center;"><strong>${chave}</strong>${tag}</div>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Referência: ${referenciasVitais[chave].desc}</span>
+                    </div>
+                    <button class="btn-outline" style="margin-top:0; padding:4px 10px;" onclick="abrirEditarParametro('${chave}')">Editar</button>
+                </li>`;
+            }
+        }
 
         function abrirEditarParametro(chave) {
-    paramSendoEditado = chave;
-    const ref = referenciasVitais[chave];
-    document.getElementById('param-titulo').innerText = `Editar Parâmetro`;
-    const div = document.getElementById('param-inputs');
-    
-    const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
-    const isPadrao = padroes.includes(chave);
-    const disableName = isPadrao ? 'disabled title="Nomes padrões são fixos para manter os gráficos sincronizados."' : '';
-    const styleBlock = isPadrao ? 'background: #e5e7eb;' : '';
-    
-    let un = ref.desc.split(' ').pop(); 
-    
-    let htmlInputs = `<div class="form-group"><label>Nome do Sinal</label><input type="text" id="p-nome" value="${chave}" ${disableName} style="${styleBlock}"></div>`;
-    
-    if(ref.formato === "sist/diast") {
-        htmlInputs += `
-            <div class="flex-row">
-                <div class="form-group flex-1"><label>Mín Sistólica</label><input type="number" id="p-minsist" value="${ref.minSist}"></div>
-                <div class="form-group flex-1"><label>Máx Sistólica</label><input type="number" id="p-maxsist" value="${ref.maxSist}"></div>
-            </div>
-            <div class="flex-row">
-                <div class="form-group flex-1"><label>Mín Diastólica</label><input type="number" id="p-mindiast" value="${ref.minDiast}"></div>
-                <div class="form-group flex-1"><label>Máx Diastólica</label><input type="number" id="p-maxdiast" value="${ref.maxDiast}"></div>
-            </div>
-            <div class="form-group"><label>Unidade de Medida</label><input type="text" id="p-unidade" value="${un}"></div>`;
-    } else {
-        htmlInputs += `
-            <div class="flex-row">
-                <div class="form-group flex-1"><label>Valor Mínimo</label><input type="number" step="0.1" id="p-min" value="${ref.min}"></div>
-                <div class="form-group flex-1"><label>Valor Máximo</label><input type="number" step="0.1" id="p-max" value="${ref.max}"></div>
-            </div>
-            <div class="form-group"><label>Unidade de Medida</label><input type="text" id="p-unidade" value="${un}"></div>`;
-    }
-    div.innerHTML = htmlInputs;
-    openModal('modal-parametro');
-}
+            paramSendoEditado = chave;
+            const ref = referenciasVitais[chave];
+            document.getElementById('param-titulo').innerText = `Editar Parâmetro`;
+            const div = document.getElementById('param-inputs');
+            
+            const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
+            const isPadrao = padroes.includes(chave);
+            const disableName = isPadrao ? 'disabled title="Nomes padrões são fixos para manter os gráficos sincronizados."' : '';
+            const styleBlock = isPadrao ? 'background: #e5e7eb;' : '';
+            
+            let un = ref.desc.split(' ').pop(); 
+            
+            let htmlInputs = `<div class="form-group"><label>Nome do Sinal</label><input type="text" id="p-nome" value="${chave}" ${disableName} style="${styleBlock}"></div>`;
+            
+            if(ref.formato === "sist/diast") {
+                htmlInputs += `
+                    <div class="flex-row">
+                        <div class="form-group flex-1"><label>Mín Sistólica</label><input type="number" id="p-minsist" value="${ref.minSist}"></div>
+                        <div class="form-group flex-1"><label>Máx Sistólica</label><input type="number" id="p-maxsist" value="${ref.maxSist}"></div>
+                    </div>
+                    <div class="flex-row">
+                        <div class="form-group flex-1"><label>Mín Diastólica</label><input type="number" id="p-mindiast" value="${ref.minDiast}"></div>
+                        <div class="form-group flex-1"><label>Máx Diastólica</label><input type="number" id="p-maxdiast" value="${ref.maxDiast}"></div>
+                    </div>
+                    <div class="form-group"><label>Unidade de Medida</label><input type="text" id="p-unidade" value="${un}"></div>`;
+            } else {
+                htmlInputs += `
+                    <div class="flex-row">
+                        <div class="form-group flex-1"><label>Valor Mínimo</label><input type="number" step="0.1" id="p-min" value="${ref.min}"></div>
+                        <div class="form-group flex-1"><label>Valor Máximo</label><input type="number" step="0.1" id="p-max" value="${ref.max}"></div>
+                    </div>
+                    <div class="form-group"><label>Unidade de Medida</label><input type="text" id="p-unidade" value="${un}"></div>`;
+            }
+            div.innerHTML = htmlInputs;
+            openModal('modal-parametro');
+        }
 
         function salvarParametro() {
-    const novoNome = document.getElementById('p-nome').value;
-    const un = document.getElementById('p-unidade').value;
-    const ref = referenciasVitais[paramSendoEditado];
-    
-    if(!novoNome || !un) return alert("⚠️ Preencha o nome e a unidade de medida.");
+            const novoNome = document.getElementById('p-nome').value;
+            const un = document.getElementById('p-unidade').value;
+            const ref = referenciasVitais[paramSendoEditado];
+            
+            if(!novoNome || !un) return alert("⚠️ Preencha o nome e a unidade de medida.");
 
-    if(ref.formato === "sist/diast") {
-        ref.minSist = parseInt(document.getElementById('p-minsist').value);
-        ref.maxSist = parseInt(document.getElementById('p-maxsist').value);
-        ref.minDiast = parseInt(document.getElementById('p-mindiast').value);
-        ref.maxDiast = parseInt(document.getElementById('p-maxdiast').value);
-        ref.desc = `${ref.minSist}/${ref.minDiast} a ${ref.maxSist}/${ref.maxDiast} ${un}`;
-    } else {
-        ref.min = parseFloat(document.getElementById('p-min').value);
-        ref.max = parseFloat(document.getElementById('p-max').value);
-        ref.desc = `${ref.min} a ${ref.max} ${un}`;
-    }
+            if(ref.formato === "sist/diast") {
+                ref.minSist = parseInt(document.getElementById('p-minsist').value);
+                ref.maxSist = parseInt(document.getElementById('p-maxsist').value);
+                ref.minDiast = parseInt(document.getElementById('p-mindiast').value);
+                ref.maxDiast = parseInt(document.getElementById('p-maxdiast').value);
+                ref.desc = `${ref.minSist}/${ref.minDiast} a ${ref.maxSist}/${ref.maxDiast} ${un}`;
+            } else {
+                ref.min = parseFloat(document.getElementById('p-min').value);
+                ref.max = parseFloat(document.getElementById('p-max').value);
+                ref.desc = `${ref.min} a ${ref.max} ${un}`;
+            }
 
-    if (novoNome !== paramSendoEditado) {
-        referenciasVitais[novoNome] = ref;
-        delete referenciasVitais[paramSendoEditado];
-        
-        if (historicoDados[paramSendoEditado]) {
-            historicoDados[novoNome] = historicoDados[paramSendoEditado];
-            delete historicoDados[paramSendoEditado];
+            if (novoNome !== paramSendoEditado) {
+                referenciasVitais[novoNome] = ref;
+                delete referenciasVitais[paramSendoEditado];
+                
+                if (historicoDados[paramSendoEditado]) {
+                    historicoDados[novoNome] = historicoDados[paramSendoEditado];
+                    delete historicoDados[paramSendoEditado];
+                }
+            }
+
+            alert(`✅ Parâmetro atualizado com sucesso!`);
+            renderizarConfigVitais();
+            carregarOpcoesSinaisVitais();
+            closeModal('modal-parametro');
         }
-    }
-
-    alert(`✅ Parâmetro atualizado com sucesso!`);
-    renderizarConfigVitais();
-    carregarOpcoesSinaisVitais();
-    closeModal('modal-parametro');
-}
 
         function salvarSinalVital() {
             const tipo = document.getElementById('vital-tipo').value;
@@ -907,116 +877,115 @@ function verificarFimCondicao() {
         }
 
         function salvarMedicamento() {
-    const nm = document.getElementById('med-nome').value;
-    const hr = document.getElementById('med-hora').value;
-    const obs = document.getElementById('med-obs').value;
-    if(!nm || !hr) return alert("⚠️ Preencha nome e horário.");
-    
-    const agora = new Date();
-    const [h, m] = hr.split(':').map(Number);
-    const retroativo = (h * 60 + m) < (agora.getHours() * 60 + agora.getMinutes());
-    
-    document.getElementById('lista-medicamentos').innerHTML += `<li><div><strong>${nm}</strong> <br><span style="font-size:0.8rem; color:var(--text-muted);">${obs? `Obs: ${obs}`:''}</span></div> <span style="color: var(--primary); font-weight:600;">${hr}</span></li>`;
-    
-    let textoTimeline = retroativo ? `${nm} registrado como consumido no passado (${hr}).` : `${nm} programado para as ${hr}.`;
-    if(obs) textoTimeline += ` Obs: ${obs}`;
-    
-    adicionarNaTimeline(`Medicação Cadastrada`, textoTimeline, false, retroativo);
-    closeModal('modal-medicamento');
-}
+            const nm = document.getElementById('med-nome').value;
+            const hr = document.getElementById('med-hora').value;
+            const obs = document.getElementById('med-obs').value;
+            if(!nm || !hr) return alert("⚠️ Preencha nome e horário.");
+            
+            const agora = new Date();
+            const [h, m] = hr.split(':').map(Number);
+            const retroativo = (h * 60 + m) < (agora.getHours() * 60 + agora.getMinutes());
+            
+            document.getElementById('lista-medicamentos').innerHTML += `<li><div><strong>${nm}</strong> <br><span style="font-size:0.8rem; color:var(--text-muted);">${obs? `Obs: ${obs}`:''}</span></div> <span style="color: var(--primary); font-weight:600;">${hr}</span></li>`;
+            
+            let textoTimeline = retroativo ? `${nm} registrado como consumido no passado (${hr}).` : `${nm} programado para as ${hr}.`;
+            if(obs) textoTimeline += ` Obs: ${obs}`;
+            
+            adicionarNaTimeline(`Medicação Cadastrada`, textoTimeline, false, retroativo);
+            closeModal('modal-medicamento');
+        }
 
         // --- GERENCIAMENTO DE USUÁRIOS ---
         function salvarUsuarioApp() {
-    const nm = document.getElementById('usr-nome').value;
-    const cpf = document.getElementById('usr-cpf').value;
-    const tel = document.getElementById('usr-telefone').value;
-    const em = document.getElementById('usr-email').value;
-    const sn = document.getElementById('usr-senha').value;
-    const prf = document.getElementById('usr-perfil').value;
-    
-    if(!nm || !cpf || !tel || !em || !sn) return alert("⚠️ Preencha todos os campos.");
-    if(!validarCPF(cpf)) return alert("⚠️ CPF inválido.");
-    if(!validarTelefone(tel)) return alert("⚠️ Telefone incompleto.");
-    if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
-    
-    if(prf === 'Administrador') {
-        const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length;
-        if(qtdAdmins >= 2) return alert("⚠️ Limite atingido: O plano atual permite apenas 2 Administradores.");
-    }
+            const nm = document.getElementById('usr-nome').value;
+            const cpf = document.getElementById('usr-cpf').value;
+            const tel = document.getElementById('usr-telefone').value;
+            const em = document.getElementById('usr-email').value;
+            const sn = document.getElementById('usr-senha').value;
+            const prf = document.getElementById('usr-perfil').value;
+            
+            if(!nm || !cpf || !tel || !em || !sn) return alert("⚠️ Preencha todos os campos.");
+            if(!validarCPF(cpf)) return alert("⚠️ CPF inválido.");
+            if(!validarTelefone(tel)) return alert("⚠️ Telefone incompleto.");
+            if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
+            
+            if(prf === 'Administrador') {
+                const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length;
+                if(qtdAdmins >= 2) return alert("⚠️ Limite atingido: O plano atual permite apenas 2 Administradores.");
+            }
 
-    alert(`✅ Usuário ${nm} cadastrado com sucesso!`);
-    
-    const isAdmStr = prf === 'Administrador' ? 'true' : 'false';
-    const displayNome = prf === 'Administrador' ? `${nm} (Administrador)` : nm;
+            alert(`✅ Usuário ${nm} cadastrado com sucesso!`);
+            
+            const isAdmStr = prf === 'Administrador' ? 'true' : 'false';
+            const displayNome = prf === 'Administrador' ? `${nm} (Administrador)` : nm;
 
-    const nCard = document.createElement('div'); 
-    nCard.className = 'card';
-    nCard.style = 'border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top:15px;';
-    nCard.setAttribute('data-admin', isAdmStr);
-    nCard.setAttribute('data-cpf', cpf);
-    nCard.setAttribute('data-perfil', prf);
+            const nCard = document.createElement('div'); 
+            nCard.className = 'card';
+            nCard.style = 'border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top:15px;';
+            nCard.setAttribute('data-admin', isAdmStr);
+            nCard.setAttribute('data-cpf', cpf);
+            nCard.setAttribute('data-perfil', prf);
 
-    nCard.innerHTML = `<strong>${displayNome}</strong><p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">${em}</span> • <span class="user-tel">${tel}</span></p><p class="status-tag" style="display: block; color: var(--success);">✅ Acesso Liberado</p><button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>`;
-    
-    document.getElementById('lista-usuarios').appendChild(nCard);
-    closeModal('modal-usuario');
-}
+            nCard.innerHTML = `<strong>${displayNome}</strong><p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">${em}</span> • <span class="user-tel">${tel}</span></p><p class="status-tag" style="display: block; color: var(--success);">✅ Acesso Liberado</p><button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>`;
+            
+            document.getElementById('lista-usuarios').appendChild(nCard);
+            closeModal('modal-usuario');
+        }
 
-function salvarNovoSinal() {
-    const nome = document.getElementById('ns-nome').value;
-    const min = document.getElementById('ns-min').value;
-    const max = document.getElementById('ns-max').value;
-    const un = document.getElementById('ns-unidade').value || '';
+        function salvarNovoSinal() {
+            const nome = document.getElementById('ns-nome').value;
+            const min = document.getElementById('ns-min').value;
+            const max = document.getElementById('ns-max').value;
+            const un = document.getElementById('ns-unidade').value || '';
 
-    if(!nome || !min || !max) return alert("⚠️ Preencha o nome, o mínimo e o máximo.");
+            if(!nome || !min || !max) return alert("⚠️ Preencha o nome, o mínimo e o máximo.");
 
-    referenciasVitais[nome] = {
-        min: parseFloat(min), max: parseFloat(max), formato: "num",
-        desc: `${min} a ${max} ${un}`
-    };
+            referenciasVitais[nome] = {
+                min: parseFloat(min), max: parseFloat(max), formato: "num",
+                desc: `${min} a ${max} ${un}`
+            };
 
-    historicoDados[nome] = { labels: [], dataset1: [], dataset2: [] };
-    
-    renderizarConfigVitais();
-    carregarOpcoesSinaisVitais();
-    
-    alert(`✅ Parâmetro "${nome}" criado! Ele já está disponível no registro de Sinais Vitais.`);
-    closeModal('modal-novo-sinal');
-}
+            historicoDados[nome] = { labels: [], dataset1: [], dataset2: [] };
+            
+            renderizarConfigVitais();
+            carregarOpcoesSinaisVitais();
+            
+            alert(`✅ Parâmetro "${nome}" criado! Ele já está disponível no registro de Sinais Vitais.`);
+            closeModal('modal-novo-sinal');
+        }
 
         function abrirPersonalizar(btn) {
-    cartaoSendoEditado = btn.closest('.card');
-    
-    const nmRaw = cartaoSendoEditado.querySelector('strong').innerText;
-    const nm = nmRaw.split(' (')[0]; 
-    const em = cartaoSendoEditado.querySelector('.user-email').innerText;
-    const tl = cartaoSendoEditado.querySelector('.user-tel').innerText;
-    
-    const cpf = cartaoSendoEditado.getAttribute('data-cpf') || '';
-    const perfil = cartaoSendoEditado.getAttribute('data-perfil') || 'Cuidador';
-    
-    document.getElementById('edit-nome').value = nm;
-    document.getElementById('edit-cpf').value = cpf;
-    document.getElementById('edit-email').value = em;
-    document.getElementById('edit-telefone').value = tl;
-    document.getElementById('edit-perfil').value = perfil;
-    
-    const isAdm = cartaoSendoEditado.getAttribute('data-admin') === 'true';
-    document.getElementById('secao-inativar').style.display = isAdm ? 'none' : 'block';
+            cartaoSendoEditado = btn.closest('.card');
+            
+            const nmRaw = cartaoSendoEditado.querySelector('strong').innerText;
+            const nm = nmRaw.split(' (')[0]; 
+            const em = cartaoSendoEditado.querySelector('.user-email').innerText;
+            const tl = cartaoSendoEditado.querySelector('.user-tel').innerText;
+            
+            const cpf = cartaoSendoEditado.getAttribute('data-cpf') || '';
+            const perfil = cartaoSendoEditado.getAttribute('data-perfil') || 'Cuidador';
+            
+            document.getElementById('edit-nome').value = nm;
+            document.getElementById('edit-cpf').value = cpf;
+            document.getElementById('edit-email').value = em;
+            document.getElementById('edit-telefone').value = tl;
+            document.getElementById('edit-perfil').value = perfil;
+            
+            const isAdm = cartaoSendoEditado.getAttribute('data-admin') === 'true';
+            document.getElementById('secao-inativar').style.display = isAdm ? 'none' : 'block';
 
-    if(!isAdm) {
-        const btnStat = document.getElementById('btn-status-usuario');
-        const txt = document.getElementById('texto-aviso-status');
-        if(cartaoSendoEditado.classList.contains('inativo')) {
-            btnStat.className = 'btn-success'; btnStat.innerText = '✅ Reativar Acesso'; txt.innerText = 'Usuário voltará a ter acesso.';
-        } else {
-            btnStat.className = 'btn-danger'; btnStat.innerText = '🚫 Inativar Acesso'; txt.innerText = 'Usuário perderá acesso imediato.';
+            if(!isAdm) {
+                const btnStat = document.getElementById('btn-status-usuario');
+                const txt = document.getElementById('texto-aviso-status');
+                if(cartaoSendoEditado.classList.contains('inativo')) {
+                    btnStat.className = 'btn-success'; btnStat.innerText = '✅ Reativar Acesso'; txt.innerText = 'Usuário voltará a ter acesso.';
+                } else {
+                    btnStat.className = 'btn-danger'; btnStat.innerText = '🚫 Inativar Acesso'; txt.innerText = 'Usuário perderá acesso imediato.';
+                }
+            }
+            openModal('modal-personalizar');
         }
-    }
-    openModal('modal-personalizar');
-}
 
-        // FUNÇÃO ATUALIZADA (Para administradores enviarem link aos pacientes)
         async function enviarLinkSenha(doPainel = false) {
             const em = document.getElementById('edit-email').value;
             if(!em || !validarEmail(em)) return alert("⚠️ E-mail atual é inválido para recebimento do link.");
@@ -1033,35 +1002,36 @@ function salvarNovoSinal() {
         }
 
         function salvarPersonalizacao() {
-    const nm = document.getElementById('edit-nome').value;
-    const cpf = document.getElementById('edit-cpf').value;
-    const em = document.getElementById('edit-email').value;
-    const tl = document.getElementById('edit-telefone').value;
-    const perfil = document.getElementById('edit-perfil').value;
-    
-    if(!nm || !em) return alert("⚠️ Nome e E-mail são obrigatórios.");
-    if(cpf && !validarCPF(cpf)) return alert("⚠️ CPF inválido.");
-    if(tl && !validarTelefone(tl)) return alert("⚠️ Telefone inválido.");
+            const nm = document.getElementById('edit-nome').value;
+            const cpf = document.getElementById('edit-cpf').value;
+            const em = document.getElementById('edit-email').value;
+            const tl = document.getElementById('edit-telefone').value;
+            const perfil = document.getElementById('edit-perfil').value;
+            
+            if(!nm || !em) return alert("⚠️ Nome e E-mail são obrigatórios.");
+            if(cpf && !validarCPF(cpf)) return alert("⚠️ CPF inválido.");
+            if(tl && !validarTelefone(tl)) return alert("⚠️ Telefone inválido.");
 
-    const isJaAdmin = cartaoSendoEditado.getAttribute('data-admin') === 'true';
-    if (perfil === 'Administrador' && !isJaAdmin) {
-        const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length;
-        if (qtdAdmins >= 2) return alert("⚠️ Limite atingido: Você já possui o máximo de 2 Administradores.");
-    }
+            const isJaAdmin = cartaoSendoEditado.getAttribute('data-admin') === 'true';
+            if (perfil === 'Administrador' && !isJaAdmin) {
+                const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length;
+                if (qtdAdmins >= 2) return alert("⚠️ Limite atingido: Você já possui o máximo de 2 Administradores.");
+            }
 
-    cartaoSendoEditado.setAttribute('data-cpf', cpf);
-    cartaoSendoEditado.setAttribute('data-perfil', perfil);
-    cartaoSendoEditado.setAttribute('data-admin', perfil === 'Administrador' ? 'true' : 'false');
-    
-    cartaoSendoEditado.querySelector('strong').innerText = perfil === 'Administrador' ? `${nm} (Administrador)` : nm;
-    cartaoSendoEditado.querySelector('.user-email').innerText = em;
-    cartaoSendoEditado.querySelector('.user-tel').innerText = tl;
-    
-    if(perfil === 'Administrador') document.getElementById('secao-inativar').style.display = 'none';
-    
-    alert("✅ Cadastro atualizado com sucesso!");
-    closeModal('modal-personalizar');
-}
+            cartaoSendoEditado.setAttribute('data-cpf', cpf);
+            cartaoSendoEditado.setAttribute('data-perfil', perfil);
+            cartaoSendoEditado.setAttribute('data-admin', perfil === 'Administrador' ? 'true' : 'false');
+            
+            cartaoSendoEditado.querySelector('strong').innerText = perfil === 'Administrador' ? `${nm} (Administrador)` : nm;
+            cartaoSendoEditado.querySelector('.user-email').innerText = em;
+            cartaoSendoEditado.querySelector('.user-tel').innerText = tl;
+            
+            if(perfil === 'Administrador') document.getElementById('secao-inativar').style.display = 'none';
+            
+            alert("✅ Cadastro atualizado com sucesso!");
+            closeModal('modal-personalizar');
+        }
+
         function alternarStatusUsuario() {
             const inativo = cartaoSendoEditado.classList.contains('inativo');
             let tag = cartaoSendoEditado.querySelector('.status-tag');
