@@ -8,34 +8,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- BIBLIOTECA DO SUPABASE IMPORTADA AQUI -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* =========================================
-           PALETA ORIGINAL E DESIGN MODERNO
-           ========================================= */
-        :root {
-            --primary: #0a192f;
-            --primary-hover: #112240;
-            --accent: #ffc107;
-            --accent-hover: #e0a800;
-            --bg-color: #f4f5f7;
-            --surface: #FFFFFF;
-            --text-main: #0a192f;
-            --text-muted: #6b7280;
-            --border: #d1d5db;
-            --danger: #d32f2f;
-            --danger-bg: #ffebee;
-            --success: #2e7d32;
-            --success-bg: #e8f5e9;
-        }
-
+        :root { --primary: #0a192f; --primary-hover: #112240; --accent: #ffc107; --accent-hover: #e0a800; --bg-color: #f4f5f7; --surface: #FFFFFF; --text-main: #0a192f; --text-muted: #6b7280; --border: #d1d5db; --danger: #d32f2f; --danger-bg: #ffebee; --success: #2e7d32; --success-bg: #e8f5e9; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
-
-        /* AUTENTICAÇÃO */
         .auth-wrapper { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         .auth-container { background-color: var(--surface); width: 100%; max-width: 480px; border-radius: 20px; box-shadow: 0 10px 25px rgba(10, 25, 47, 0.08); overflow: hidden; }
         .auth-header { background-color: var(--primary); padding: 40px 20px 20px; text-align: center; }
@@ -51,61 +29,45 @@
         .forgot-password { display: block; text-align: right; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none; margin-top: -5px; margin-bottom: 25px; }
         .forgot-password:hover { text-decoration: underline; color: var(--accent-hover); }
         #msg-sucesso { display: none; background-color: var(--success-bg); color: var(--success); padding: 12px; border-radius: 8px; text-align: center; font-size: 0.9rem; margin-bottom: 20px; font-weight: 600; }
-
-        /* APP PRINCIPAL */
         header.app-header { background-color: var(--primary); padding: 20px; border-bottom: 1px solid var(--primary-hover); display: flex; justify-content: space-between; align-items: center; }
         .app-header-text h1 { font-size: 1.6rem; font-weight: 700; color: var(--accent); letter-spacing: -0.5px;}
         .app-header-text p { font-size: 0.85rem; color: var(--border); font-weight: 500;}
         .btn-logout { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
         .btn-logout:hover { background-color: rgba(255, 193, 7, 0.1); }
-
         nav.app-nav { display: flex; background-color: var(--surface); padding: 10px 15px; overflow-x: auto; gap: 10px; border-bottom: 1px solid var(--border); scrollbar-width: none; }
         nav.app-nav::-webkit-scrollbar { display: none; } 
         .tab-btn-app { flex: 1; min-width: 105px; padding: 10px 15px; border: none; background: transparent; color: var(--text-muted); font-weight: 600; font-size: 0.9rem; cursor: pointer; border-radius: 100px; transition: all 0.3s; }
         .tab-btn-app.active { background-color: var(--primary); color: var(--surface); }
-        
         .tab-content { display: none; padding: 25px 20px; max-width: 700px; margin: 0 auto; animation: fadeIn 0.4s ease;}
         .tab-content.active { display: block; }
-
         .card { background-color: var(--surface); padding: 20px; margin-bottom: 20px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: all 0.2s ease; border-left: 5px solid var(--primary); }
         .card.alert { border-left-color: var(--danger); background-color: var(--danger-bg); }
         .card.warning { border-left-color: var(--accent); }
         .card.inativo { opacity: 0.6; filter: grayscale(100%); background-color: #e5e7eb; border-left-color: #9ca3af; }
-        
         .card strong { color: var(--text-main); font-size: 1.05rem; }
         .card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-top: 4px;}
-
         h2.section-title { margin-bottom: 20px; font-size: 1.25rem; font-weight: 700; color: var(--text-main); border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 4px;}
-        
         ul.list-clean { list-style-type: none; padding-left: 0; margin-top: 15px;}
         ul.list-clean li { padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 0.95rem; display: flex; align-items: center; justify-content: space-between;}
         ul.list-clean li:last-child { border-bottom: none; }
-        
         .task-done { background-color: var(--success-bg); padding: 10px; border-radius: 12px; border: none !important; margin-bottom: 5px;}
         .status-tag { display: block; font-size: 0.85rem; font-weight: bold; margin-top: 10px; }
-
-        /* BOTOES E MODAIS */
         .btn-main { background-color: var(--accent); color: var(--primary); border: none; padding: 14px 20px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; width: 100%; margin-top: 15px; transition: all 0.2s; box-shadow: 0 4px 6px rgba(255, 193, 7, 0.3); }
         .btn-main:hover { background-color: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 8px rgba(255, 193, 7, 0.4); }
         .btn-outline { background-color: transparent; color: var(--primary); border: 1px solid var(--primary); margin-top: 15px; padding: 8px 16px; font-size: 0.9rem; font-weight: 600; width: auto; display: inline-block; cursor: pointer; border-radius: 8px; transition: 0.2s; }
         .btn-outline:hover { background-color: var(--border); }
         .btn-danger { background-color: var(--danger-bg); color: var(--danger); border: none; font-weight: 600; margin-top: 15px; padding: 12px; width: 100%; border-radius: 10px; cursor: pointer; transition: 0.2s;}
         .btn-success { background-color: var(--success-bg); color: var(--success); border: none; font-weight: 600; margin-top: 15px; padding: 12px; width: 100%; border-radius: 10px; cursor: pointer;}
-        
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 25, 47, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; overflow-y: auto; padding: 20px 0; }
         .modal { background: var(--surface); padding: 30px 25px; border-radius: 20px; width: 90%; max-width: 450px; position: relative; margin: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); animation: slideUp 0.3s ease;}
         .close-btn { position: absolute; top: 15px; right: 20px; cursor: pointer; font-size: 1.8rem; border: none; background: none; color: var(--text-muted); transition: 0.2s;}
-        
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-group label { display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600; color: var(--text-main);}
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; background-color: var(--bg-color); color: var(--text-main); transition: all 0.2s; resize: vertical; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background-color: var(--surface); box-shadow: 0 0 0 4px rgba(10, 25, 47, 0.1); }
         .flex-row { display: flex; gap: 10px; align-items: flex-start; }
         .flex-1 { flex: 1; }
-
-        /* GRÁFICOS */
         .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 15px; }
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -119,13 +81,16 @@
                 <h1>CareBridge</h1>
                 <p>O hub de saúde da sua família</p>
             </div>
-            <div class="auth-tabs">
+            
+            <div id="auth-tabs-container" class="auth-tabs">
                 <button class="tab-btn-auth active" onclick="mudarAbaAuth('login')">Entrar</button>
                 <button class="tab-btn-auth" onclick="mudarAbaAuth('cadastro')">Criar Conta</button>
             </div>
+            
             <div class="auth-body">
                 <div id="msg-sucesso"></div>
 
+                <!-- TELA DE LOGIN -->
                 <div id="form-login" class="form-section active">
                     <div class="form-group"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com"></div>
                     <div class="form-group"><label>Senha</label><input type="password" id="login-senha" placeholder="••••••••"></div>
@@ -133,6 +98,7 @@
                     <button class="btn-main" id="btn-login" onclick="fazerLogin()">Acessar Painel</button>
                 </div>
 
+                <!-- TELA DE CADASTRO -->
                 <div id="form-cadastro" class="form-section">
                     <div class="form-group"><label>Nome Completo</label><input type="text" id="cad-nome"></div>
                     <div class="flex-row">
@@ -143,6 +109,14 @@
                     <div class="form-group"><label>Criar Senha</label><input type="password" id="cad-senha"><span class="password-hint">10+ caracteres, letras, números e @#$!</span></div>
                     <div class="form-group"><label>Confirmar Senha</label><input type="password" id="cad-confirma"></div>
                     <button class="btn-main" id="btn-cad" onclick="fazerCadastro()">Finalizar Cadastro</button>
+                </div>
+
+                <!-- TELA DE REDEFINIÇÃO DE SENHA (Oculta por padrão) -->
+                <div id="form-redefinir" class="form-section">
+                    <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Criar Nova Senha</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">Digite sua nova senha de acesso abaixo.</p>
+                    <div class="form-group"><label>Nova Senha</label><input type="password" id="nova-senha"><span class="password-hint">10+ caracteres, letras, números e @#$!</span></div>
+                    <button class="btn-main" id="btn-salvar-senha" onclick="salvarNovaSenha()">Atualizar Senha</button>
                 </div>
             </div>
         </div>
@@ -222,7 +196,7 @@
     <div id="modal-checkin" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button><h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3><div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div><div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div><div class="form-group"><label>Comprovante (Foto):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div><button class="btn-main" onclick="salvarCheckin()">Concluir Tarefa</button></div></div>
     <div id="modal-parametro" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-parametro')">&times;</button><h3 style="margin-bottom: 20px;" id="param-titulo">Editar Parâmetro</h3><div id="param-inputs"></div><button class="btn-main" onclick="salvarParametro()">Atualizar Referência</button></div></div>
     <div id="modal-usuario" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-usuario')">&times;</button><h3 style="margin-bottom: 20px;">Convidar Usuário</h3><div class="form-group"><label>Nome Completo</label><input type="text" id="usr-nome"></div><div class="flex-row"><div class="form-group flex-1"><label>CPF</label><input type="text" id="usr-cpf" maxlength="14" oninput="mascaraCPF(this)"></div><div class="form-group flex-1"><label>Telefone</label><input type="text" id="usr-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div></div><div class="form-group"><label>E-mail</label><input type="email" id="usr-email"></div><div class="form-group"><label>Perfil</label><select id="usr-perfil"><option>Cuidador</option><option>Observador</option></select></div><button class="btn-main" onclick="salvarUsuarioApp()">Enviar Convite Seguro</button></div></div>
-    <div id="modal-personalizar" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-personalizar')">&times;</button><h3 style="margin-bottom: 20px;">Gerenciar Cadastro</h3><div class="form-group"><label>E-mail</label><input type="email" id="edit-email"></div><div class="form-group"><label>Telefone</label><input type="text" id="edit-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div><button class="btn-outline" style="width:100%;" onclick="enviarLinkSenha()">✉️ Enviar Link de Redefinição de Senha</button><button class="btn-main" onclick="salvarPersonalizacao()">Salvar Alterações</button><div id="secao-inativar"><hr style="margin:25px 0;border-top:1px solid var(--border);"><div style="text-align: center;"><p id="texto-aviso-status" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">O usuário perderá acesso imediato.</p><button id="btn-status-usuario" class="btn-danger" onclick="alternarStatusUsuario()">🚫 Inativar Acesso</button></div></div></div></div>
+    <div id="modal-personalizar" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-personalizar')">&times;</button><h3 style="margin-bottom: 20px;">Gerenciar Cadastro</h3><div class="form-group"><label>E-mail</label><input type="email" id="edit-email"></div><div class="form-group"><label>Telefone</label><input type="text" id="edit-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div><button class="btn-outline" style="width:100%;" onclick="enviarLinkSenha(true)">✉️ Enviar Link de Redefinição de Senha</button><button class="btn-main" onclick="salvarPersonalizacao()">Salvar Alterações</button><div id="secao-inativar"><hr style="margin:25px 0;border-top:1px solid var(--border);"><div style="text-align: center;"><p id="texto-aviso-status" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">O usuário perderá acesso imediato.</p><button id="btn-status-usuario" class="btn-danger" onclick="alternarStatusUsuario()">🚫 Inativar Acesso</button></div></div></div></div>
 
     <!-- ========================================================================= -->
     <!-- LÓGICA JAVASCRIPT MASTER COM SUPABASE -->
@@ -254,13 +228,26 @@
         let historicoDados = {};
         let graficos = {};
 
+        // --- VERIFICAR SE O USUÁRIO VEIO DO E-MAIL DE RECUPERAÇÃO ---
+        clienteSupabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'PASSWORD_RECOVERY') {
+                // Esconde as abas padrão e mostra apenas a tela de nova senha
+                document.getElementById('auth-tabs-container').style.display = 'none';
+                document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+                document.getElementById('form-redefinir').classList.add('active');
+            }
+        });
+
         window.onload = async () => {
             carregarOpcoesSinaisVitais();
             renderizarConfigVitais();
             inicializarGraficos();
 
-            const { data: { session } } = await clienteSupabase.auth.getSession();
-            if(session) abrirPainel();
+            // Só abre o painel direto se não estiver na tela de recuperação de senha
+            if (!window.location.hash.includes('type=recovery')) {
+                const { data: { session } } = await clienteSupabase.auth.getSession();
+                if(session) abrirPainel();
+            }
         };
 
         // --- VALIDADORES ---
@@ -280,12 +267,51 @@
             else { document.querySelectorAll('.tab-btn-auth')[1].classList.add('active'); document.getElementById('form-cadastro').classList.add('active'); }
         }
 
-        function recuperarSenha() {
+        // FUNÇÃO ATUALIZADA: Dispara o e-mail real de recuperação
+        async function recuperarSenha() {
             const em = document.getElementById('login-email').value;
-            if(!em || !validarEmail(em)) return alert("⚠️ Insira um e-mail válido para recuperar a senha.");
+            if(!em || !validarEmail(em)) return alert("⚠️ Digite o seu e-mail no campo acima antes de clicar em recuperar a senha.");
+            
             const msg = document.getElementById('msg-sucesso');
-            msg.innerText = `Link de redefinição enviado para ${em}`;
             msg.style.display = 'block';
+            msg.innerText = "Enviando e-mail...";
+
+            const { data, error } = await clienteSupabase.auth.resetPasswordForEmail(em, {
+                redirectTo: window.location.origin + window.location.pathname,
+            });
+
+            if (error) {
+                msg.style.backgroundColor = 'var(--danger-bg)';
+                msg.style.color = 'var(--danger)';
+                msg.innerText = "Erro ao enviar: " + error.message;
+            } else {
+                msg.style.backgroundColor = 'var(--success-bg)';
+                msg.style.color = 'var(--success)';
+                msg.innerText = `Um link de redefinição foi enviado para ${em}`;
+            }
+        }
+
+        // FUNÇÃO NOVA: Salva a nova senha no banco de dados
+        async function salvarNovaSenha() {
+            const btn = document.getElementById('btn-salvar-senha');
+            const novaSenha = document.getElementById('nova-senha').value;
+            
+            if(!validarSenha(novaSenha)) return alert("⚠️ Senha fraca. Use 10+ caracteres, letras, números e símbolos especiais (@#$!).");
+
+            btn.innerText = "Atualizando...";
+
+            const { data, error } = await clienteSupabase.auth.updateUser({
+                password: novaSenha
+            });
+
+            if(error) {
+                alert("❌ Erro ao atualizar senha: " + error.message);
+                btn.innerText = "Atualizar Senha";
+            } else {
+                alert("✅ Senha atualizada com sucesso! Você já pode acessar o sistema.");
+                window.location.hash = ''; // Limpa a URL
+                window.location.reload(); // Recarrega a página para o estado de login normal
+            }
         }
 
         async function fazerCadastro() {
@@ -682,10 +708,20 @@
             openModal('modal-personalizar');
         }
 
-        function enviarLinkSenha() {
+        // FUNÇÃO ATUALIZADA (Para administradores enviarem link aos pacientes)
+        async function enviarLinkSenha(doPainel = false) {
             const em = document.getElementById('edit-email').value;
             if(!em || !validarEmail(em)) return alert("⚠️ E-mail atual é inválido para recebimento do link.");
-            alert(`✅ Um link de redefinição de senha foi enviado para ${em}.`);
+            
+            const { error } = await clienteSupabase.auth.resetPasswordForEmail(em, {
+                redirectTo: window.location.origin + window.location.pathname,
+            });
+
+            if (error) {
+                alert("❌ Erro ao enviar link: " + error.message);
+            } else {
+                alert(`✅ Um link oficial de redefinição de senha foi enviado para ${em}.`);
+            }
         }
 
         function salvarPersonalizacao() {
