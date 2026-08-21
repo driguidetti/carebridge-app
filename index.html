@@ -398,7 +398,7 @@
         const clienteSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         // ---------------------------------------------------------
-        // 2. VARIÁVEIS GLOBAIS DE ESTADO (O "CÉREBRO" DO APP)
+        // 2. VARIÁVEIS GLOBAIS DE ESTADO
         // ---------------------------------------------------------
         let taskCounter = 0;
         let listaDeRotinas = []; 
@@ -407,7 +407,6 @@
         let cartaoSendoEditado = null;
         let rotinaParaExcluir = null; 
         
-        // ESTA É A VARIÁVEL QUE FAZIA FALTA:
         let referenciasVitais = {
             "Pressão Arterial": { minSist: 90, maxSist: 130, minDiast: 60, maxDiast: 85, formato: "sist/diast", desc: "90/60 a 130/85 mmHg" },
             "Glicemia": { min: 70, max: 99, formato: "num", desc: "70 a 99 mg/dL" },
@@ -444,7 +443,55 @@
             else { document.getElementById('tab-criar').classList.add('active'); document.getElementById('lobby-criar').classList.add('active'); }
         }
 
-        // --- 3. INICIALIZAÇÃO DE SESSÃO E CARREGAMENTO (À PROVA DE FALHAS DE FOREIGN KEY) ---
+        // ---------------------------------------------------------
+        // 3. INICIALIZAÇÃO DE SESSÃO E ROTEAMENTO (SPA - SEM REFRESH)
+        // ---------------------------------------------------------
+        async function iniciarAplicativo(session) {
+            if (!session) {
+                // Se não tem sessão, garante que mostra o Login e esconde o resto
+                document.getElementById('auth-view').style.display = 'flex';
+                document.getElementById('lobby-view').style.display = 'none';
+                document.getElementById('app-view').style.display = 'none';
+                return;
+            }
+
+            try {
+                // Sessão existe: Esconde a tela de login imediatamente e suavemente
+                document.getElementById('auth-view').style.display = 'none';
+
+                let { data: userData, error } = await clienteSupabase.from('usuarios').select('*').eq('id', session.user.id).single();
+
+                // SISTEMA DE SALVA-VIDAS
+                if (!userData) {
+                    const metadados = session.user.user_metadata || {};
+                    const newUser = {
+                        id: session.user.id,
+                        email: session.user.email,
+                        nome: metadados.nome || metadados.full_name || 'Usuário',
+                        cpf: metadados.cpf || '',
+                        telefone: metadados.telefone || '',
+                        perfil: 'Administrador'
+                    };
+                    await clienteSupabase.from('usuarios').insert([newUser]);
+                    userData = newUser;
+                }
+
+                // Roteamento Inteligente
+                if (userData.familia_id) {
+                    const { data: famData } = await clienteSupabase.from('familias').select('*').eq('id', userData.familia_id).single();
+                    userData.familias = famData;
+                    abrirPainelReal(userData);
+                } else {
+                    // Manda para a tela de Criar Família (Lobby)
+                    document.getElementById('lobby-view').style.display = 'flex';
+                    document.getElementById('app-view').style.display = 'none';
+                }
+            } catch (e) {
+                alert("❌ Erro interno ao carregar dados: " + e.message);
+                document.getElementById('auth-view').style.display = 'flex'; // Volta se der erro
+            }
+        }
+
         clienteSupabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'PASSWORD_RECOVERY') {
                 document.getElementById('auth-tabs-container').style.display = 'none';
@@ -468,46 +515,12 @@
             }, 1000);
 
             const { data: { session } } = await clienteSupabase.auth.getSession();
-            
-            if (session) {
-                // 1. Busca APENAS o usuário
-                let { data: userData, error: errBusca } = await clienteSupabase.from('usuarios').select('*').eq('id', session.user.id).single();
-                
-                // SISTEMA DE SALVA-VIDAS
-                if (!userData) {
-                    const metadados = session.user.user_metadata || {};
-                    const newUser = {
-                        id: session.user.id,
-                        email: session.user.email,
-                        nome: metadados.nome || metadados.full_name || 'Usuário',
-                        cpf: metadados.cpf || '',
-                        telefone: metadados.telefone || '',
-                        perfil: 'Administrador'
-                    };
-                    
-                    await clienteSupabase.from('usuarios').insert([newUser]);
-                    
-                    const res = await clienteSupabase.from('usuarios').select('*').eq('id', session.user.id).single();
-                    userData = res.data;
-                }
-
-                // 2. Roteamento Inteligente
-                if (userData) {
-                    if (userData.familia_id) {
-                        const { data: famData } = await clienteSupabase.from('familias').select('*').eq('id', userData.familia_id).single();
-                        userData.familias = famData;
-                        abrirPainelReal(userData);
-                    } else {
-                        document.getElementById('auth-view').style.display = 'none';
-                        document.getElementById('lobby-view').style.display = 'flex';
-                    }
-                } else {
-                    console.error("Erro fatal: Usuário não carregou.");
-                }
-            }
+            await iniciarAplicativo(session);
         };
 
-        // --- 4. FUNÇÕES DE AUTENTICAÇÃO E CADASTRO REAL ---
+        // ---------------------------------------------------------
+        // 4. FUNÇÕES DE AUTENTICAÇÃO E CADASTRO REAL (SPA)
+        // ---------------------------------------------------------
         async function fazerCadastro() {
             const btn = document.getElementById('btn-cad');
             const nm = document.getElementById('cad-nome').value;
@@ -557,8 +570,15 @@
             }
 
             btn.innerText = "Finalizar Cadastro";
-            alert("✅ Conta criada com sucesso! Redirecionando para a Sala de Espera..."); 
-            window.location.reload();
+
+            // TRANSIÇÃO DIRETA SEM REFRESH
+            if (authData.session) {
+                alert("✅ Conta criada com sucesso!");
+                await iniciarAplicativo(authData.session);
+            } else {
+                alert("✅ Conta criada! Por favor, faça login para continuar.");
+                mudarAbaAuth('login');
+            }
         }
 
         async function fazerLogin() {
@@ -571,8 +591,12 @@
             const { data, error } = await clienteSupabase.auth.signInWithPassword({ email: em, password: sn });
             btn.innerText = "Acessar Sistema";
 
-            if (error) alert("❌ E-mail ou senha incorretos.");
-            else window.location.reload(); 
+            if (error) {
+                alert("❌ Erro no login: " + error.message);
+            } else {
+                // TRANSIÇÃO DIRETA SEM REFRESH
+                await iniciarAplicativo(data.session);
+            }
         }
 
         async function fazerLogout() {
