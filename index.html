@@ -265,11 +265,7 @@
             <div class="card">
                 <strong>Gerenciamento de Usuários</strong>
                 <div id="lista-usuarios">
-                    <div class="card" data-admin="true" style="border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top: 15px;">
-                        <strong id="admin-nome">Carregando seus dados...</strong>
-                        <p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email" id="admin-email">carregando...</span> • <span class="user-tel" id="admin-tel">(Não informado)</span></p>
-                        <button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>
-                    </div>
+                    <!-- Usuários serão carregados aqui dinamicamente -->
                 </div>
                 <button class="btn-main" onclick="openModal('modal-usuario')">Cadastrar Novo Usuário +</button>
             </div>
@@ -637,11 +633,21 @@
             const cod = document.getElementById('lobby-codigo').value;
             if(!cod) return alert("⚠️ Digite o código de acesso.");
             
-            const { data: familia, error } = await clienteSupabase.from('familias').select('*').eq('codigo_acesso', cod).single();
-            if(error || !familia) return alert("❌ Código inválido ou família não encontrada.");
+            const { data: familia, error: errFam } = await clienteSupabase.from('familias').select('*').eq('codigo_acesso', cod).single();
+            if(errFam || !familia) return alert("❌ Código inválido ou família não encontrada.");
 
             const { data: { user } } = await clienteSupabase.auth.getUser();
-            await clienteSupabase.from('usuarios').update({ familia_id: familia.id, perfil: 'Observador' }).eq('id', user.id);
+
+            const { data: userAtualizado, error: errUpdate } = await clienteSupabase.from('usuarios')
+                .update({ familia_id: familia.id, perfil: 'Observador' })
+                .eq('id', user.id)
+                .select(); 
+
+            if (errUpdate) return alert("❌ Erro do banco de dados: " + errUpdate.message);
+            
+            if (!userAtualizado || userAtualizado.length === 0) {
+                return alert("🛑 SUPABASE BLOQUEOU O VÍNCULO! Desative o RLS da tabela 'usuarios'.");
+            }
 
             alert(`✅ Sucesso! Você agora faz parte da ${familia.nome_familia}.`);
             window.location.reload();
@@ -661,15 +667,26 @@
             if(depSn !== conf) return alert("⚠️ As senhas do paciente não coincidem.");
 
             const { data: novaFamilia, error: errFam } = await clienteSupabase.from('familias').insert([{ nome_familia: nomeFam }]).select().single();
-            if(errFam) return alert("❌ Erro ao criar família.");
+            if(errFam) return alert("❌ Erro ao criar família: " + errFam.message);
 
             const { data: { user } } = await clienteSupabase.auth.getUser();
-            await clienteSupabase.from('usuarios').update({ familia_id: novaFamilia.id, perfil: 'Administrador' }).eq('id', user.id);
+            
+            const { data: adminAtualizado, error: errAdmin } = await clienteSupabase.from('usuarios')
+                .update({ familia_id: novaFamilia.id, perfil: 'Administrador' })
+                .eq('id', user.id)
+                .select(); 
+
+            if (errAdmin) return alert("❌ Erro ao vincular administrador: " + errAdmin.message);
+            if (!adminAtualizado || adminAtualizado.length === 0) {
+                return alert("🛑 SUPABASE BLOQUEOU O VÍNCULO! Desative o RLS.");
+            }
 
             const { data: depAuth, error: errDep } = await clienteSupabase.auth.signUp({
                 email: depEm, password: depSn,
                 options: { data: { nome: depNm, cpf: depCpf, telefone: depTel, data_nascimento: depDt, perfil: 'Dependente' } }
             });
+
+            if(errDep) return alert("❌ Erro ao criar login do paciente: " + errDep.message);
 
             if (depAuth.user) {
                 await clienteSupabase.from('usuarios').insert([{
@@ -678,18 +695,19 @@
                     nome: depNm,
                     cpf: depCpf,
                     telefone: depTel,
+                    data_nascimento: depDt,
                     familia_id: novaFamilia.id,
                     perfil: 'Dependente'
                 }]);
             }
 
             await clienteSupabase.auth.signOut();
-            alert("✅ Família criada e Paciente cadastrado com sucesso!\n\n⚠️ Por motivos de segurança, você precisa fazer o Login novamente com a sua conta de Administrador.");
+            alert("✅ Família criada e Paciente cadastrado com sucesso!\n\n⚠️ O sistema redirecionará para o Login. Acesse agora com sua conta de Administrador.");
             window.location.reload();
         }
 
         // --- 6. FUNÇÕES DE RENDERIZAÇÃO DO APP E PAINEL ---
-        function abrirPainelReal(userData) {
+        async function abrirPainelReal(userData) {
             document.getElementById('lobby-view').style.display = 'none'; 
             document.getElementById('auth-view').style.display = 'none'; 
             document.getElementById('app-view').style.display = 'block'; 
@@ -700,19 +718,33 @@
                 document.getElementById('display-codigo-familia').innerText = userData.familias.codigo_acesso;
             }
             
-            // Dados do Administrador na tela de Configurações
-            document.getElementById('admin-nome').innerText = `${userData.nome} (${userData.perfil})`;
-            document.getElementById('admin-email').innerText = userData.email;
-            document.getElementById('admin-tel').innerText = userData.telefone || "(Telefone não informado)";
+            // ---------------------------------------------------------
+            // NOVO: Busca TODOS os usuários vinculados à família
+            // ---------------------------------------------------------
+            const { data: membrosFam, error } = await clienteSupabase
+                .from('usuarios')
+                .select('*')
+                .eq('familia_id', userData.familia_id);
+
+            const listaUsuarios = document.getElementById('lista-usuarios');
+            listaUsuarios.innerHTML = ''; // Limpa a lista antes de renderizar
             
-            const card = document.getElementById('admin-nome').closest('.card');
-            card.setAttribute('data-cpf', userData.cpf || '');
-            card.setAttribute('data-perfil', userData.perfil);
-            card.setAttribute('data-admin', userData.perfil === 'Administrador' ? 'true' : 'false');
+            if (membrosFam) {
+                membrosFam.forEach(membro => {
+                    const isAdm = membro.perfil === 'Administrador' ? 'true' : 'false';
+                    listaUsuarios.innerHTML += `
+                        <div class="card" data-id="${membro.id}" data-admin="${isAdm}" data-cpf="${membro.cpf || ''}" data-perfil="${membro.perfil}" data-nascimento="${membro.data_nascimento || ''}" style="border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top: 15px;">
+                            <strong>${membro.nome} (${membro.perfil})</strong>
+                            <p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">${membro.email}</span> • <span class="user-tel">${membro.telefone || '(Não informado)'}</span></p>
+                            <button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>
+                        </div>
+                    `;
+                });
+            }
 
             window.scrollTo(0,0);
 
-            // Carrega Vitais, Referências e Gráficos
+            // Carrega Vitais, Referências e Gráficos locais (Por enquanto)
             carregarOpcoesSinaisVitais();
             renderizarConfigVitais();
             inicializarGraficos();
@@ -1253,12 +1285,14 @@
             
             const cpf = cartaoSendoEditado.getAttribute('data-cpf') || '';
             const perfil = cartaoSendoEditado.getAttribute('data-perfil') || 'Cuidador';
+            const nasc = cartaoSendoEditado.getAttribute('data-nascimento') || '';
             
             document.getElementById('edit-nome').value = nm;
             document.getElementById('edit-cpf').value = cpf;
             document.getElementById('edit-email').value = em;
             document.getElementById('edit-telefone').value = tl;
             document.getElementById('edit-perfil').value = perfil;
+            document.getElementById('edit-nascimento').value = nasc;
 
             const selectPerfil = document.getElementById('edit-perfil');
             const hintDependente = document.getElementById('hint-dependente');
@@ -1289,11 +1323,12 @@
             openModal('modal-personalizar');
         }
 
-        function salvarPersonalizacao() {
+        async function salvarPersonalizacao() {
             const nm = document.getElementById('edit-nome').value;
             const cpf = document.getElementById('edit-cpf').value;
             const em = document.getElementById('edit-email').value;
             const tl = document.getElementById('edit-telefone').value;
+            const dt = document.getElementById('edit-nascimento').value;
             const perfil = document.getElementById('edit-perfil').value;
             
             if(!nm || !em) return alert("⚠️ Nome e E-mail são obrigatórios.");
@@ -1306,8 +1341,31 @@
                 if (qtdAdmins >= 2) return alert("⚠️ Limite atingido: Você já possui o máximo de 2 Administradores.");
             }
 
+            // ---------------------------------------------------------
+            // NOVO: Salva as alterações de verdade no Banco de Dados
+            // ---------------------------------------------------------
+            const userId = cartaoSendoEditado.getAttribute('data-id');
+            const btn = event.target;
+            const txtOriginal = btn.innerText;
+            btn.innerText = "Salvando...";
+
+            const { error } = await clienteSupabase.from('usuarios').update({
+                nome: nm,
+                cpf: cpf,
+                email: em,
+                telefone: tl,
+                perfil: perfil,
+                data_nascimento: dt
+            }).eq('id', userId);
+
+            btn.innerText = txtOriginal;
+
+            if (error) return alert("❌ Erro ao salvar no banco de dados: " + error.message);
+
+            // Atualiza a interface visualmente
             cartaoSendoEditado.setAttribute('data-cpf', cpf);
             cartaoSendoEditado.setAttribute('data-perfil', perfil);
+            cartaoSendoEditado.setAttribute('data-nascimento', dt);
             cartaoSendoEditado.setAttribute('data-admin', perfil === 'Administrador' ? 'true' : 'false');
             
             cartaoSendoEditado.querySelector('strong').innerText = perfil === 'Administrador' ? `${nm} (Administrador)` : nm;
