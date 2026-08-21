@@ -252,7 +252,9 @@
             renderizarConfigVitais();
             inicializarGraficos();
 
-            // Só abre o painel direto se não estiver na tela de recuperação de senha
+            // MÁGICA 1: Liga o relógio invisível que atualiza as cores das tarefas a cada 1 minuto (60000ms)
+            setInterval(atualizarStatusRotina, 60000);
+
             if (!window.location.hash.includes('type=recovery')) {
                 const { data: { session } } = await clienteSupabase.auth.getSession();
                 if(session) abrirPainel();
@@ -420,21 +422,26 @@
 
         // --- NAVEGAÇÃO E MODAIS ---
         function openTabApp(tabId) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn-app').forEach(b => b.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    
-    if(tabId === 'timeline') {
-        contadorNotificacoes = 0;
-        document.getElementById('notificacao-badge').style.display = 'none';
-    }
-    
-    if(event && event.currentTarget.classList.contains('tab-btn-app')) {
-        event.currentTarget.classList.add('active');
-    } else if(tabId === 'timeline') {
-        document.querySelectorAll('.tab-btn-app')[0].classList.add('active');
-    }
-}
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn-app').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            if(tabId === 'timeline') {
+                contadorNotificacoes = 0;
+                document.getElementById('notificacao-badge').style.display = 'none';
+            }
+            
+            // MÁGICA 2: Atualiza as cores instantaneamente sempre que você entra na aba "Turnos"
+            if(tabId === 'gestao') {
+                atualizarStatusRotina();
+            }
+            
+            if(event && event.currentTarget.classList.contains('tab-btn-app')) {
+                event.currentTarget.classList.add('active');
+            } else if(tabId === 'timeline') {
+                document.querySelectorAll('.tab-btn-app')[0].classList.add('active');
+            }
+        }
 
         function openModal(id) { 
     document.getElementById(id).style.display = 'flex'; 
@@ -561,47 +568,88 @@ function verificarFimCondicao() {
     }
 }
 
+        // NOVA FUNÇÃO: O Cérebro das Cores
+        function atualizarStatusRotina() {
+            const agora = new Date();
+            const minAtuais = agora.getHours() * 60 + agora.getMinutes();
+            
+            const tarefas = document.querySelectorAll('#lista-tarefas li');
+            
+            tarefas.forEach(li => {
+                // Se já estiver concluído, ignora e mantém verde
+                if(li.getAttribute('data-status') === 'concluido') return;
+                
+                const horaStr = li.getAttribute('data-hora');
+                if(!horaStr) return;
+                
+                const [h, m] = horaStr.split(':').map(Number);
+                const minTarefa = h * 60 + m;
+                const spanStatus = li.querySelector('.status-texto');
+                
+                if (minTarefa < minAtuais) {
+                    // ATRASADO (Vermelho)
+                    li.style.borderLeftColor = 'var(--danger)';
+                    li.style.backgroundColor = 'var(--danger-bg)';
+                    if(spanStatus) { spanStatus.innerText = '🔴 Atrasado'; spanStatus.style.color = 'var(--danger)'; }
+                } else if (minTarefa >= minAtuais && minTarefa <= minAtuais + 60) {
+                    // PRÓXIMO: Faltam 60 min ou menos (Amarelo)
+                    li.style.borderLeftColor = 'var(--accent)';
+                    li.style.backgroundColor = '#fffbeb';
+                    if(spanStatus) { spanStatus.innerText = '🟡 Próximo'; spanStatus.style.color = 'var(--accent-hover)'; }
+                } else {
+                    // FUTURO: Mais de 1h de distância (Cinza)
+                    li.style.borderLeftColor = 'var(--text-muted)';
+                    li.style.backgroundColor = 'transparent';
+                    if(spanStatus) { spanStatus.innerText = '⚪ Futuro'; spanStatus.style.color = 'var(--text-muted)'; }
+                }
+            });
+        }
+
         function salvarItinerario() {
-    const horStr = document.getElementById('itin-horario').value;
-    const freq = document.getElementById('itin-freq').value;
-    const hrExtra = parseInt(document.getElementById('itin-freq-horas').value);
-    const strTarefas = document.getElementById('itin-tarefas').value;
+            const horStr = document.getElementById('itin-horario').value;
+            const freq = document.getElementById('itin-freq').value;
+            const hrExtra = parseInt(document.getElementById('itin-freq-horas').value);
+            const strTarefas = document.getElementById('itin-tarefas').value;
 
-    if(!horStr || !strTarefas) return alert("⚠️ Preencha o horário de início e as tarefas.");
-    if(freq === 'A cada X horas' && (!hrExtra || hrExtra <= 0)) return alert("⚠️ Informe um número válido de horas.");
+            if(!horStr || !strTarefas) return alert("⚠️ Preencha o horário de início e as tarefas.");
+            if(freq === 'A cada X horas' && (!hrExtra || hrExtra <= 0)) return alert("⚠️ Informe um número válido de horas.");
 
-    let tarefasArray = strTarefas.split(',').map(t => t.trim()).filter(t => t);
-    let iteracoes = (freq === 'A cada X horas') ? Math.floor(24 / hrExtra) : 1;
-    if(iteracoes > 4) iteracoes = 4;
-    
-    let [h, m] = horStr.split(':').map(Number);
-    let dataRegistro = new Date().toLocaleDateString();
-    
-    for(let i = 0; i < iteracoes; i++) {
-        let horaAtual = (h + (i * (hrExtra || 0))) % 24;
-        let horaFormatada = `${horaAtual.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-        
-        tarefasArray.forEach(tarefa => {
-            taskCounter++;
-            let idTarefa = `task-${taskCounter}`;
-            let label = `${tarefa} (${horaFormatada})`;
+            let tarefasArray = strTarefas.split(',').map(t => t.trim()).filter(t => t);
+            let iteracoes = (freq === 'A cada X horas') ? Math.floor(24 / hrExtra) : 1;
+            if(iteracoes > 4) iteracoes = 4;
             
-            document.getElementById('lista-tarefas').insertAdjacentHTML('beforeend', `
-                <li id="li-${idTarefa}">
-                    <span>⚙️ <strong>${tarefa}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
-                    <span style="color: var(--accent-hover); font-weight: 600; font-size: 0.85rem;">Pendente</span>
-                </li>
-            `);
-            document.getElementById('checkin-tarefa').insertAdjacentHTML('beforeend', `<option value="${idTarefa}">${label}</option>`);
+            let [h, m] = horStr.split(':').map(Number);
+            let dataRegistro = new Date().toLocaleDateString();
             
-            adicionarNaTimeline(
-                `Rotina Criada: ${tarefa}`, 
-                `Data: ${dataRegistro} | Hora: ${horaFormatada} | Recorrência: ${freq === 'A cada X horas' ? hrExtra+'h' : freq}`
-            );
-        });
-    }
-    closeModal('modal-itinerario');
-}
+            for(let i = 0; i < iteracoes; i++) {
+                let horaAtual = (h + (i * (hrExtra || 0))) % 24;
+                let horaFormatada = `${horaAtual.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+                
+                tarefasArray.forEach(tarefa => {
+                    taskCounter++;
+                    let idTarefa = `task-${taskCounter}`;
+                    let label = `${tarefa} (${horaFormatada})`;
+                    
+                    // Adicionamos os atributos 'data-hora' e 'data-status' na linha para o relógio conseguir ler
+                    document.getElementById('lista-tarefas').insertAdjacentHTML('beforeend', `
+                        <li id="li-${idTarefa}" data-hora="${horaFormatada}" data-status="pendente" style="border-left: 4px solid transparent; padding-left: 10px; transition: all 0.3s ease;">
+                            <span>⚙️ <strong>${tarefa}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
+                            <span class="status-texto" style="font-weight: 600; font-size: 0.85rem;"></span>
+                        </li>
+                    `);
+                    document.getElementById('checkin-tarefa').insertAdjacentHTML('beforeend', `<option value="${idTarefa}">${label}</option>`);
+                    
+                    adicionarNaTimeline(
+                        `Rotina Criada: ${tarefa}`, 
+                        `Data: ${dataRegistro} | Hora: ${horaFormatada} | Recorrência: ${freq === 'A cada X horas' ? hrExtra+'h' : freq}`
+                    );
+                });
+            }
+            
+            // Força a pintura imediata das cores ao salvar
+            atualizarStatusRotina(); 
+            closeModal('modal-itinerario');
+        }
 
         function abrirModalCheckin() {
             if(document.getElementById('checkin-tarefa').options.length === 0) return alert("✅ Todas as tarefas do dia foram concluídas!");
@@ -616,7 +664,13 @@ function verificarFimCondicao() {
             const temFoto = document.getElementById('checkin-foto').files.length > 0;
 
             const li = document.getElementById(`li-${idTarefa}`);
+            
+            // CONCLUÍDO (Verde + Riscado)
+            li.setAttribute('data-status', 'concluido');
             li.classList.add('task-done');
+            li.style.borderLeftColor = 'var(--success)';
+            li.style.backgroundColor = 'var(--success-bg)';
+            
             li.innerHTML = `<span><s>${nomeT}</s> ${obs?`<br><span style="font-size:0.8rem;color:var(--text-main);">Obs: ${obs}</span>`:''}</span> <span style="color: var(--success); font-weight:bold; font-size: 0.85rem;">✔ Concluído ${temFoto? '(📷)':''}</span>`;
             
             sel.remove(sel.selectedIndex);
