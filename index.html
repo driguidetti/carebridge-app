@@ -689,17 +689,22 @@
             if(errDep) return alert("❌ Erro ao criar login do paciente: " + errDep.message);
 
             if (depAuth.user) {
-                await clienteSupabase.from('usuarios').insert([{
-                    id: depAuth.user.id,
-                    email: depEm,
-                    nome: depNm,
-                    cpf: depCpf,
-                    telefone: depTel,
-                    data_nascimento: depDt,
-                    familia_id: novaFamilia.id,
-                    perfil: 'Dependente'
-                }]);
-            }
+    const { error: errInsertDep } = await clienteSupabase.from('usuarios').insert([{
+        id: depAuth.user.id,
+        email: depEm,
+        nome: depNm,
+        cpf: depCpf,
+        telefone: depTel,
+        data_nascimento: depDt,
+        familia_id: novaFamilia.id,
+        perfil: 'Dependente'
+    }]);
+
+    if (errInsertDep) {
+        alert("❌ Erro ao salvar os dados do paciente na tabela: " + errInsertDep.message);
+        console.error(errInsertDep);
+    }
+}
 
             await clienteSupabase.auth.signOut();
             alert("✅ Família criada e Paciente cadastrado com sucesso!\n\n⚠️ O sistema redirecionará para o Login. Acesse agora com sua conta de Administrador.");
