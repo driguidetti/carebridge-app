@@ -196,7 +196,7 @@
     </div>
 
     <!-- Modais -->
-    <div id="modal-itinerario" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-itinerario')">&times;</button><h3 style="margin-bottom: 20px;">Configurar Turno</h3><div class="flex-row"><div class="form-group flex-1"><label>Período</label><select id="itin-nome"><option value="Manhã">Manhã</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option></select></div><div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div></div><div class="flex-row"><div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div><div class="form-group flex-1"><label>Frequência</label><select id="itin-freq" onchange="verificarFrequencia()"><option value="Diariamente">Diariamente</option><option value="A cada X horas">A cada X horas</option></select></div></div><div class="form-group" id="grupo-itin-horas" style="display: none;"><label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8"></div><div class="form-group"><label>Fim da Repetição</label><select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser excluído)</option><option value="data">Até data específica</option><option value="qtd">Por quantidade</option></select></div><div class="form-group" id="grupo-itin-fim" style="display: none;"><input type="text" id="itin-fim-valor" placeholder=""></div><div class="form-group"><label>Tarefas (Separe por vírgula)</label><textarea id="itin-tarefas" rows="3" placeholder="Ex: Antibiótico 500mg, Fisioterapia, Banho"></textarea></div><button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button></div></div>
+    <div id="modal-itinerario" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-itinerario')">&times;</button><h3 style="margin-bottom: 20px;">Configurar Turno</h3><div class="flex-row"><div class="form-group flex-1"><label>Período</label><select id="itin-nome"><option value="Manhã">Manhã</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option></select></div><div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div></div><div class="flex-row"><div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div><div class="form-group flex-1"><label>Frequência</label><select id="itin-freq" onchange="verificarFrequencia()"><option value="Único">Único (Sem repetição)</option><option value="Diariamente">Diariamente</option><option value="A cada X horas">A cada X horas</option><option value="Mensal">Mensal</option><option value="Anual">Anual</option></select></div></div><div class="form-group" id="grupo-itin-horas" style="display: none;"><label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8"></div><div class="form-group"><label>Fim da Repetição</label><select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser excluído)</option><option value="data">Até data específica</option><option value="qtd">Por quantidade</option></select></div><div class="form-group" id="grupo-itin-fim" style="display: none;"><input type="text" id="itin-fim-valor" placeholder=""></div><div class="form-group"><label>Tarefas (Separe por vírgula)</label><textarea id="itin-tarefas" rows="3" placeholder="Ex: Antibiótico 500mg, Fisioterapia, Banho"></textarea></div><button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button></div></div>
     <div id="modal-vitais" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-vitais')">&times;</button><h3 style="margin-bottom: 20px;">Registrar Sinal Vital</h3><div class="form-group"><label>Sinal Vital</label><select id="vital-tipo"></select><span class="password-hint" id="vital-hint"></span></div><div class="form-group"><label>Resultado Medido</label><input type="text" id="vital-valor" placeholder="Ex: 120/80 ou 95"></div><div class="form-group"><label>Observações (Opcional)</label><input type="text" id="vital-obs" placeholder="Ex: Paciente estava deitado"></div><button class="btn-main" onclick="salvarSinalVital()">Salvar Medição</button></div></div>
     <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Novo Medicamento</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário do Primeiro Consumo</label><input type="time" id="med-hora"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
     <div id="modal-checkin" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button><h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3><div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div><div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div><div class="form-group"><label>Comprovante (Foto):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div><button class="btn-main" onclick="salvarCheckin()">Concluir Tarefa</button></div></div>
@@ -502,20 +502,19 @@
 
         // --- TURNOS MATEMÁTICOS E CHECK-IN ---
         function verificarFrequencia() {
-            const freq = document.getElementById('itin-freq').value;
-            document.getElementById('grupo-itin-horas').style.display = (freq === 'A cada X horas') ? 'block' : 'none';
-        }
-        function verificarFimCondicao() {
-            const fim = document.getElementById('itin-fim').value;
-            const grp = document.getElementById('grupo-itin-fim');
-            const input = document.getElementById('itin-fim-valor');
-            if (fim === 'manual') { grp.style.display = 'none'; }
-            else {
-                grp.style.display = 'block';
-                input.type = fim === 'data' ? 'date' : 'number';
-                input.placeholder = fim === 'data' ? '' : 'Ex: 10 vezes';
-            }
-        }
+    const freq = document.getElementById('itin-freq').value;
+    document.getElementById('grupo-itin-horas').style.display = (freq === 'A cada X horas') ? 'block' : 'none';
+    
+    // Regra de Ocultação: Se for evento único, não faz sentido ter "Fim da Repetição"
+    const campoFimRepeticao = document.getElementById('itin-fim').closest('.form-group');
+    if(freq === 'Único') {
+        campoFimRepeticao.style.display = 'none';
+        document.getElementById('grupo-itin-fim').style.display = 'none';
+    } else {
+        campoFimRepeticao.style.display = 'block';
+        verificarFimCondicao(); // Reavalia se o campo extra precisa aparecer
+    }
+}
 
         function salvarItinerario() {
     const horStr = document.getElementById('itin-horario').value;
