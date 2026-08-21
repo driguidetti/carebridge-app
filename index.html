@@ -126,11 +126,17 @@
     <div id="app-view" style="display: none;">
         
         <header class="app-header">
-            <div class="app-header-text">
-                <h1>CareBridge</h1><p>Painel do Administrador</p>
-            </div>
-            <button class="btn-logout" onclick="fazerLogout()">Sair da Conta</button>
-        </header>
+    <div class="app-header-text">
+        <h1>CareBridge</h1><p>Painel do Administrador</p>
+    </div>
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="position: relative; cursor: pointer;" onclick="openTabApp('timeline')">
+            <span style="font-size: 1.4rem;">🔔</span>
+            <span id="notificacao-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 10px;">0</span>
+        </div>
+        <button class="btn-logout" onclick="fazerLogout()">Sair</button>
+    </div>
+</header>
 
         <nav class="app-nav">
             <button class="tab-btn-app active" onclick="openTabApp('timeline')">Linha do Tempo</button>
@@ -192,7 +198,7 @@
     <!-- Modais -->
     <div id="modal-itinerario" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-itinerario')">&times;</button><h3 style="margin-bottom: 20px;">Configurar Turno</h3><div class="flex-row"><div class="form-group flex-1"><label>Período</label><select id="itin-nome"><option value="Manhã">Manhã</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option></select></div><div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div></div><div class="flex-row"><div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div><div class="form-group flex-1"><label>Frequência</label><select id="itin-freq" onchange="verificarFrequencia()"><option value="Diariamente">Diariamente</option><option value="A cada X horas">A cada X horas</option></select></div></div><div class="form-group" id="grupo-itin-horas" style="display: none;"><label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8"></div><div class="form-group"><label>Fim da Repetição</label><select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser excluído)</option><option value="data">Até data específica</option><option value="qtd">Por quantidade</option></select></div><div class="form-group" id="grupo-itin-fim" style="display: none;"><input type="text" id="itin-fim-valor" placeholder=""></div><div class="form-group"><label>Tarefas (Separe por vírgula)</label><textarea id="itin-tarefas" rows="3" placeholder="Ex: Antibiótico 500mg, Fisioterapia, Banho"></textarea></div><button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button></div></div>
     <div id="modal-vitais" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-vitais')">&times;</button><h3 style="margin-bottom: 20px;">Registrar Sinal Vital</h3><div class="form-group"><label>Sinal Vital</label><select id="vital-tipo"></select><span class="password-hint" id="vital-hint"></span></div><div class="form-group"><label>Resultado Medido</label><input type="text" id="vital-valor" placeholder="Ex: 120/80 ou 95"></div><div class="form-group"><label>Observações (Opcional)</label><input type="text" id="vital-obs" placeholder="Ex: Paciente estava deitado"></div><button class="btn-main" onclick="salvarSinalVital()">Salvar Medição</button></div></div>
-    <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Novo Medicamento</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário(s)</label><input type="text" id="med-hora" placeholder="Ex: 08:00, 14:00"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
+    <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Novo Medicamento</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário do Primeiro Consumo</label><input type="time" id="med-hora"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
     <div id="modal-checkin" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button><h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3><div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div><div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div><div class="form-group"><label>Comprovante (Foto):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div><button class="btn-main" onclick="salvarCheckin()">Concluir Tarefa</button></div></div>
     <div id="modal-parametro" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-parametro')">&times;</button><h3 style="margin-bottom: 20px;" id="param-titulo">Editar Parâmetro</h3><div id="param-inputs"></div><button class="btn-main" onclick="salvarParametro()">Atualizar Referência</button></div></div>
     <div id="modal-usuario" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-usuario')">&times;</button><h3 style="margin-bottom: 20px;">Convidar Usuário</h3><div class="form-group"><label>Nome Completo</label><input type="text" id="usr-nome"></div><div class="flex-row"><div class="form-group flex-1"><label>CPF</label><input type="text" id="usr-cpf" maxlength="14" oninput="mascaraCPF(this)"></div><div class="form-group flex-1"><label>Telefone</label><input type="text" id="usr-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div></div><div class="form-group"><label>E-mail</label><input type="email" id="usr-email"></div><div class="form-group"><label>Perfil</label><select id="usr-perfil"><option>Cuidador</option><option>Observador</option></select></div><button class="btn-main" onclick="salvarUsuarioApp()">Enviar Convite Seguro</button></div></div>
@@ -227,6 +233,7 @@
 
         let historicoDados = {};
         let graficos = {};
+        let contadorNotificacoes = 0;
 
         // --- VERIFICAR SE O USUÁRIO VEIO DO E-MAIL DE RECUPERAÇÃO ---
         clienteSupabase.auth.onAuthStateChange(async (event, session) => {
@@ -411,11 +418,21 @@
 
         // --- NAVEGAÇÃO E MODAIS ---
         function openTabApp(tabId) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-btn-app').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn-app').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    
+    if(tabId === 'timeline') {
+        contadorNotificacoes = 0;
+        document.getElementById('notificacao-badge').style.display = 'none';
+    }
+    
+    if(event && event.currentTarget.classList.contains('tab-btn-app')) {
+        event.currentTarget.classList.add('active');
+    } else if(tabId === 'timeline') {
+        document.querySelectorAll('.tab-btn-app')[0].classList.add('active');
+    }
+}
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { 
@@ -431,13 +448,25 @@
             }
         }
 
-        function adicionarNaTimeline(titulo, descricao, alerta = false) {
-            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            const classe = alerta ? 'card alert' : 'card';
-            const flag = alerta ? '🚨 ' : '';
-            const html = `<div class="${classe}" style="animation: fadeIn 0.4s;"><strong>${flag}${titulo} (${time})</strong><p>${descricao}</p></div>`;
-            document.getElementById('timeline-feed').insertAdjacentHTML('afterbegin', html);
-        }
+        function adicionarNaTimeline(titulo, descricao, alerta = false, retroativo = false) {
+    const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    let classe = 'card';
+    let flag = '';
+    
+    if(alerta) { classe = 'card alert'; flag = '🚨 '; }
+    else if(retroativo) { classe = 'card warning'; flag = '⚠️ [Retroativo] '; }
+    
+    const html = `<div class="${classe}" style="animation: fadeIn 0.4s;"><strong>${flag}${titulo} (${time})</strong><p>${descricao}</p></div>`;
+    document.getElementById('timeline-feed').insertAdjacentHTML('afterbegin', html);
+    
+    const timelineAtiva = document.getElementById('timeline').classList.contains('active');
+    if(!timelineAtiva) {
+        contadorNotificacoes++;
+        const badge = document.getElementById('notificacao-badge');
+        badge.style.display = 'block';
+        badge.innerText = contadorNotificacoes;
+    }
+}
 
         // --- GRÁFICOS (CHART.JS) ---
         function inicializarGraficos() {
@@ -489,41 +518,46 @@
         }
 
         function salvarItinerario() {
-            const horStr = document.getElementById('itin-horario').value;
-            const freq = document.getElementById('itin-freq').value;
-            const hrExtra = parseInt(document.getElementById('itin-freq-horas').value);
-            const strTarefas = document.getElementById('itin-tarefas').value;
+    const horStr = document.getElementById('itin-horario').value;
+    const freq = document.getElementById('itin-freq').value;
+    const hrExtra = parseInt(document.getElementById('itin-freq-horas').value);
+    const strTarefas = document.getElementById('itin-tarefas').value;
 
-            if(!horStr || !strTarefas) return alert("⚠️ Preencha o horário de início e as tarefas.");
-            if(freq === 'A cada X horas' && (!hrExtra || hrExtra <= 0)) return alert("⚠️ Informe um número válido de horas.");
+    if(!horStr || !strTarefas) return alert("⚠️ Preencha o horário de início e as tarefas.");
+    if(freq === 'A cada X horas' && (!hrExtra || hrExtra <= 0)) return alert("⚠️ Informe um número válido de horas.");
 
-            let tarefasArray = strTarefas.split(',').map(t => t.trim()).filter(t => t);
-            let iteracoes = (freq === 'A cada X horas') ? Math.floor(24 / hrExtra) : 1;
-            if(iteracoes > 4) iteracoes = 4;
+    let tarefasArray = strTarefas.split(',').map(t => t.trim()).filter(t => t);
+    let iteracoes = (freq === 'A cada X horas') ? Math.floor(24 / hrExtra) : 1;
+    if(iteracoes > 4) iteracoes = 4;
+    
+    let [h, m] = horStr.split(':').map(Number);
+    let dataRegistro = new Date().toLocaleDateString();
+    
+    for(let i = 0; i < iteracoes; i++) {
+        let horaAtual = (h + (i * (hrExtra || 0))) % 24;
+        let horaFormatada = `${horaAtual.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        
+        tarefasArray.forEach(tarefa => {
+            taskCounter++;
+            let idTarefa = `task-${taskCounter}`;
+            let label = `${tarefa} (${horaFormatada})`;
             
-            let [h, m] = horStr.split(':').map(Number);
+            document.getElementById('lista-tarefas').insertAdjacentHTML('beforeend', `
+                <li id="li-${idTarefa}">
+                    <span>⚙️ <strong>${tarefa}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
+                    <span style="color: var(--accent-hover); font-weight: 600; font-size: 0.85rem;">Pendente</span>
+                </li>
+            `);
+            document.getElementById('checkin-tarefa').insertAdjacentHTML('beforeend', `<option value="${idTarefa}">${label}</option>`);
             
-            for(let i = 0; i < iteracoes; i++) {
-                let horaAtual = (h + (i * (hrExtra || 0))) % 24;
-                let horaFormatada = `${horaAtual.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-                
-                tarefasArray.forEach(tarefa => {
-                    taskCounter++;
-                    let idTarefa = `task-${taskCounter}`;
-                    let label = `${tarefa} (${horaFormatada})`;
-                    
-                    document.getElementById('lista-tarefas').insertAdjacentHTML('beforeend', `
-                        <li id="li-${idTarefa}">
-                            <span>⚙️ <strong>${tarefa}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
-                            <span style="color: var(--accent-hover); font-weight: 600; font-size: 0.85rem;">Pendente</span>
-                        </li>
-                    `);
-                    document.getElementById('checkin-tarefa').insertAdjacentHTML('beforeend', `<option value="${idTarefa}">${label}</option>`);
-                });
-            }
-            adicionarNaTimeline(`Novo Turno Configurado`, `Tarefas inseridas com sucesso na escala operacional.`);
-            closeModal('modal-itinerario');
-        }
+            adicionarNaTimeline(
+                `Rotina Criada: ${tarefa}`, 
+                `Data: ${dataRegistro} | Hora: ${horaFormatada} | Recorrência: ${freq === 'A cada X horas' ? hrExtra+'h' : freq}`
+            );
+        });
+    }
+    closeModal('modal-itinerario');
+}
 
         function abrirModalCheckin() {
             if(document.getElementById('checkin-tarefa').options.length === 0) return alert("✅ Todas as tarefas do dia foram concluídas!");
@@ -653,15 +687,23 @@
         }
 
         function salvarMedicamento() {
-            const nm = document.getElementById('med-nome').value;
-            const hr = document.getElementById('med-hora').value;
-            const obs = document.getElementById('med-obs').value;
-            if(!nm || !hr) return alert("⚠️ Preencha nome e horário.");
-            
-            document.getElementById('lista-medicamentos').innerHTML += `<li><div><strong>${nm}</strong> <br><span style="font-size:0.8rem; color:var(--text-muted);">${obs? `Obs: ${obs}`:''}</span></div> <span style="color: var(--primary); font-weight:600;">${hr}</span></li>`;
-            adicionarNaTimeline(`Medicação Cadastrada`, `${nm} programado para as ${hr}. ${obs? `Obs: ${obs}`:''}`);
-            closeModal('modal-medicamento');
-        }
+    const nm = document.getElementById('med-nome').value;
+    const hr = document.getElementById('med-hora').value;
+    const obs = document.getElementById('med-obs').value;
+    if(!nm || !hr) return alert("⚠️ Preencha nome e horário.");
+    
+    const agora = new Date();
+    const [h, m] = hr.split(':').map(Number);
+    const retroativo = (h * 60 + m) < (agora.getHours() * 60 + agora.getMinutes());
+    
+    document.getElementById('lista-medicamentos').innerHTML += `<li><div><strong>${nm}</strong> <br><span style="font-size:0.8rem; color:var(--text-muted);">${obs? `Obs: ${obs}`:''}</span></div> <span style="color: var(--primary); font-weight:600;">${hr}</span></li>`;
+    
+    let textoTimeline = retroativo ? `${nm} registrado como consumido no passado (${hr}).` : `${nm} programado para as ${hr}.`;
+    if(obs) textoTimeline += ` Obs: ${obs}`;
+    
+    adicionarNaTimeline(`Medicação Cadastrada`, textoTimeline, false, retroativo);
+    closeModal('modal-medicamento');
+}
 
         // --- GERENCIAMENTO DE USUÁRIOS ---
         function salvarUsuarioApp() {
