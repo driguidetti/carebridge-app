@@ -197,7 +197,24 @@
     </div>
 
     <!-- Modais -->
-    <div id="modal-itinerario" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-itinerario')">&times;</button><h3 style="margin-bottom: 20px;">Configurar Turno</h3><div class="flex-row"><div class="form-group flex-1"><label>Período</label><select id="itin-nome"><option value="Manhã">Manhã</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option></select></div><div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div></div><div class="flex-row"><div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div><div class="form-group flex-1"><label>Frequência</label><select id="itin-freq" onchange="verificarFrequencia()"><option value="Único">Único (Sem repetição)</option><option value="Diariamente">Diariamente</option><option value="A cada X horas">A cada X horas</option><option value="Mensal">Mensal</option><option value="Anual">Anual</option></select></div></div><div class="form-group" id="grupo-itin-horas" style="display: none;"><label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8"></div><div class="form-group"><label>Fim da Repetição</label><select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser excluído)</option><option value="data">Até data específica</option><option value="qtd">Por quantidade</option></select></div><div class="form-group" id="grupo-itin-fim" style="display: none;"><input type="text" id="itin-fim-valor" placeholder=""></div><div class="form-group"><label>Tarefas (Separe por vírgula)</label><textarea id="itin-tarefas" rows="3" placeholder="Ex: Antibiótico 500mg, Fisioterapia, Banho"></textarea></div><button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button></div></div>
+    <div id="modal-itinerario" class="modal-overlay">
+    <div class="modal">
+        <button class="close-btn" onclick="closeModal('modal-itinerario')">&times;</button>
+        <h3 style="margin-bottom: 20px;">Configurar Turno</h3>
+        
+        <div class="flex-row">
+            <div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div>
+            <div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div>
+        </div>
+        
+        <div class="form-group"><label>Frequência</label><select id="itin-freq" onchange="verificarFrequencia()"><option value="Único">Único (Sem repetição)</option><option value="Diariamente">Diariamente</option><option value="A cada X horas">A cada X horas</option><option value="Mensal">Mensal</option><option value="Anual">Anual</option></select></div>
+        <div class="form-group" id="grupo-itin-horas" style="display: none;"><label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8"></div>
+        <div class="form-group"><label>Fim da Repetição</label><select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser excluído)</option></select></div>
+        <div class="form-group" id="grupo-itin-fim" style="display: none;"><input type="text" id="itin-fim-valor" placeholder=""></div>
+        <div class="form-group"><label>Tarefas (Separe por vírgula)</label><textarea id="itin-tarefas" rows="3" placeholder="Ex: Antibiótico 500mg, Fisioterapia, Banho"></textarea></div>
+        <button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button>
+    </div>
+</div>
     <div id="modal-vitais" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-vitais')">&times;</button><h3 style="margin-bottom: 20px;">Registrar Sinal Vital</h3><div class="form-group"><label>Sinal Vital</label><select id="vital-tipo"></select><span class="password-hint" id="vital-hint"></span></div><div class="form-group"><label>Resultado Medido</label><input type="text" id="vital-valor" placeholder="Ex: 120/80 ou 95"></div><div class="form-group"><label>Observações (Opcional)</label><input type="text" id="vital-obs" placeholder="Ex: Paciente estava deitado"></div><button class="btn-main" onclick="salvarSinalVital()">Salvar Medição</button></div></div>
     <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Novo Medicamento</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário do Primeiro Consumo</label><input type="time" id="med-hora"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
     <div id="modal-checkin" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button><h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3><div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div><div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div><div class="form-group"><label>Comprovante (Foto):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div><button class="btn-main" onclick="salvarCheckin()">Concluir Tarefa</button></div></div>
@@ -222,6 +239,7 @@
         // BASE DE DADOS & ESTADOS VISUAIS
         // ---------------------------------------------------------
         let taskCounter = 0;
+        let listaDeRotinas = []; // Cérebro que agrupa e ordena as tarefas por dia
         let paramSendoEditado = "";
         let cartaoSendoEditado = null;
         
@@ -569,101 +587,138 @@ function verificarFimCondicao() {
 }
 
         // NOVA FUNÇÃO: O Cérebro das Cores
+        function renderizarRotinas() {
+            const ul = document.getElementById('lista-tarefas');
+            const selCheckin = document.getElementById('checkin-tarefa');
+            
+            ul.innerHTML = ''; selCheckin.innerHTML = '';
+            
+            if (listaDeRotinas.length === 0) {
+                ul.innerHTML = '<li style="text-align:center; color: var(--text-muted); border: none;">Nenhuma rotina agendada.</li>';
+                return;
+            }
+
+            // Ordena tudo do mais antigo/próximo para o mais distante no futuro
+            listaDeRotinas.sort((a, b) => a.dataHora - b.dataHora);
+
+            let dataAtualAgrupamento = "";
+
+            listaDeRotinas.forEach(rotina => {
+                // Formatação do separador de dias
+                const diaSemana = rotina.dataHora.toLocaleDateString('pt-BR', { weekday: 'long' });
+                const dataCurta = rotina.dataHora.toLocaleDateString('pt-BR');
+                const dataFormatada = `${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dataCurta}`;
+                const horaFormatada = rotina.dataHora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+
+                // Se mudou o dia, cria um divisor visual na lista
+                if (dataFormatada !== dataAtualAgrupamento) {
+                    ul.innerHTML += `<li style="background: var(--bg-color); font-size: 0.85rem; font-weight: bold; color: var(--primary); padding: 8px 10px; border-radius: 6px; margin-top: 15px; border-bottom: none;">📅 ${dataFormatada}</li>`;
+                    dataAtualAgrupamento = dataFormatada;
+                }
+
+                // Renderiza o item
+                if(rotina.status === 'concluido') {
+                    ul.innerHTML += `
+                        <li class="task-done" style="border-left: 4px solid var(--success); background-color: var(--success-bg);">
+                            <span><s>${rotina.nome}</s> <span style="font-size:0.8rem;color:var(--text-main);">(${horaFormatada})</span> ${rotina.obs?`<br><span style="font-size:0.8rem;color:var(--text-main);">Obs: ${rotina.obs}</span>`:''}</span>
+                            <span style="color: var(--success); font-weight:bold; font-size: 0.85rem;">✔ Concluído</span>
+                        </li>`;
+                } else {
+                    ul.innerHTML += `
+                        <li data-id="${rotina.id}" style="border-left: 4px solid transparent; padding-left: 10px; transition: all 0.3s ease;">
+                            <span>⚙️ <strong>${rotina.nome}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
+                            <span class="status-texto" style="font-weight: 600; font-size: 0.85rem;"></span>
+                        </li>`;
+                    selCheckin.innerHTML += `<option value="${rotina.id}">${rotina.nome} (${dataCurta} às ${horaFormatada})</option>`;
+                }
+            });
+
+            atualizarStatusRotina(); // Aplica as cores logo após criar a lista
+        }
+
         function atualizarStatusRotina() {
             const agora = new Date();
-            const minAtuais = agora.getHours() * 60 + agora.getMinutes();
+            const lis = document.querySelectorAll('#lista-tarefas li[data-id]');
             
-            const tarefas = document.querySelectorAll('#lista-tarefas li');
-            
-            tarefas.forEach(li => {
-                // Se já estiver concluído, ignora e mantém verde
-                if(li.getAttribute('data-status') === 'concluido') return;
-                
-                const horaStr = li.getAttribute('data-hora');
-                if(!horaStr) return;
-                
-                const [h, m] = horaStr.split(':').map(Number);
-                const minTarefa = h * 60 + m;
+            lis.forEach(li => {
+                const id = li.getAttribute('data-id');
+                const rotina = listaDeRotinas.find(r => r.id === id);
+                if(!rotina || rotina.status === 'concluido') return;
+
                 const spanStatus = li.querySelector('.status-texto');
-                
-                if (minTarefa < minAtuais) {
-                    // ATRASADO (Vermelho)
-                    li.style.borderLeftColor = 'var(--danger)';
-                    li.style.backgroundColor = 'var(--danger-bg)';
+                const diffMinutos = (rotina.dataHora - agora) / (1000 * 60);
+
+                if (diffMinutos < 0) {
+                    li.style.borderLeftColor = 'var(--danger)'; li.style.backgroundColor = 'var(--danger-bg)';
                     if(spanStatus) { spanStatus.innerText = '🔴 Atrasado'; spanStatus.style.color = 'var(--danger)'; }
-                } else if (minTarefa >= minAtuais && minTarefa <= minAtuais + 60) {
-                    // PRÓXIMO: Faltam 60 min ou menos (Amarelo)
-                    li.style.borderLeftColor = 'var(--accent)';
-                    li.style.backgroundColor = '#fffbeb';
+                } else if (diffMinutos <= 60) {
+                    li.style.borderLeftColor = 'var(--accent)'; li.style.backgroundColor = '#fffbeb';
                     if(spanStatus) { spanStatus.innerText = '🟡 Próximo'; spanStatus.style.color = 'var(--accent-hover)'; }
                 } else {
-                    // FUTURO: Mais de 1h de distância (Cinza)
-                    li.style.borderLeftColor = 'var(--text-muted)';
-                    li.style.backgroundColor = 'transparent';
+                    li.style.borderLeftColor = 'var(--text-muted)'; li.style.backgroundColor = 'transparent';
                     if(spanStatus) { spanStatus.innerText = '⚪ Futuro'; spanStatus.style.color = 'var(--text-muted)'; }
                 }
             });
         }
 
         function salvarItinerario() {
+            const dataStr = document.getElementById('itin-data').value;
             const horStr = document.getElementById('itin-horario').value;
             const freq = document.getElementById('itin-freq').value;
             const hrExtra = parseInt(document.getElementById('itin-freq-horas').value);
             const strTarefas = document.getElementById('itin-tarefas').value;
 
-            if(!horStr || !strTarefas) return alert("⚠️ Preencha o horário de início e as tarefas.");
-            if(freq === 'A cada X horas' && (!hrExtra || hrExtra <= 0)) return alert("⚠️ Informe um número válido de horas.");
+            if(!dataStr || !horStr || !strTarefas) return alert("⚠️ Preencha a data, o horário e as tarefas.");
+            
+            // TRAVA RETROATIVA ABSOLUTA
+            const dataBase = new Date(`${dataStr}T${horStr}:00`);
+            if (dataBase < new Date()) return alert("⚠️ Bloqueado: Não é possível agendar novas rotinas no passado.");
 
             let tarefasArray = strTarefas.split(',').map(t => t.trim()).filter(t => t);
             let iteracoes = (freq === 'A cada X horas') ? Math.floor(24 / hrExtra) : 1;
             if(iteracoes > 4) iteracoes = 4;
             
-            let [h, m] = horStr.split(':').map(Number);
-            let dataRegistro = new Date().toLocaleDateString();
-            
             for(let i = 0; i < iteracoes; i++) {
-                let horaAtual = (h + (i * (hrExtra || 0))) % 24;
-                let horaFormatada = `${horaAtual.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+                // Matemágica: Adiciona as horas na data (ele vira o dia automaticamente se passar da meia-noite)
+                let dataTarefa = new Date(dataBase.getTime() + (i * (hrExtra || 0) * 60 * 60 * 1000));
                 
                 tarefasArray.forEach(tarefa => {
                     taskCounter++;
-                    let idTarefa = `task-${taskCounter}`;
-                    let label = `${tarefa} (${horaFormatada})`;
-                    
-                    // Adicionamos os atributos 'data-hora' e 'data-status' na linha para o relógio conseguir ler
-                    document.getElementById('lista-tarefas').insertAdjacentHTML('beforeend', `
-                        <li id="li-${idTarefa}" data-hora="${horaFormatada}" data-status="pendente" style="border-left: 4px solid transparent; padding-left: 10px; transition: all 0.3s ease;">
-                            <span>⚙️ <strong>${tarefa}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
-                            <span class="status-texto" style="font-weight: 600; font-size: 0.85rem;"></span>
-                        </li>
-                    `);
-                    document.getElementById('checkin-tarefa').insertAdjacentHTML('beforeend', `<option value="${idTarefa}">${label}</option>`);
-                    
-                    adicionarNaTimeline(
-                        `Rotina Criada: ${tarefa}`, 
-                        `Data: ${dataRegistro} | Hora: ${horaFormatada} | Recorrência: ${freq === 'A cada X horas' ? hrExtra+'h' : freq}`
-                    );
+                    listaDeRotinas.push({
+                        id: `task-${taskCounter}`,
+                        nome: tarefa,
+                        dataHora: dataTarefa,
+                        status: 'pendente',
+                        obs: ''
+                    });
                 });
             }
             
-            // Força a pintura imediata das cores ao salvar
-            atualizarStatusRotina(); 
+            renderizarRotinas();
+            adicionarNaTimeline(`Novas Rotinas Agendadas`, `Foram criadas rotinas a partir de ${dataBase.toLocaleDateString('pt-BR')}.`);
             closeModal('modal-itinerario');
         }
 
         function abrirModalCheckin() {
-            if(document.getElementById('checkin-tarefa').options.length === 0) return alert("✅ Todas as tarefas do dia foram concluídas!");
+            if(document.getElementById('checkin-tarefa').options.length === 0) return alert("✅ Nenhuma tarefa pendente na fila!");
             openModal('modal-checkin');
         }
 
         function salvarCheckin() {
             const sel = document.getElementById('checkin-tarefa');
             const idTarefa = sel.value;
-            const nomeT = sel.options[sel.selectedIndex].text;
             const obs = document.getElementById('checkin-obs').value;
-            const temFoto = document.getElementById('checkin-foto').files.length > 0;
 
-            const li = document.getElementById(`li-${idTarefa}`);
+            const rotina = listaDeRotinas.find(r => r.id === idTarefa);
+            if(rotina) {
+                rotina.status = 'concluido';
+                rotina.obs = obs;
+                adicionarNaTimeline(`Tarefa Concluída`, `A tarefa <strong>${rotina.nome}</strong> foi finalizada. ${obs ? `Obs: ${obs}` : ''}`);
+            }
+            
+            renderizarRotinas();
+            closeModal('modal-checkin');
+        }
             
             // CONCLUÍDO (Verde + Riscado)
             li.setAttribute('data-status', 'concluido');
