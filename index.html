@@ -434,7 +434,11 @@
     }
 }
 
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function openModal(id) { 
+    document.getElementById(id).style.display = 'flex'; 
+    // Garante que as regras de frequência sejam aplicadas logo ao abrir
+    if (id === 'modal-itinerario') verificarFrequencia();
+}
         function closeModal(id) { 
             document.getElementById(id).style.display = 'none'; 
             const modal = document.getElementById(id);
