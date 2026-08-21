@@ -444,7 +444,7 @@
             else { document.getElementById('tab-criar').classList.add('active'); document.getElementById('lobby-criar').classList.add('active'); }
         }
 
-        // --- 3. INICIALIZAÇÃO DE SESSÃO E CARREGAMENTO ---
+        // --- 3. INICIALIZAÇÃO DE SESSÃO E CARREGAMENTO (À PROVA DE FALHAS DE FOREIGN KEY) ---
         clienteSupabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'PASSWORD_RECOVERY') {
                 document.getElementById('auth-tabs-container').style.display = 'none';
@@ -470,16 +470,39 @@
             const { data: { session } } = await clienteSupabase.auth.getSession();
             
             if (session) {
-                // Checa a família na tabela usuarios
-                const { data: userData, error } = await clienteSupabase.from('usuarios').select('*, familias(nome_familia, codigo_acesso)').eq('id', session.user.id).single();
+                // 1. Busca APENAS o usuário
+                let { data: userData, error: errBusca } = await clienteSupabase.from('usuarios').select('*').eq('id', session.user.id).single();
                 
+                // SISTEMA DE SALVA-VIDAS
+                if (!userData) {
+                    const metadados = session.user.user_metadata || {};
+                    const newUser = {
+                        id: session.user.id,
+                        email: session.user.email,
+                        nome: metadados.nome || metadados.full_name || 'Usuário',
+                        cpf: metadados.cpf || '',
+                        telefone: metadados.telefone || '',
+                        perfil: 'Administrador'
+                    };
+                    
+                    await clienteSupabase.from('usuarios').insert([newUser]);
+                    
+                    const res = await clienteSupabase.from('usuarios').select('*').eq('id', session.user.id).single();
+                    userData = res.data;
+                }
+
+                // 2. Roteamento Inteligente
                 if (userData) {
                     if (userData.familia_id) {
+                        const { data: famData } = await clienteSupabase.from('familias').select('*').eq('id', userData.familia_id).single();
+                        userData.familias = famData;
                         abrirPainelReal(userData);
                     } else {
                         document.getElementById('auth-view').style.display = 'none';
                         document.getElementById('lobby-view').style.display = 'flex';
                     }
+                } else {
+                    console.error("Erro fatal: Usuário não carregou.");
                 }
             }
         };
@@ -510,16 +533,32 @@
 
             btn.innerText = "Criando conta...";
             
-            const { data, error } = await clienteSupabase.auth.signUp({
+            const { data: authData, error: authError } = await clienteSupabase.auth.signUp({
                 email: em,
                 password: sn,
                 options: { data: { nome: nm, cpf: cpf, telefone: tel, data_nascimento: dt } }
             });
 
-            btn.innerText = "Finalizar Cadastro";
+            if (authError) { 
+                btn.innerText = "Finalizar Cadastro";
+                return alert("❌ Erro ao criar conta: " + authError.message); 
+            } 
 
-            if (error) { alert("❌ Erro ao criar conta: " + error.message); } 
-            else { alert("✅ Conta criada com sucesso! Redirecionando para a Sala de Espera..."); window.location.reload(); }
+            // Salva ativamente o usuário criado no BD
+            if (authData.user) {
+                await clienteSupabase.from('usuarios').insert([{
+                    id: authData.user.id,
+                    email: em,
+                    nome: nm,
+                    cpf: cpf,
+                    telefone: tel,
+                    perfil: 'Administrador'
+                }]);
+            }
+
+            btn.innerText = "Finalizar Cadastro";
+            alert("✅ Conta criada com sucesso! Redirecionando para a Sala de Espera..."); 
+            window.location.reload();
         }
 
         async function fazerLogin() {
@@ -603,10 +642,22 @@
             const { data: { user } } = await clienteSupabase.auth.getUser();
             await clienteSupabase.from('usuarios').update({ familia_id: novaFamilia.id, perfil: 'Administrador' }).eq('id', user.id);
 
-            const { error: errDep } = await clienteSupabase.auth.signUp({
+            const { data: depAuth, error: errDep } = await clienteSupabase.auth.signUp({
                 email: depEm, password: depSn,
                 options: { data: { nome: depNm, cpf: depCpf, telefone: depTel, data_nascimento: depDt, perfil: 'Dependente' } }
             });
+
+            if (depAuth.user) {
+                await clienteSupabase.from('usuarios').insert([{
+                    id: depAuth.user.id,
+                    email: depEm,
+                    nome: depNm,
+                    cpf: depCpf,
+                    telefone: depTel,
+                    familia_id: novaFamilia.id,
+                    perfil: 'Dependente'
+                }]);
+            }
 
             await clienteSupabase.auth.signOut();
             alert("✅ Família criada e Paciente cadastrado com sucesso!\n\n⚠️ Por motivos de segurança, você precisa fazer o Login novamente com a sua conta de Administrador.");
