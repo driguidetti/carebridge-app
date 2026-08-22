@@ -222,6 +222,19 @@
 
         <main id="saude" class="tab-content">
             <h2 class="section-title">Prontuário Unificado</h2>
+
+            <!-- NOVO: BARRA DE FILTROS NA ABA SAÚDE -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 200px;">
+                    <input type="text" id="filtro-texto-saude" placeholder="Buscar registros ou remédios..." oninput="aplicarFiltrosSaude()" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label style="font-size: 0.9rem; font-weight: 600;">Data:</label>
+                    <input type="date" id="filtro-data-saude" onchange="aplicarFiltrosSaude()" style="padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
+                    <button class="btn-outline" style="margin-top: 0; padding: 8px 12px;" onclick="limparFiltrosSaude()">Limpar</button>
+                </div>
+            </div>
+
             <div class="card"><strong>Sinais Vitais</strong><ul class="list-clean" id="lista-vitais"></ul><button class="btn-outline" style="width: 100%;" onclick="openModal('modal-vitais')">Registrar Sinal Vital +</button></div>
             <div class="card"><strong>Medicamentos Ativos</strong><ul class="list-clean" id="lista-medicamentos"></ul><button class="btn-outline" style="width: 100%;" onclick="openModal('modal-medicamento')">Adicionar Medicamento</button></div>
         </main>
@@ -445,7 +458,6 @@
         // ---------------------------------------------------------
         async function iniciarAplicativo(session) {
             if (!session) {
-                // Se não tem sessão, garante que mostra o Login e esconde o resto
                 document.getElementById('auth-view').style.display = 'flex';
                 document.getElementById('lobby-view').style.display = 'none';
                 document.getElementById('app-view').style.display = 'none';
@@ -453,12 +465,10 @@
             }
 
             try {
-                // Sessão existe: Esconde a tela de login imediatamente e suavemente
                 document.getElementById('auth-view').style.display = 'none';
 
                 let { data: userData, error } = await clienteSupabase.from('usuarios').select('*').eq('id', session.user.id).single();
 
-                // SISTEMA DE SALVA-VIDAS
                 if (!userData) {
                     const metadados = session.user.user_metadata || {};
                     const newUser = {
@@ -473,19 +483,17 @@
                     userData = newUser;
                 }
 
-                // Roteamento Inteligente
                 if (userData.familia_id) {
                     const { data: famData } = await clienteSupabase.from('familias').select('*').eq('id', userData.familia_id).single();
                     userData.familias = famData;
                     abrirPainelReal(userData);
                 } else {
-                    // Manda para a tela de Criar Família (Lobby)
                     document.getElementById('lobby-view').style.display = 'flex';
                     document.getElementById('app-view').style.display = 'none';
                 }
             } catch (e) {
                 alert("❌ Erro interno ao carregar dados: " + e.message);
-                document.getElementById('auth-view').style.display = 'flex'; // Volta se der erro
+                document.getElementById('auth-view').style.display = 'flex'; 
             }
         }
 
@@ -500,7 +508,6 @@
         window.onload = async () => {
             if (window.location.hash.includes('type=recovery')) return;
 
-            // Cronômetro Visual
             setInterval(() => {
                 tempoAtualizacao--;
                 if(tempoAtualizacao <= 0) {
@@ -554,7 +561,6 @@
                 return alert("❌ Erro ao criar conta: " + authError.message); 
             } 
 
-            // Salva ativamente o usuário criado no BD
             if (authData.user) {
                 await clienteSupabase.from('usuarios').insert([{
                     id: authData.user.id,
@@ -568,7 +574,6 @@
 
             btn.innerText = "Finalizar Cadastro";
 
-            // TRANSIÇÃO DIRETA SEM REFRESH
             if (authData.session) {
                 alert("✅ Conta criada com sucesso!");
                 await iniciarAplicativo(authData.session);
@@ -591,7 +596,6 @@
             if (error) {
                 alert("❌ Erro no login: " + error.message);
             } else {
-                // TRANSIÇÃO DIRETA SEM REFRESH
                 await iniciarAplicativo(data.session);
             }
         }
@@ -690,7 +694,6 @@
             if(errDep) return alert("❌ Erro ao criar login do paciente: " + errDep.message);
 
             if (depAuth.user) {
-                // AQUI FOI FEITA A CORREÇÃO: TROCADO INSERT POR UPSERT
                 const { error: errInsertDep } = await clienteSupabase.from('usuarios').upsert([{
                     id: depAuth.user.id,
                     email: depEm,
@@ -714,9 +717,7 @@
         }
 
         // --- 6. FUNÇÕES DE RENDERIZAÇÃO DO APP E PAINEL ---
-        // => CORREÇÃO PRINCIPAL: O CÓDIGO DA FUNÇÃO AGORA ESTÁ 100% BLINDADO NA ESTRUTURA
         async function abrirPainelReal(userData) {
-            // 1. Guarda o ID da família para usarmos nos salvamentos
             familiaIdAtual = userData.familia_id;
             
             document.getElementById('lobby-view').style.display = 'none'; 
@@ -728,14 +729,13 @@
                 document.getElementById('display-codigo-familia').innerText = userData.familias.codigo_acesso;
             }
             
-            // Busca TODOS os usuários vinculados à família
             const { data: membrosFam, error } = await clienteSupabase
                 .from('usuarios')
                 .select('*')
                 .eq('familia_id', userData.familia_id);
 
             const listaUsuarios = document.getElementById('lista-usuarios');
-            listaUsuarios.innerHTML = ''; // Limpa a lista antes de renderizar
+            listaUsuarios.innerHTML = ''; 
             
             if (membrosFam) {
                 membrosFam.forEach(membro => {
@@ -752,12 +752,12 @@
 
             window.scrollTo(0,0);
 
-            // Carrega Vitais, Referências, Gráficos E OS MEDICAMENTOS
             carregarOpcoesSinaisVitais();
             renderizarConfigVitais();
             inicializarGraficos();
             carregarMedicamentos(); 
-        } // <- A CHAVE FICA AQUI NO FINAL (agora está certa!)
+            carregarSinaisVitais(); // Chamando a nova função conectada ao banco
+        }
 
         function openTabApp(tabId) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -1040,7 +1040,19 @@
             rotinaParaExcluir = null;
         }
 
-        // --- 8. LÓGICA DE SINAIS VITAIS, REFERÊNCIAS E MEDICAMENTOS ---
+        // --- 8. LÓGICA DE FILTROS, SINAIS VITAIS E MEDICAMENTOS ---
+        
+        function aplicarFiltrosSaude() {
+            carregarSinaisVitais();
+            carregarMedicamentos();
+        }
+
+        function limparFiltrosSaude() {
+            document.getElementById('filtro-texto-saude').value = '';
+            document.getElementById('filtro-data-saude').value = '';
+            aplicarFiltrosSaude();
+        }
+
         function carregarOpcoesSinaisVitais() {
             const sel = document.getElementById('vital-tipo');
             sel.innerHTML = '';
@@ -1140,45 +1152,6 @@
             closeModal('modal-parametro');
         }
 
-        function salvarSinalVital() {
-            const tipo = document.getElementById('vital-tipo').value;
-            let valor = document.getElementById('vital-valor').value;
-            const obs = document.getElementById('vital-obs').value;
-            if(!valor) return alert("⚠️ Preencha o valor medido.");
-
-            let foraRef = false, ref = referenciasVitais[tipo], s = null, d = null, num = null;
-            const horaStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-            try {
-                if (ref.formato === "sist/diast") {
-                    let p = valor.split('/');
-                    if (p.length === 2) {
-                        s = parseInt(p[0]); d = parseInt(p[1]);
-                        if (s < ref.minSist || s > ref.maxSist || d < ref.minDiast || d > ref.maxDiast) foraRef = true;
-                    } else { return alert("⚠️ Formato inválido. Use Ex: 120/80"); }
-                } else {
-                    num = parseFloat(valor.replace(',', '.'));
-                    if (num < ref.min || num > ref.max) foraRef = true;
-                }
-            } catch(e) {}
-
-            let txtAlerta = foraRef ? `Atenção Clínica: ${tipo} (${valor}) fora da referência segura!` : `Sinal vital ${tipo} registrado: ${valor}.`;
-            if (obs) txtAlerta += ` <br><em>Obs: ${obs}</em>`;
-            adicionarNaTimeline(`Medição de ${tipo}`, txtAlerta, foraRef);
-            
-            if(foraRef) alert(`🚨 ALERTA MÉDICO: A medição de ${tipo} está fora da referência segura configurada (${ref.desc}).`);
-
-            let cor = foraRef ? 'var(--danger)' : 'var(--text-main)';
-            document.getElementById('lista-vitais').innerHTML += `<li><span style="color: var(--text-muted); font-size: 0.85rem;">${horaStr}</span> <span>${tipo}: <strong style="color: ${cor}">${valor}</strong> <br><span style="font-size:0.8rem; color:var(--text-muted);">${obs? `Obs: ${obs}`:''}</span></span></li>`;
-
-            historicoDados[tipo].labels.push(horaStr);
-            if(ref.formato === "sist/diast" && s && d) { historicoDados[tipo].dataset1.push(s); historicoDados[tipo].dataset2.push(d); } 
-            else if (num) { historicoDados[tipo].dataset1.push(num); }
-            graficos[tipo].update();
-
-            closeModal('modal-vitais');
-        }
-
         function salvarNovoSinal() {
             const nome = document.getElementById('ns-nome').value;
             const min = document.getElementById('ns-min').value;
@@ -1197,16 +1170,172 @@
             closeModal('modal-novo-sinal');
         }
 
-        // --- LÓGICA DE MEDICAMENTOS (CONECTADA AO SUPABASE) ---
+        // --- SISTEMA DE SINAIS VITAIS CONECTADO AO SUPABASE ---
+        async function carregarSinaisVitais() {
+            const lista = document.getElementById('lista-vitais');
+            lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Carregando prontuário...</li>';
+
+            const textoFiltro = document.getElementById('filtro-texto-saude').value.toLowerCase();
+            const dataFiltro = document.getElementById('filtro-data-saude').value;
+
+            // Busca no Supabase ordenado pela data para os gráficos montarem corretamente
+            const { data: vitais, error } = await clienteSupabase
+                .from('sinais_vitais')
+                .select('*')
+                .order('criado_em', { ascending: true });
+
+            if (error) {
+                console.error("Erro ao carregar sinais vitais:", error);
+                lista.innerHTML = '<li style="text-align:center; color:var(--danger); border:none;">Erro ao carregar histórico.</li>';
+                return;
+            }
+
+            // Limpa os gráficos locais para receber os dados frescos do banco
+            for (let chave in historicoDados) {
+                historicoDados[chave] = { labels: [], dataset1: [], dataset2: [] };
+            }
+
+            let htmlLista = '';
+            let listaVazia = true;
+
+            if (vitais) {
+                vitais.forEach(v => {
+                    const dataReg = new Date(v.criado_em);
+                    const horaStr = dataReg.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                    const dataStr = dataReg.toLocaleDateString('pt-BR');
+                    const cor = v.alerta ? 'var(--danger)' : 'var(--text-main)';
+                    
+                    // 1. Alimenta os gráficos (Todos os registros, independente do filtro visual)
+                    if(historicoDados[v.tipo]) {
+                        historicoDados[v.tipo].labels.push(horaStr);
+                        const ref = referenciasVitais[v.tipo];
+                        if(ref && ref.formato === "sist/diast") {
+                            let partes = v.valor.split('/');
+                            if (partes.length === 2) {
+                                historicoDados[v.tipo].dataset1.push(parseInt(partes[0]));
+                                historicoDados[v.tipo].dataset2.push(parseInt(partes[1]));
+                            }
+                        } else {
+                            historicoDados[v.tipo].dataset1.push(parseFloat(v.valor.replace(',', '.')));
+                        }
+                    }
+
+                    // 2. Aplica Filtros APENAS para a Lista Visual na tela
+                    let passaFiltroTexto = v.tipo.toLowerCase().includes(textoFiltro) || (v.observacoes && v.observacoes.toLowerCase().includes(textoFiltro));
+                    let passaFiltroData = true;
+
+                    if (dataFiltro) {
+                        const [ano, mes, dia] = dataFiltro.split('-').map(Number);
+                        passaFiltroData = (dataReg.getFullYear() === ano && dataReg.getMonth() === (mes - 1) && dataReg.getDate() === dia);
+                    }
+
+                    if (passaFiltroTexto && passaFiltroData) {
+                        listaVazia = false;
+                        // Monta a lista inserindo no começo para os mais novos ficarem no topo da UI
+                        htmlLista = `
+                            <li>
+                                <div>
+                                    <span style="color: var(--text-muted); font-size: 0.85rem;">📅 Registrado em: ${dataStr} às ${horaStr}</span> 
+                                    <br>
+                                    <span>${v.tipo}: <strong style="color: ${cor}">${v.valor}</strong> 
+                                    ${v.observacoes ? `<br><span style="font-size:0.8rem; color:var(--text-muted);">Obs: ${v.observacoes}</span>` : ''}
+                                    </span>
+                                </div>
+                                <button class="btn-trash" onclick="excluirSinalVital('${v.id}')" title="Excluir Registro">🗑️</button>
+                            </li>` + htmlLista;
+                    }
+                });
+            }
+
+            if(listaVazia) htmlLista = '<li style="text-align:center; color:var(--text-muted); border:none;">Nenhum registro encontrado para este filtro.</li>';
+            lista.innerHTML = htmlLista;
+
+            // Atualiza os desenhos dos gráficos na tela
+            for (let chave in graficos) {
+                if (graficos[chave]) graficos[chave].update();
+            }
+        }
+
+        async function salvarSinalVital() {
+            const tipo = document.getElementById('vital-tipo').value;
+            let valor = document.getElementById('vital-valor').value;
+            const obs = document.getElementById('vital-obs').value;
+            
+            if(!valor) return alert("⚠️ Preencha o valor medido.");
+            if(!familiaIdAtual) return alert("⚠️ Erro de sessão: ID da Família não encontrado.");
+
+            let foraRef = false, ref = referenciasVitais[tipo], s = null, d = null, num = null;
+
+            try {
+                if (ref.formato === "sist/diast") {
+                    let p = valor.split('/');
+                    if (p.length === 2) {
+                        s = parseInt(p[0]); d = parseInt(p[1]);
+                        if (s < ref.minSist || s > ref.maxSist || d < ref.minDiast || d > ref.maxDiast) foraRef = true;
+                    } else { return alert("⚠️ Formato inválido. Use Ex: 120/80"); }
+                } else {
+                    num = parseFloat(valor.replace(',', '.'));
+                    if (num < ref.min || num > ref.max) foraRef = true;
+                }
+            } catch(e) {}
+
+            const btn = event.target;
+            const txtOriginal = btn.innerText;
+            btn.innerText = "Salvando na nuvem...";
+
+            // Envia para o Supabase
+            const { error } = await clienteSupabase.from('sinais_vitais').insert([{
+                familia_id: familiaIdAtual,
+                tipo: tipo,
+                valor: valor,
+                observacoes: obs,
+                alerta: foraRef
+            }]);
+
+            btn.innerText = txtOriginal;
+
+            if (error) {
+                return alert("❌ Erro ao salvar sinal vital: " + error.message);
+            }
+
+            let txtAlerta = foraRef ? `Atenção Clínica: ${tipo} (${valor}) fora da referência segura!` : `Sinal vital ${tipo} registrado: ${valor}.`;
+            if (obs) txtAlerta += ` <br><em>Obs: ${obs}</em>`;
+            adicionarNaTimeline(`Medição de ${tipo}`, txtAlerta, foraRef);
+            
+            if(foraRef) alert(`🚨 ALERTA MÉDICO: A medição de ${tipo} está fora da referência segura configurada (${ref.desc}).`);
+
+            closeModal('modal-vitais');
+            
+            // Recarrega a lista e os gráficos atualizados da nuvem
+            carregarSinaisVitais();
+        }
+
+        async function excluirSinalVital(id) {
+            if(!confirm("Deseja realmente excluir este registro do prontuário? Essa ação atualizará os gráficos.")) return;
+            
+            const { error } = await clienteSupabase.from('sinais_vitais').delete().eq('id', id);
+            
+            if (error) {
+                alert("❌ Erro ao excluir: " + error.message);
+            } else {
+                adicionarNaTimeline('Registro Excluído', 'Uma medição de sinal vital foi removida do histórico.');
+                carregarSinaisVitais();
+            }
+        }
+
+        // --- SISTEMA DE MEDICAMENTOS ---
         async function carregarMedicamentos() {
             const lista = document.getElementById('lista-medicamentos');
             lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Carregando medicamentos...</li>';
 
-            // Busca no Supabase (O RLS já garante que só vêm os da sua família)
+            const textoFiltro = document.getElementById('filtro-texto-saude').value.toLowerCase();
+            const dataFiltro = document.getElementById('filtro-data-saude').value;
+
+            // Busca no Supabase, trazendo os criados mais recentemente por cima
             const { data: meds, error } = await clienteSupabase
                 .from('medicamentos')
                 .select('*')
-                .order('horario_primeiro_consumo', { ascending: true });
+                .order('criado_em', { ascending: false });
 
             if (error) {
                 console.error("Erro ao carregar medicamentos:", error);
@@ -1215,26 +1344,47 @@
             }
 
             lista.innerHTML = '';
-            if (!meds || meds.length === 0) {
-                lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Nenhum medicamento ativo no momento.</li>';
-                return;
+            let listaVazia = true;
+
+            if (meds) {
+                meds.forEach(m => {
+                    // Extrai a data de criação do Banco (criado_em)
+                    const dataReg = m.criado_em ? new Date(m.criado_em) : new Date();
+                    const dataStr = dataReg.toLocaleDateString('pt-BR');
+                    const horaRegStr = dataReg.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                    
+                    const horaFormatada = m.horario_primeiro_consumo.substring(0, 5);
+                    
+                    // Filtros
+                    let passaFiltroTexto = m.nome_dosagem.toLowerCase().includes(textoFiltro) || (m.observacoes && m.observacoes.toLowerCase().includes(textoFiltro));
+                    let passaFiltroData = true;
+                    
+                    if (dataFiltro) {
+                        const [ano, mes, dia] = dataFiltro.split('-').map(Number);
+                        passaFiltroData = (dataReg.getFullYear() === ano && dataReg.getMonth() === (mes - 1) && dataReg.getDate() === dia);
+                    }
+
+                    if (passaFiltroTexto && passaFiltroData) {
+                        listaVazia = false;
+                        lista.innerHTML += `
+                            <li>
+                                <div>
+                                    <span style="color: var(--text-muted); font-size: 0.85rem;">📅 Registrado em: ${dataStr} às ${horaRegStr}</span>
+                                    <br>
+                                    <strong>${m.nome_dosagem}</strong> 
+                                    <br><span style="font-size:0.8rem; color:var(--text-muted);">${m.observacoes ? `Obs: ${m.observacoes}` : ''}</span>
+                                </div> 
+                                <div style="display:flex; align-items:center; gap: 15px; flex-direction: column;">
+                                    <span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: -10px;">Início às</span>
+                                    <span style="color: var(--primary); font-weight:600; font-size: 1.1rem;">${horaFormatada}</span>
+                                    <button class="btn-trash" onclick="excluirMedicamento('${m.id}')" title="Excluir Remédio">🗑️</button>
+                                </div>
+                            </li>`;
+                    }
+                });
             }
 
-            meds.forEach(m => {
-                const horaFormatada = m.horario_primeiro_consumo.substring(0, 5);
-                
-                lista.innerHTML += `
-                    <li>
-                        <div>
-                            <strong>${m.nome_dosagem}</strong> 
-                            <br><span style="font-size:0.8rem; color:var(--text-muted);">${m.observacoes ? `Obs: ${m.observacoes}` : ''}</span>
-                        </div> 
-                        <div style="display:flex; align-items:center; gap: 15px;">
-                            <span style="color: var(--primary); font-weight:600; font-size: 1.1rem;">${horaFormatada}</span>
-                            <button class="btn-trash" onclick="excluirMedicamento('${m.id}')" title="Excluir Remédio">🗑️</button>
-                        </div>
-                    </li>`;
-            });
+            if(listaVazia) lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Nenhum medicamento encontrado para este filtro.</li>';
         }
 
         async function salvarMedicamento() {
@@ -1249,7 +1399,6 @@
             const txtOriginal = btn.innerText;
             btn.innerText = "Salvando na nuvem...";
             
-            // Insere os dados reais no banco de dados
             const { error } = await clienteSupabase.from('medicamentos').insert([{
                 familia_id: familiaIdAtual,
                 nome_dosagem: nm,
@@ -1274,14 +1423,12 @@
             alert("✅ Medicamento cadastrado com sucesso!");
             closeModal('modal-medicamento');
             
-            // Atualiza a lista na tela automaticamente
             carregarMedicamentos();
         }
 
         async function excluirMedicamento(id) {
             if(!confirm("Deseja realmente remover este medicamento do prontuário?")) return;
             
-            // Deleta o registro pelo ID específico
             const { error } = await clienteSupabase.from('medicamentos').delete().eq('id', id);
             
             if (error) {
@@ -1382,7 +1529,6 @@
             const selectPerfil = document.getElementById('edit-perfil');
             const hintDependente = document.getElementById('hint-dependente');
 
-            // Proteção de Dependente
             if(perfil === 'Dependente') {
                 selectPerfil.disabled = true;
                 selectPerfil.style.backgroundColor = '#e5e7eb';
@@ -1426,7 +1572,6 @@
                 if (qtdAdmins >= 2) return alert("⚠️ Limite atingido: Você já possui o máximo de 2 Administradores.");
             }
 
-            // NOVO: Salva as alterações de verdade no Banco de Dados
             const userId = cartaoSendoEditado.getAttribute('data-id');
             const btn = event.target;
             const txtOriginal = btn.innerText;
@@ -1445,7 +1590,6 @@
 
             if (error) return alert("❌ Erro ao salvar no banco de dados: " + error.message);
 
-            // Atualiza a interface visualmente
             cartaoSendoEditado.setAttribute('data-cpf', cpf);
             cartaoSendoEditado.setAttribute('data-perfil', perfil);
             cartaoSendoEditado.setAttribute('data-nascimento', dt);
