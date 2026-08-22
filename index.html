@@ -352,14 +352,14 @@
                 <label>Novo Responsável para a Tarefa</label>
                 <select id="edit-resp-select"></select>
             </div>
-            <button class="btn-main" onclick="salvarNovoResponsavel()">Salvar Responsável</button>
+            <button class="btn-main" id="btn-salvar-resp" onclick="salvarNovoResponsavel()">Salvar Responsável</button>
         </div>
     </div>
 
     <div id="modal-excluir-rotina" class="modal-overlay"><div class="modal"><h3 style="margin-bottom: 15px;">Excluir Rotina</h3><p style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.95rem;">Esta tarefa faz parte de uma série de repetições agendadas. O que você deseja fazer?</p><button class="btn-outline" style="width: 100%; margin-bottom: 10px;" onclick="executarExclusaoRotina('unica')">🗑️ Excluir APENAS esta tarefa</button><button class="btn-danger" style="width: 100%; margin-bottom: 15px; margin-top: 0;" onclick="executarExclusaoRotina('serie')">🚨 Excluir TODA a série futura</button><button class="btn-outline" style="width: 100%; border: none; color: var(--text-muted);" onclick="closeModal('modal-excluir-rotina')">Cancelar</button></div></div>
     <div id="modal-vitais" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-vitais')">&times;</button><h3 style="margin-bottom: 20px;">Registrar Sinal Vital</h3><div class="form-group"><label>Sinal Vital</label><select id="vital-tipo"></select><span class="password-hint" id="vital-hint"></span></div><div class="form-group"><label>Resultado Medido</label><input type="text" id="vital-valor" placeholder="Ex: 120/80 ou 95"></div><div class="form-group"><label>Observações (Opcional)</label><input type="text" id="vital-obs" placeholder="Ex: Paciente estava deitado"></div><button class="btn-main" onclick="salvarSinalVital()">Salvar Medição</button></div></div>
     <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Novo Medicamento</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário do Primeiro Consumo</label><input type="time" id="med-hora"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
-    <div id="modal-checkin" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button><h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3><div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div><div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div><div class="form-group"><label>Comprovante (Foto):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div><button class="btn-main" onclick="salvarCheckin()">Concluir Tarefa</button></div></div>
+    <div id="modal-checkin" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button><h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3><div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div><div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div><div class="form-group"><label>Comprovante (Foto):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div><button class="btn-main" id="btn-concluir-tarefa" onclick="salvarCheckin()">Concluir Tarefa</button></div></div>
     <div id="modal-parametro" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-parametro')">&times;</button><h3 style="margin-bottom: 20px;" id="param-titulo">Editar Parâmetro</h3><div id="param-inputs"></div><button class="btn-main" onclick="salvarParametro()">Atualizar Referência</button></div></div>
     <div id="modal-novo-sinal" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-novo-sinal')">&times;</button><h3 style="margin-bottom: 20px;">Novo Sinal Vital</h3><div class="form-group"><label>Nome do Sinal (Ex: Nível de Dor)</label><input type="text" id="ns-nome"></div><div class="flex-row"><div class="form-group flex-1"><label>Mínimo Ideal</label><input type="number" step="0.1" id="ns-min"></div><div class="form-group flex-1"><label>Máximo Ideal</label><input type="number" step="0.1" id="ns-max"></div></div><div class="form-group"><label>Unidade de Medida (Ex: mg/dL, bpm)</label><input type="text" id="ns-unidade" placeholder="Opcional"></div><button class="btn-main" onclick="salvarNovoSinal()">Criar Parâmetro</button></div></div>
 
@@ -420,7 +420,6 @@
         let usuarioAtual = null; 
         let familiaIdAtual = null;
         let usuariosFamilia = []; 
-        let taskCounter = 0;
         let listaDeRotinas = []; 
         let tempoAtualizacao = 60; 
         let paramSendoEditado = "";
@@ -677,6 +676,9 @@
             window.scrollTo(0,0);
             carregarOpcoesSinaisVitais(); renderizarConfigVitais(); inicializarGraficos();
             carregarMedicamentos(); carregarSinaisVitais(); carregarTimeline(); 
+            
+            // NOVO: Carregar rotinas do Supabase
+            await carregarRotinas();
         }
 
         function openTabApp(tabId) {
@@ -812,6 +814,45 @@
 
         // --- 7. LÓGICA DE ROTINAS E TURNOS ---
         
+        // NOVO: Função para buscar as rotinas do banco de dados (Supabase)
+        async function carregarRotinas() {
+            if(!familiaIdAtual) return;
+            
+            const ul = document.getElementById('lista-tarefas');
+            ul.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Sincronizando tarefas com o servidor...</li>';
+
+            const { data, error } = await clienteSupabase
+                .from('rotinas')
+                .select('*')
+                .eq('familia_id', familiaIdAtual);
+            
+            if (error) { 
+                console.error(error); 
+                ul.innerHTML = '<li style="text-align:center; color:var(--danger); border:none;">Erro ao carregar rotinas.</li>';
+                return; 
+            }
+            
+            // Popula a variável global com os dados formatados
+            listaDeRotinas = data.map(r => ({
+                id: r.id,
+                groupId: r.group_id,
+                nome: r.nome,
+                dataHora: new Date(r.data_hora),
+                status: r.status,
+                obs: r.obs,
+                freq: r.freq,
+                hrExtra: r.hr_extra,
+                fimTipo: r.fim_tipo,
+                tarefaBase: r.tarefa_base,
+                responsavel: r.responsavel,
+                turno: r.turno,
+                alertaRespEnviado: r.alerta_resp_enviado,
+                concluidoPor: r.concluido_por
+            }));
+            
+            renderizarRotinas();
+        }
+        
         function obterTurno(horaStr) {
             const h = parseInt(horaStr.split(':')[0]);
             if (h >= 6 && h < 12) return '☀️ Manhã';
@@ -864,17 +905,34 @@
             openModal('modal-editar-resp');
         }
 
-        function salvarNovoResponsavel() {
+        // NOVO: Editado para salvar o responsável no Supabase
+        async function salvarNovoResponsavel() {
             const id = document.getElementById('edit-resp-id').value;
             const novoResp = document.getElementById('edit-resp-select').value;
             const rotina = listaDeRotinas.find(r => r.id === id);
+            
+            const btn = document.getElementById('btn-salvar-resp');
+            const txtOrig = btn.innerText;
+            btn.innerText = "Salvando...";
+
+            const { error } = await clienteSupabase
+                .from('rotinas')
+                .update({ responsavel: novoResp, alerta_resp_enviado: false })
+                .eq('id', id);
+            
+            btn.innerText = txtOrig;
+
+            if (error) {
+                alert("❌ Erro ao atualizar responsável: " + error.message);
+                return;
+            }
+
             if(rotina) {
-                rotina.responsavel = novoResp;
-                rotina.alertaRespEnviado = false; // Permite um novo alerta
                 adicionarNaTimeline(`Responsável Atualizado`, `A tarefa <strong>${rotina.nome}</strong> (Turno da ${rotina.turno}) agora está sob a responsabilidade de: <strong>${novoResp || 'A Definir'}</strong>.`);
             }
-            renderizarRotinas();
+            
             closeModal('modal-editar-resp');
+            carregarRotinas(); // Recarrega os dados do banco
         }
 
         function renderizarRotinas() {
@@ -971,6 +1029,8 @@
                     
                     if (!rotina.responsavel && diffMinutos <= 30 && diffMinutos >= 0 && !rotina.alertaRespEnviado) {
                         rotina.alertaRespEnviado = true;
+                        // Atualiza no banco para outros não enviarem também
+                        clienteSupabase.from('rotinas').update({ alerta_resp_enviado: true }).eq('id', rotina.id).then();
                         adicionarNaTimeline(`🚨 Responsável Pendente`, `A tarefa <strong>${rotina.nome}</strong> (Turno da ${rotina.turno}) começa em menos de 30 minutos e ainda não tem um responsável (A Definir) atribuído!`, true);
                     }
                     
@@ -981,7 +1041,8 @@
             });
         }
 
-        function salvarItinerario() {
+        // NOVO: Editado para salvar o batch no Supabase
+        async function salvarItinerario() {
             const dataStr = document.getElementById('itin-data').value;
             const horStr = document.getElementById('itin-horario').value;
             const responsavelStr = document.getElementById('itin-responsavel').value;
@@ -1007,25 +1068,45 @@
                 return false;
             };
 
+            const btn = event.target;
+            const txtOrig = btn.innerText;
+            btn.innerText = "Sincronizando com Servidor...";
+
+            let batchInsert = [];
+
             while(condicao() && count < limitMax) {
                 const h = curDate.getHours();
                 let turnoClassificado = obterTurno(`${h}:00`);
                 
                 tarefasArray.forEach(tarefa => {
-                    taskCounter++;
-                    listaDeRotinas.push({ 
-                        id: `task-${taskCounter}`, groupId: groupId, nome: tarefa, dataHora: new Date(curDate), 
-                        status: 'pendente', obs: '', freq: freq, hrExtra: hrExtra, fimTipo: fimTipo, tarefaBase: tarefa,
-                        responsavel: responsavelStr, turno: turnoClassificado, alertaRespEnviado: false 
+                    batchInsert.push({
+                        familia_id: familiaIdAtual,
+                        group_id: groupId,
+                        nome: tarefa,
+                        data_hora: curDate.toISOString(),
+                        freq: freq,
+                        hr_extra: hrExtra,
+                        fim_tipo: fimTipo,
+                        tarefa_base: tarefa,
+                        responsavel: responsavelStr,
+                        turno: turnoClassificado
                     });
                 });
                 curDate = calcularProximaData(curDate, freq, hrExtra);
                 count++;
             }
             
-            renderizarRotinas();
+            const { error } = await clienteSupabase.from('rotinas').insert(batchInsert);
+            btn.innerText = txtOrig;
+
+            if (error) {
+                alert("❌ Erro ao salvar rotinas: " + error.message);
+                return;
+            }
+
             adicionarNaTimeline(`Novas Rotinas Agendadas`, `Configuração salva a partir de ${dataBase.toLocaleDateString('pt-BR')}.`);
             closeModal('modal-itinerario');
+            carregarRotinas(); // Recarrega da base
         }
 
         function abrirModalCheckin() {
@@ -1033,29 +1114,48 @@
             openModal('modal-checkin');
         }
 
-        function salvarCheckin() {
+        // NOVO: Editado para salvar o check-in no Supabase e gerar a próxima caso seja manual
+        async function salvarCheckin() {
             const sel = document.getElementById('checkin-tarefa');
             const idTarefa = sel.value;
             const obs = document.getElementById('checkin-obs').value;
 
             const rotina = listaDeRotinas.find(r => r.id === idTarefa);
-            if(rotina) {
-                rotina.status = 'concluido';
-                rotina.obs = obs;
-                rotina.concluidoPor = usuarioAtual.nome; // Registra quem fez!
+            if(!rotina) return;
+
+            const btn = document.getElementById('btn-concluir-tarefa');
+            const txtOrig = btn.innerText;
+            btn.innerText = "Registrando Conclusão...";
+
+            const { error } = await clienteSupabase
+                .from('rotinas')
+                .update({ status: 'concluido', obs: obs, concluido_por: usuarioAtual.nome })
+                .eq('id', idTarefa);
+
+            if (error) {
+                btn.innerText = txtOrig;
+                alert("❌ Erro ao concluir tarefa: " + error.message);
+                return;
+            }
+
+            adicionarNaTimeline(`Tarefa Concluída`, `A tarefa <strong>${rotina.nome}</strong> foi finalizada.<br><small>✅ Confirmado por: <strong>${usuarioAtual.nome}</strong></small> ${obs ? `<br><em>Obs: ${obs}</em>` : ''}`);
+            
+            // Se a repetição for até que seja excluído (manual), insere o próximo evento na nuvem!
+            if (rotina.freq !== 'Único' && rotina.fimTipo === 'manual') {
+                const proxData = calcularProximaData(rotina.dataHora, rotina.freq, rotina.hrExtra);
+                let turnoProx = obterTurno(`${proxData.getHours()}:00`);
                 
-                adicionarNaTimeline(`Tarefa Concluída`, `A tarefa <strong>${rotina.nome}</strong> foi finalizada.<br><small>✅ Confirmado por: <strong>${usuarioAtual.nome}</strong></small> ${obs ? `<br><em>Obs: ${obs}</em>` : ''}`);
-                
-                if (rotina.freq !== 'Único' && rotina.fimTipo === 'manual') {
-                    const proxData = calcularProximaData(rotina.dataHora, rotina.freq, rotina.hrExtra);
-                    let turnoProx = obterTurno(`${proxData.getHours()}:00`);
-                    taskCounter++;
-                    listaDeRotinas.push({ id: `task-${taskCounter}`, groupId: rotina.groupId, nome: rotina.tarefaBase, dataHora: proxData, status: 'pendente', obs: '', freq: rotina.freq, hrExtra: rotina.hrExtra, fimTipo: rotina.fimTipo, tarefaBase: rotina.tarefaBase, responsavel: rotina.responsavel, turno: turnoProx, alertaRespEnviado: false });
-                }
+                await clienteSupabase.from('rotinas').insert([{
+                    familia_id: familiaIdAtual, group_id: rotina.groupId, nome: rotina.tarefaBase, 
+                    data_hora: proxData.toISOString(), freq: rotina.freq, hr_extra: rotina.hrExtra, 
+                    fim_tipo: rotina.fimTipo, tarefa_base: rotina.tarefaBase, 
+                    responsavel: rotina.responsavel, turno: turnoProx
+                }]);
             }
             
-            renderizarRotinas();
+            btn.innerText = txtOrig;
             closeModal('modal-checkin');
+            carregarRotinas(); // Recarrega da base
         }
 
         function abrirModalExclusao(id) {
@@ -1065,11 +1165,33 @@
             if (repetiu) { openModal('modal-excluir-rotina'); } else { if(confirm(`Deseja excluir a tarefa pontual "${rotinaParaExcluir.nome}"?`)) executarExclusaoRotina('unica'); }
         }
 
-        function executarExclusaoRotina(modo) {
+        // NOVO: Editado para deletar no Supabase
+        async function executarExclusaoRotina(modo) {
             if(!rotinaParaExcluir) return;
-            if(modo === 'serie') { listaDeRotinas = listaDeRotinas.filter(r => r.groupId !== rotinaParaExcluir.groupId || r.status === 'concluido'); adicionarNaTimeline('Série Excluída', `A série de tarefas futuras para "${rotinaParaExcluir.nome}" foi apagada.`); } 
-            else { listaDeRotinas = listaDeRotinas.filter(r => r.id !== rotinaParaExcluir.id); adicionarNaTimeline('Rotina Excluída', `A tarefa pontual "${rotinaParaExcluir.nome}" foi apagada.`); }
-            renderizarRotinas(); closeModal('modal-excluir-rotina'); rotinaParaExcluir = null;
+            
+            if(modo === 'serie') { 
+                const { error } = await clienteSupabase
+                    .from('rotinas')
+                    .delete()
+                    .eq('group_id', rotinaParaExcluir.groupId)
+                    .eq('status', 'pendente');
+                
+                if (error) return alert("Erro ao excluir série: " + error.message);
+                adicionarNaTimeline('Série Excluída', `A série de tarefas futuras para "${rotinaParaExcluir.nome}" foi apagada.`); 
+            } 
+            else { 
+                const { error } = await clienteSupabase
+                    .from('rotinas')
+                    .delete()
+                    .eq('id', rotinaParaExcluir.id);
+
+                if (error) return alert("Erro ao excluir tarefa: " + error.message);
+                adicionarNaTimeline('Rotina Excluída', `A tarefa pontual "${rotinaParaExcluir.nome}" foi apagada.`); 
+            }
+            
+            rotinaParaExcluir = null;
+            closeModal('modal-excluir-rotina');
+            carregarRotinas();
         }
 
         // --- 8. LÓGICA DE FILTROS E SINAIS VITAIS ---
