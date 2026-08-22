@@ -366,6 +366,7 @@
         // ---------------------------------------------------------
         // 2. VARIÁVEIS GLOBAIS DE ESTADO
         // ---------------------------------------------------------
+        let usuarioAtual = null; // Variável para armazenar o perfil logado
         let familiaIdAtual = null;
         let taskCounter = 0;
         let listaDeRotinas = []; 
@@ -443,6 +444,10 @@
                 if (userData.familia_id) {
                     const { data: famData } = await clienteSupabase.from('familias').select('*').eq('id', userData.familia_id).single();
                     userData.familias = famData;
+                    
+                    // NOVO: Salvando o usuário logado para verificações de permissão
+                    usuarioAtual = userData; 
+                    
                     abrirPainelReal(userData);
                 } else {
                     document.getElementById('lobby-view').style.display = 'flex';
@@ -781,7 +786,7 @@
                 return;
             }
 
-            feed.innerHTML = '';
+            let htmlContent = '';
             let temResultados = false;
 
             if(timeline) {
@@ -803,17 +808,41 @@
                         if(item.alerta) { classe = 'card alert'; flag = '🚨 '; }
                         else if(item.retroativo) { classe = 'card warning'; flag = '⚠️ [Retroativo] '; }
                         
-                        feed.innerHTML += `<div class="${classe}" style="animation: fadeIn 0.4s;">
-                            <strong>${flag}${item.titulo} (${horaStr})</strong>
-                            <p>${item.descricao}</p>
-                            <span style="font-size:0.75rem; color:var(--border); display:block; margin-top:8px;">${dataReg.toLocaleDateString('pt-BR')}</span>
+                        // NOVO: Verifica se o usuário logado é Administrador
+                        const isAdm = (usuarioAtual && usuarioAtual.perfil === 'Administrador');
+                        const btnDelete = isAdm ? `<button class="btn-trash" onclick="excluirItemTimeline('${item.id}')" title="Excluir da Timeline" style="margin-top:0;">🗑️</button>` : '';
+
+                        htmlContent += `<div class="${classe}" style="animation: fadeIn 0.4s; display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div style="flex: 1; padding-right: 10px;">
+                                <strong>${flag}${item.titulo} <span style="font-size:0.85rem; font-weight:normal;">(${horaStr})</span></strong>
+                                <p>${item.descricao}</p>
+                                <span style="font-size:0.75rem; color:var(--border); display:block; margin-top:8px;">${dataReg.toLocaleDateString('pt-BR')}</span>
+                            </div>
+                            ${btnDelete}
                         </div>`;
                     }
                 });
             }
 
+            // --- CARTÃO DE BOAS-VINDAS FIXO NO FINAL ---
+            const filtroVazio = !textoFiltro && !dataFiltro;
+            const boasVindasMatch = "bem vindo carebridge".includes(textoFiltro); // Aparece se pesquisarem por essas palavras
+            
+            if (filtroVazio || boasVindasMatch) {
+                temResultados = true;
+                htmlContent += `
+                    <div class="card" style="border-left-color: var(--success); background-color: var(--success-bg); animation: fadeIn 0.4s;">
+                        <strong>👋 Bem-vindo ao CareBridge!</strong>
+                        <p>Sua linha do tempo está pronta. A partir de agora, todas as atualizações de saúde, rotinas e alertas da sua família aparecerão aqui automaticamente.</p>
+                    </div>
+                `;
+            }
+
+            // Renderiza na tela
             if(!temResultados) {
                 feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma atualização encontrada para os filtros.</div>';
+            } else {
+                feed.innerHTML = htmlContent;
             }
         }
 
@@ -844,6 +873,19 @@
 
             // Recarrega do banco para garantir consistência
             carregarTimeline();
+        }
+
+        // NOVO: Função para excluir item da timeline
+        async function excluirItemTimeline(id) {
+            if(!confirm("Deseja realmente excluir este evento do histórico da família?")) return;
+
+            const { error } = await clienteSupabase.from('linha_do_tempo').delete().eq('id', id);
+
+            if (error) {
+                alert("❌ Erro ao excluir registro: " + error.message);
+            } else {
+                carregarTimeline();
+            }
         }
 
         // --- 7. LÓGICA DE ROTINAS ---
