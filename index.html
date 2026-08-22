@@ -396,6 +396,7 @@
         // ---------------------------------------------------------
         // 2. VARIÁVEIS GLOBAIS DE ESTADO
         // ---------------------------------------------------------
+        let familiaIdAtual = null;
         let taskCounter = 0;
         let listaDeRotinas = []; 
         let tempoAtualizacao = 60; 
@@ -714,15 +715,21 @@
 
         // --- 6. FUNÇÕES DE RENDERIZAÇÃO DO APP E PAINEL ---
         async function abrirPainelReal(userData) {
-            document.getElementById('lobby-view').style.display = 'none'; 
-            document.getElementById('auth-view').style.display = 'none'; 
-            document.getElementById('app-view').style.display = 'block'; 
-            
-            // Header e Códigos
-            document.getElementById('header-nome-familia').innerText = userData.familias?.nome_familia || "Painel da Família";
-            if (userData.familias?.codigo_acesso) {
-                document.getElementById('display-codigo-familia').innerText = userData.familias.codigo_acesso;
-            }
+    // 1. Guarda o ID da família para usarmos nos salvamentos
+    familiaIdAtual = userData.familia_id;
+    
+    document.getElementById('lobby-view').style.display = 'none'; 
+    document.getElementById('auth-view').style.display = 'none'; 
+    document.getElementById('app-view').style.display = 'block'; 
+    
+    /* ... (mantenha o resto do código do header e lista de usuários intacto) ... */
+
+    // Carrega Vitais, Referências, Gráficos E OS MEDICAMENTOS
+    carregarOpcoesSinaisVitais();
+    renderizarConfigVitais();
+    inicializarGraficos();
+    carregarMedicamentos(); // <-- ADICIONE ESTA LINHA AQUI NO FINAL
+}
             
             // ---------------------------------------------------------
             // NOVO: Busca TODOS os usuários vinculados à família
@@ -1194,24 +1201,102 @@
             closeModal('modal-novo-sinal');
         }
 
-        function salvarMedicamento() {
-            const nm = document.getElementById('med-nome').value;
-            const hr = document.getElementById('med-hora').value;
-            const obs = document.getElementById('med-obs').value;
-            if(!nm || !hr) return alert("⚠️ Preencha nome e horário.");
-            
-            const agora = new Date();
-            const [h, m] = hr.split(':').map(Number);
-            const retroativo = (h * 60 + m) < (agora.getHours() * 60 + agora.getMinutes());
-            
-            document.getElementById('lista-medicamentos').innerHTML += `<li><div><strong>${nm}</strong> <br><span style="font-size:0.8rem; color:var(--text-muted);">${obs? `Obs: ${obs}`:''}</span></div> <span style="color: var(--primary); font-weight:600;">${hr}</span></li>`;
-            
-            let textoTimeline = retroativo ? `${nm} registrado como consumido no passado (${hr}).` : `${nm} programado para as ${hr}.`;
-            if(obs) textoTimeline += ` Obs: ${obs}`;
-            
-            adicionarNaTimeline(`Medicação Cadastrada`, textoTimeline, false, retroativo);
-            closeModal('modal-medicamento');
-        }
+        // --- LÓGICA DE MEDICAMENTOS (CONECTADA AO SUPABASE) ---
+
+async function carregarMedicamentos() {
+    const lista = document.getElementById('lista-medicamentos');
+    lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Carregando medicamentos...</li>';
+
+    // Busca no Supabase (O RLS já garante que só vêm os da sua família)
+    const { data: meds, error } = await clienteSupabase
+        .from('medicamentos')
+        .select('*')
+        .order('horario_primeiro_consumo', { ascending: true });
+
+    if (error) {
+        console.error("Erro ao carregar medicamentos:", error);
+        lista.innerHTML = '<li style="text-align:center; color:var(--danger); border:none;">Erro ao carregar lista.</li>';
+        return;
+    }
+
+    lista.innerHTML = '';
+    if (!meds || meds.length === 0) {
+        lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Nenhum medicamento ativo no momento.</li>';
+        return;
+    }
+
+    meds.forEach(m => {
+        // Formata a hora para tirar os segundos indesejados (Ex: "08:00:00" vira "08:00")
+        const horaFormatada = m.horario_primeiro_consumo.substring(0, 5);
+        
+        lista.innerHTML += `
+            <li>
+                <div>
+                    <strong>${m.nome_dosagem}</strong> 
+                    <br><span style="font-size:0.8rem; color:var(--text-muted);">${m.observacoes ? `Obs: ${m.observacoes}` : ''}</span>
+                </div> 
+                <div style="display:flex; align-items:center; gap: 15px;">
+                    <span style="color: var(--primary); font-weight:600; font-size: 1.1rem;">${horaFormatada}</span>
+                    <button class="btn-trash" onclick="excluirMedicamento('${m.id}')" title="Excluir Remédio">🗑️</button>
+                </div>
+            </li>`;
+    });
+}
+
+async function salvarMedicamento() {
+    const nm = document.getElementById('med-nome').value;
+    const hr = document.getElementById('med-hora').value;
+    const obs = document.getElementById('med-obs').value;
+    
+    if(!nm || !hr) return alert("⚠️ Preencha o nome do medicamento e o horário.");
+    if(!familiaIdAtual) return alert("⚠️ Erro de sessão: ID da Família não encontrado.");
+    
+    const btn = event.target;
+    const txtOriginal = btn.innerText;
+    btn.innerText = "Salvando na nuvem...";
+    
+    // Insere os dados reais no banco de dados
+    const { error } = await clienteSupabase.from('medicamentos').insert([{
+        familia_id: familiaIdAtual,
+        nome_dosagem: nm,
+        horario_primeiro_consumo: hr,
+        observacoes: obs
+    }]);
+    
+    btn.innerText = txtOriginal;
+
+    if (error) {
+        return alert("❌ Erro ao salvar medicamento: " + error.message);
+    }
+    
+    const agora = new Date();
+    const [h, m] = hr.split(':').map(Number);
+    const retroativo = (h * 60 + m) < (agora.getHours() * 60 + agora.getMinutes());
+    let textoTimeline = retroativo ? `${nm} adicionado à lista (Horário base: ${hr}).` : `Novo medicamento programado: ${nm} às ${hr}.`;
+    if(obs) textoTimeline += ` Obs: ${obs}`;
+    
+    adicionarNaTimeline(`Medicação Cadastrada`, textoTimeline, false, retroativo);
+    
+    alert("✅ Medicamento cadastrado com sucesso!");
+    closeModal('modal-medicamento');
+    
+    // Atualiza a lista na tela automaticamente
+    carregarMedicamentos();
+}
+
+async function excluirMedicamento(id) {
+    if(!confirm("Deseja realmente remover este medicamento do prontuário?")) return;
+    
+    // Deleta o registro pelo ID específico
+    const { error } = await clienteSupabase.from('medicamentos').delete().eq('id', id);
+    
+    if (error) {
+        alert("❌ Erro ao excluir: " + error.message);
+    } else {
+        adicionarNaTimeline('Medicamento Removido', 'Um medicamento foi removido da lista ativa.');
+        carregarMedicamentos();
+    }
+}
 
         // --- 9. GRÁFICOS (CHART.JS) ---
         function inicializarGraficos() {
