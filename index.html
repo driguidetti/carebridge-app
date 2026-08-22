@@ -211,15 +211,22 @@
         <main id="timeline" class="tab-content active">
             <h2 class="section-title">Últimas Atualizações</h2>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-                <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 200px;">
-                    <input type="text" id="filtro-texto-timeline" placeholder="Buscar atualizações..." oninput="carregarTimeline()" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <label style="font-size: 0.9rem; font-weight: 600;">Data:</label>
-                    <input type="date" id="filtro-data-timeline" onchange="carregarTimeline()" style="padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
-                    <button class="btn-outline" style="margin-top: 0; padding: 8px 12px;" onclick="limparFiltrosTimeline()">Limpar</button>
-                </div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px;">
+                <input type="text" id="filtro-texto-timeline" placeholder="Buscar atualizações..." oninput="carregarTimeline()" style="flex: 1; min-width: 150px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
+                <input type="date" id="filtro-data-timeline" onchange="carregarTimeline()" style="padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
+                
+                <!-- Novos filtros de Turno e Responsável -->
+                <select id="filtro-turno-timeline" onchange="carregarTimeline()" style="padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
+                    <option value="">Todos os Turnos</option>
+                    <option value="☀️ Manhã">☀️ Manhã</option>
+                    <option value="☕ Tarde">☕ Tarde</option>
+                    <option value="🌙 Noite">🌙 Noite</option>
+                </select>
+                <select id="filtro-resp-timeline" onchange="carregarTimeline()" style="padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
+                    <option value="">Todos os Responsáveis</option>
+                </select>
+
+                <button class="btn-outline" style="margin-top: 0; padding: 8px 12px;" onclick="limparFiltrosTimeline()">Limpar</button>
             </div>
 
             <div id="timeline-feed"></div>
@@ -270,7 +277,7 @@
                 </div>
             </div>
 
-            <div class="card"><strong>Rotina Pendente</strong><ul class="list-clean" id="lista-tarefas"></ul><button class="btn-main" onclick="abrirModalCheckin()">📷 Fazer Check-in de Tarefa</button></div>
+            <div class="card"><strong>Rotina Pendente / Concluída</strong><ul class="list-clean" id="lista-tarefas"></ul><button class="btn-main" onclick="abrirModalCheckin()">📷 Fazer Check-in de Tarefa</button></div>
         </main>
 
         <main id="relatorios" class="tab-content">
@@ -313,7 +320,6 @@
                 <div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div>
                 <div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div>
             </div>
-            <!-- NOVO: Responsável pelo turno -->
             <div class="form-group">
                 <label>Responsável</label>
                 <select id="itin-responsavel"></select>
@@ -335,6 +341,21 @@
             <button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button>
         </div>
     </div>
+    
+    <!-- NOVO MODAL: Editar Responsável -->
+    <div id="modal-editar-resp" class="modal-overlay">
+        <div class="modal">
+            <button class="close-btn" onclick="closeModal('modal-editar-resp')">&times;</button>
+            <h3 style="margin-bottom: 20px;">Editar Responsável</h3>
+            <input type="hidden" id="edit-resp-id">
+            <div class="form-group">
+                <label>Novo Responsável para a Tarefa</label>
+                <select id="edit-resp-select"></select>
+            </div>
+            <button class="btn-main" onclick="salvarNovoResponsavel()">Salvar Responsável</button>
+        </div>
+    </div>
+
     <div id="modal-excluir-rotina" class="modal-overlay"><div class="modal"><h3 style="margin-bottom: 15px;">Excluir Rotina</h3><p style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.95rem;">Esta tarefa faz parte de uma série de repetições agendadas. O que você deseja fazer?</p><button class="btn-outline" style="width: 100%; margin-bottom: 10px;" onclick="executarExclusaoRotina('unica')">🗑️ Excluir APENAS esta tarefa</button><button class="btn-danger" style="width: 100%; margin-bottom: 15px; margin-top: 0;" onclick="executarExclusaoRotina('serie')">🚨 Excluir TODA a série futura</button><button class="btn-outline" style="width: 100%; border: none; color: var(--text-muted);" onclick="closeModal('modal-excluir-rotina')">Cancelar</button></div></div>
     <div id="modal-vitais" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-vitais')">&times;</button><h3 style="margin-bottom: 20px;">Registrar Sinal Vital</h3><div class="form-group"><label>Sinal Vital</label><select id="vital-tipo"></select><span class="password-hint" id="vital-hint"></span></div><div class="form-group"><label>Resultado Medido</label><input type="text" id="vital-valor" placeholder="Ex: 120/80 ou 95"></div><div class="form-group"><label>Observações (Opcional)</label><input type="text" id="vital-obs" placeholder="Ex: Paciente estava deitado"></div><button class="btn-main" onclick="salvarSinalVital()">Salvar Medição</button></div></div>
     <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Novo Medicamento</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário do Primeiro Consumo</label><input type="time" id="med-hora"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
@@ -398,7 +419,7 @@
         // ---------------------------------------------------------
         let usuarioAtual = null; 
         let familiaIdAtual = null;
-        let usuariosFamilia = []; // Variável para armazenar a lista de usuários da família
+        let usuariosFamilia = []; 
         let taskCounter = 0;
         let listaDeRotinas = []; 
         let tempoAtualizacao = 60; 
@@ -509,8 +530,8 @@
             await iniciarAplicativo(session);
         };
 
-        // --- FUNÇÕES DE AUTH (Resumidas para focar nas novidades) ---
-        async function fazerCadastro() { /* ... mantém original ... */ 
+        // --- FUNÇÕES DE AUTH ---
+        async function fazerCadastro() { 
             const btn = document.getElementById('btn-cad');
             const nm = document.getElementById('cad-nome').value;
             const cpf = document.getElementById('cad-cpf').value;
@@ -578,7 +599,7 @@
             else { alert("✅ Senha atualizada!"); window.location.hash = ''; window.location.reload(); }
         }
 
-        async function entrarComCodigo() { /* ... Mantém original ... */ 
+        async function entrarComCodigo() { 
             const cod = document.getElementById('lobby-codigo').value;
             if(!cod) return alert("⚠️ Digite o código de acesso.");
             const { data: familia, error: errFam } = await clienteSupabase.from('familias').select('*').eq('codigo_acesso', cod).single();
@@ -591,7 +612,7 @@
             window.location.reload();
         }
 
-        async function criarFamiliaEDependente() { /* ... Mantém original ... */
+        async function criarFamiliaEDependente() { 
             const nomeFam = document.getElementById('lobby-nome-familia').value;
             const depNm = document.getElementById('dep-nome').value; const depCpf = document.getElementById('dep-cpf').value; const depDt = document.getElementById('dep-nascimento').value;
             const depTel = document.getElementById('dep-telefone').value; const depEm = document.getElementById('dep-email').value; const depSn = document.getElementById('dep-senha').value;
@@ -628,14 +649,17 @@
             const listaUsuarios = document.getElementById('lista-usuarios');
             listaUsuarios.innerHTML = ''; 
             
-            // Popula os filtros de Responsáveis (Escala Operacional)
-            const selFiltroResp = document.getElementById('filtro-resp-rotina');
-            if (selFiltroResp) {
-                selFiltroResp.innerHTML = '<option value="">Todos os Responsáveis</option>';
-                usuariosFamilia.filter(u => u.perfil !== 'Dependente').forEach(u => {
-                    selFiltroResp.innerHTML += `<option value="${u.nome}">${u.nome}</option>`;
-                });
-            }
+            // Popula os filtros de Responsáveis (Escala Operacional e Timeline)
+            const selFiltroRespRotina = document.getElementById('filtro-resp-rotina');
+            const selFiltroRespTimeline = document.getElementById('filtro-resp-timeline');
+            
+            let respOptions = '<option value="">Todos os Responsáveis</option><option value="A Definir">A Definir</option>';
+            usuariosFamilia.filter(u => u.perfil !== 'Dependente').forEach(u => {
+                respOptions += `<option value="${u.nome}">${u.nome}</option>`;
+            });
+
+            if (selFiltroRespRotina) selFiltroRespRotina.innerHTML = respOptions;
+            if (selFiltroRespTimeline) selFiltroRespTimeline.innerHTML = respOptions;
 
             if (membrosFam) {
                 membrosFam.forEach(membro => {
@@ -672,7 +696,6 @@
             
             if (id === 'modal-itinerario') {
                 verificarFrequencia();
-                // Popula o select de responsável ao abrir
                 const selResp = document.getElementById('itin-responsavel');
                 selResp.innerHTML = '<option value="">A Definir (Lembrete 30 min antes)</option>';
                 usuariosFamilia.filter(u => u.perfil !== 'Dependente').forEach(u => {
@@ -684,7 +707,7 @@
         function closeModal(id) { 
             document.getElementById(id).style.display = 'none'; 
             const modal = document.getElementById(id);
-            modal.querySelectorAll('input').forEach(i => { if(i.type !== 'button') i.value = ''; });
+            modal.querySelectorAll('input').forEach(i => { if(i.type !== 'button' && i.type !== 'hidden') i.value = ''; });
             modal.querySelectorAll('textarea').forEach(t => t.value = '');
             if(id === 'modal-itinerario') {
                 document.getElementById('grupo-itin-horas').style.display = 'none';
@@ -695,13 +718,23 @@
         }
 
         // --- SISTEMA DE TIMELINE ---
-        function limparFiltrosTimeline() { document.getElementById('filtro-texto-timeline').value = ''; document.getElementById('filtro-data-timeline').value = ''; carregarTimeline(); }
+        function limparFiltrosTimeline() { 
+            document.getElementById('filtro-texto-timeline').value = ''; 
+            document.getElementById('filtro-data-timeline').value = ''; 
+            document.getElementById('filtro-turno-timeline').value = '';
+            document.getElementById('filtro-resp-timeline').value = '';
+            carregarTimeline(); 
+        }
 
         async function carregarTimeline() {
             if(!familiaIdAtual) return;
             const feed = document.getElementById('timeline-feed');
             feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Carregando atualizações...</div>';
-            const textoFiltro = document.getElementById('filtro-texto-timeline').value.toLowerCase(); const dataFiltro = document.getElementById('filtro-data-timeline').value;
+            
+            const textoFiltro = document.getElementById('filtro-texto-timeline').value.toLowerCase(); 
+            const dataFiltro = document.getElementById('filtro-data-timeline').value;
+            const turnoFiltro = document.getElementById('filtro-turno-timeline').value.toLowerCase();
+            let respFiltro = document.getElementById('filtro-resp-timeline').value.toLowerCase();
 
             const { data: timeline, error } = await clienteSupabase.from('linha_do_tempo').select('*').eq('familia_id', familiaIdAtual).order('criado_em', { ascending: false });
 
@@ -713,15 +746,24 @@
                     const dataReg = new Date(item.criado_em);
                     const horaStr = dataReg.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
                     
-                    let passaFiltroTexto = item.titulo.toLowerCase().includes(textoFiltro) || item.descricao.toLowerCase().includes(textoFiltro);
+                    let descFormatada = item.descricao.toLowerCase();
+                    let passaFiltroTexto = item.titulo.toLowerCase().includes(textoFiltro) || descFormatada.includes(textoFiltro);
                     let passaFiltroData = true;
+                    
+                    let passaFiltroTurno = turnoFiltro ? descFormatada.includes(turnoFiltro) : true;
+                    
+                    let passaFiltroResp = true;
+                    if (respFiltro) {
+                        if (respFiltro === "a definir") passaFiltroResp = descFormatada.includes("a definir");
+                        else passaFiltroResp = descFormatada.includes(respFiltro);
+                    }
 
                     if (dataFiltro) {
                         const [ano, mes, dia] = dataFiltro.split('-').map(Number);
                         passaFiltroData = (dataReg.getFullYear() === ano && dataReg.getMonth() === (mes - 1) && dataReg.getDate() === dia);
                     }
 
-                    if (passaFiltroTexto && passaFiltroData) {
+                    if (passaFiltroTexto && passaFiltroData && passaFiltroTurno && passaFiltroResp) {
                         temResultados = true;
                         let classe = 'card'; let flag = '';
                         if(item.alerta) { classe = 'card alert'; flag = '🚨 '; } else if(item.retroativo) { classe = 'card warning'; flag = '⚠️ [Retroativo] '; }
@@ -741,7 +783,7 @@
                 });
             }
 
-            const filtroVazio = !textoFiltro && !dataFiltro;
+            const filtroVazio = !textoFiltro && !dataFiltro && !turnoFiltro && !respFiltro;
             const boasVindasMatch = "bem vindo carebridge".includes(textoFiltro);
             if (filtroVazio || boasVindasMatch) {
                 temResultados = true;
@@ -770,7 +812,6 @@
 
         // --- 7. LÓGICA DE ROTINAS E TURNOS ---
         
-        // NOVO: Função que classifica o turno automaticamente
         function obterTurno(horaStr) {
             const h = parseInt(horaStr.split(':')[0]);
             if (h >= 6 && h < 12) return '☀️ Manhã';
@@ -778,7 +819,7 @@
             return '🌙 Noite';
         }
 
-        function verificarFrequencia() { /* Mantém Original */
+        function verificarFrequencia() { 
             const freq = document.getElementById('itin-freq').value; const selectFim = document.getElementById('itin-fim'); const valorAtualFim = selectFim.value; 
             document.getElementById('grupo-itin-horas').style.display = (freq === 'A cada X horas') ? 'block' : 'none';
             const campoFimRepeticao = selectFim.closest('.form-group');
@@ -809,12 +850,37 @@
             if (freq === 'A cada X horas') nd.setHours(nd.getHours() + (hrExtra || 0)); else if (freq === 'Diariamente') nd.setDate(nd.getDate() + 1); else if (freq === 'Mensal') nd.setMonth(nd.getMonth() + 1); else if (freq === 'Anual') nd.setFullYear(nd.getFullYear() + 1);
             return nd;
         }
+        
+        // NOVO: Função para edição de responsável
+        function abrirModalEditarResp(id) {
+            const rotina = listaDeRotinas.find(r => r.id === id);
+            if(!rotina) return;
+            document.getElementById('edit-resp-id').value = id;
+            const sel = document.getElementById('edit-resp-select');
+            sel.innerHTML = '<option value="">A Definir</option>';
+            usuariosFamilia.filter(u => u.perfil !== 'Dependente').forEach(u => {
+                sel.innerHTML += `<option value="${u.nome}" ${rotina.responsavel === u.nome ? 'selected' : ''}>${u.nome}</option>`;
+            });
+            openModal('modal-editar-resp');
+        }
+
+        function salvarNovoResponsavel() {
+            const id = document.getElementById('edit-resp-id').value;
+            const novoResp = document.getElementById('edit-resp-select').value;
+            const rotina = listaDeRotinas.find(r => r.id === id);
+            if(rotina) {
+                rotina.responsavel = novoResp;
+                rotina.alertaRespEnviado = false; // Permite um novo alerta
+                adicionarNaTimeline(`Responsável Atualizado`, `A tarefa <strong>${rotina.nome}</strong> (Turno da ${rotina.turno}) agora está sob a responsabilidade de: <strong>${novoResp || 'A Definir'}</strong>.`);
+            }
+            renderizarRotinas();
+            closeModal('modal-editar-resp');
+        }
 
         function renderizarRotinas() {
             const ul = document.getElementById('lista-tarefas');
             const selCheckin = document.getElementById('checkin-tarefa');
             
-            // Novos filtros
             const filtroData = document.getElementById('filtro-data-rotina').value;
             const filtroTurno = document.getElementById('filtro-turno-rotina').value;
             const filtroResp = document.getElementById('filtro-resp-rotina').value;
@@ -828,7 +894,10 @@
                     passaData = (r.dataHora.getFullYear() === ano && r.dataHora.getMonth() === (mes - 1) && r.dataHora.getDate() === dia);
                 }
                 let passaTurno = filtroTurno ? r.turno === filtroTurno : true;
-                let passaResp = filtroResp ? r.responsavel === filtroResp : true;
+                
+                let passaResp = true;
+                if (filtroResp === 'A Definir') passaResp = !r.responsavel || r.responsavel === '';
+                else if (filtroResp) passaResp = r.responsavel === filtroResp;
                 
                 return passaData && passaTurno && passaResp;
             });
@@ -851,17 +920,25 @@
                     ul.innerHTML += `<li style="background: var(--bg-color); font-size: 0.85rem; font-weight: bold; color: var(--primary); padding: 8px 10px; border-radius: 6px; margin-top: 15px; border-bottom: none;">📅 ${dataFormatada}</li>`;
                     dataAtualAgrupamento = dataFormatada;
                 }
+                
+                const isAdm = (usuarioAtual && usuarioAtual.perfil === 'Administrador');
 
                 if(rotina.status === 'concluido') {
-                    ul.innerHTML += `<li class="task-done" style="border-left: 4px solid var(--success); background-color: var(--success-bg);">
-                                        <span><s>${rotina.nome}</s> <span style="font-size:0.8rem;color:var(--text-main);">(${horaFormatada})</span> ${rotina.obs?`<br><span style="font-size:0.8rem;color:var(--text-main);">Obs: ${rotina.obs}</span>`:''}</span>
-                                        <span style="color: var(--success); font-weight:bold; font-size: 0.85rem;">✔ Concluído</span>
+                    // Admins agora podem excluir itens já concluídos!
+                    const btnDeleteDone = isAdm ? `<button class="btn-trash" onclick="abrirModalExclusao('${rotina.id}')" title="Excluir rotina concluída">🗑️</button>` : '';
+
+                    ul.innerHTML += `<li class="task-done" style="border-left: 4px solid var(--success); background-color: var(--success-bg); display:flex; justify-content:space-between; align-items:center;">
+                                        <div>
+                                            <span><s>${rotina.nome}</s> <span style="font-size:0.8rem;color:var(--text-main);">(${horaFormatada})</span> ${rotina.obs?`<br><span style="font-size:0.8rem;color:var(--text-main);">Obs: ${rotina.obs}</span>`:''}</span>
+                                            <br><span style="color: var(--success); font-weight:bold; font-size: 0.85rem;">✔ Concluído por: ${rotina.concluidoPor || 'Não informado'}</span>
+                                        </div>
+                                        ${btnDeleteDone}
                                     </li>`;
                 } else {
                     ul.innerHTML += `<li data-id="${rotina.id}" style="border-left: 4px solid transparent; padding-left: 10px; transition: all 0.3s ease; display:flex; justify-content:space-between; align-items: center;">
                                         <div>
                                             <span>⚙️ <strong>${rotina.nome}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
-                                            <br><span style="font-size:0.75rem; background: #e5e7eb; padding: 2px 6px; border-radius: 4px; display:inline-block; margin-top:4px; font-weight:600; color:var(--text-main);">${rotina.turno} | 👤 Resp: ${rotina.responsavel || 'A Definir'}</span>
+                                            <br><span style="font-size:0.75rem; background: #e5e7eb; padding: 2px 6px; border-radius: 4px; display:inline-block; margin-top:4px; font-weight:600; color:var(--text-main);">${rotina.turno} | 👤 Resp: ${rotina.responsavel || 'A Definir'} <button class="btn-outline" style="padding: 2px 6px; font-size: 0.7rem; margin-top:0; margin-left: 5px; border-color:var(--border);" onclick="abrirModalEditarResp('${rotina.id}')">✏️ Editar</button></span>
                                             <br><span class="status-texto" style="font-weight: 600; font-size: 0.85rem; margin-top:4px; display:inline-block;"></span>
                                         </div>
                                         <button class="btn-trash" onclick="abrirModalExclusao('${rotina.id}')" title="Excluir rotina">🗑️</button>
@@ -892,10 +969,9 @@
                     li.style.borderLeftColor = 'var(--accent)'; li.style.backgroundColor = '#fffbeb';
                     if(spanStatus) { spanStatus.innerText = '🟡 Próximo'; spanStatus.style.color = 'var(--accent-hover)'; }
                     
-                    // NOVO: Lógica de Alerta 30 min se não houver responsável!
                     if (!rotina.responsavel && diffMinutos <= 30 && diffMinutos >= 0 && !rotina.alertaRespEnviado) {
-                        rotina.alertaRespEnviado = true; // Impede duplo envio
-                        adicionarNaTimeline(`🚨 Responsável Pendente`, `A tarefa <strong>${rotina.nome}</strong> (Turno da ${rotina.turno}) começa em menos de 30 minutos e ainda não tem um responsável atribuído!`, true);
+                        rotina.alertaRespEnviado = true;
+                        adicionarNaTimeline(`🚨 Responsável Pendente`, `A tarefa <strong>${rotina.nome}</strong> (Turno da ${rotina.turno}) começa em menos de 30 minutos e ainda não tem um responsável (A Definir) atribuído!`, true);
                     }
                     
                 } else {
@@ -932,7 +1008,6 @@
             };
 
             while(condicao() && count < limitMax) {
-                // Classifica turno automaticamente baseado na hora calculada do evento
                 const h = curDate.getHours();
                 let turnoClassificado = obterTurno(`${h}:00`);
                 
@@ -967,8 +1042,8 @@
             if(rotina) {
                 rotina.status = 'concluido';
                 rotina.obs = obs;
+                rotina.concluidoPor = usuarioAtual.nome; // Registra quem fez!
                 
-                // NOVO: Adiciona a assinatura (Log) de quem logou e deu o checkin
                 adicionarNaTimeline(`Tarefa Concluída`, `A tarefa <strong>${rotina.nome}</strong> foi finalizada.<br><small>✅ Confirmado por: <strong>${usuarioAtual.nome}</strong></small> ${obs ? `<br><em>Obs: ${obs}</em>` : ''}`);
                 
                 if (rotina.freq !== 'Único' && rotina.fimTipo === 'manual') {
@@ -1076,11 +1151,14 @@
             } catch(e) {}
 
             const btn = event.target; const txtOriginal = btn.innerText; btn.innerText = "Salvando na nuvem...";
-            const { error } = await clienteSupabase.from('sinais_vitais').insert([{ familia_id: familiaIdAtual, tipo: tipo, valor: valor, observacoes: obs, alerta: foraRef }]);
+            
+            // NOVO: Concatena o nome de quem registrou no campo observações para salvar na aba Saúde!
+            const obsFinal = obs ? `${obs} (Reg. por: ${usuarioAtual.nome})` : `(Reg. por: ${usuarioAtual.nome})`;
+            
+            const { error } = await clienteSupabase.from('sinais_vitais').insert([{ familia_id: familiaIdAtual, tipo: tipo, valor: valor, observacoes: obsFinal, alerta: foraRef }]);
             btn.innerText = txtOriginal;
             if (error) { return alert("❌ Erro ao salvar sinal vital: " + error.message); }
 
-            // NOVO: Adiciona a assinatura (Log) de quem logou e fez o registro
             let txtAlerta = foraRef ? `Atenção Clínica: ${tipo} (${valor}) fora da referência segura!` : `Sinal vital ${tipo} registrado: ${valor}.`;
             if (obs) txtAlerta += ` <br><em>Obs: ${obs}</em>`;
             txtAlerta += ` <br><small>👨‍⚕️ Registrado por: <strong>${usuarioAtual.nome}</strong></small>`;
@@ -1123,13 +1201,16 @@
             const nm = document.getElementById('med-nome').value; const hr = document.getElementById('med-hora').value; const obs = document.getElementById('med-obs').value;
             if(!nm || !hr) return alert("⚠️ Preencha o nome do medicamento e o horário."); if(!familiaIdAtual) return alert("⚠️ Erro de sessão: ID da Família não encontrado.");
             const btn = event.target; const txtOriginal = btn.innerText; btn.innerText = "Salvando na nuvem...";
-            const { error } = await clienteSupabase.from('medicamentos').insert([{ familia_id: familiaIdAtual, nome_dosagem: nm, horario_primeiro_consumo: hr, observacoes: obs }]);
+            
+            // NOVO: Adiciona a assinatura para ficar gravada e vísivel na lista "Saúde"
+            const obsFinal = obs ? `${obs} (Reg. por: ${usuarioAtual.nome})` : `(Reg. por: ${usuarioAtual.nome})`;
+
+            const { error } = await clienteSupabase.from('medicamentos').insert([{ familia_id: familiaIdAtual, nome_dosagem: nm, horario_primeiro_consumo: hr, observacoes: obsFinal }]);
             btn.innerText = txtOriginal;
             if (error) { return alert("❌ Erro ao salvar medicamento: " + error.message); }
             
             const agora = new Date(); const [h, m] = hr.split(':').map(Number); const retroativo = (h * 60 + m) < (agora.getHours() * 60 + agora.getMinutes());
             
-            // NOVO: Adiciona a assinatura (Log) de quem logou e fez o registro
             let textoTimeline = retroativo ? `${nm} adicionado à lista (Horário base: ${hr}).` : `Novo medicamento programado: ${nm} às ${hr}.`;
             if(obs) textoTimeline += ` Obs: ${obs}`;
             textoTimeline += ` <br><small>👨‍⚕️ Registrado por: <strong>${usuarioAtual.nome}</strong></small>`;
