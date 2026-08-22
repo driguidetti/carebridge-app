@@ -177,7 +177,7 @@
                         <div class="form-group flex-1"><label>Confirmar Senha</label><input type="password" id="dep-confirma"></div>
                     </div>
                     
-                    <button class="btn-main" onclick="criarFamiliaEDependente()">Criar Família e Cadastrar Paciente</button>
+                    <button class="btn-main" id="btn-criar-familia" onclick="criarFamiliaEDependente()">Criar Família e Cadastrar Paciente</button>
                 </div>
             </div>
         </div>
@@ -215,7 +215,6 @@
                 <input type="text" id="filtro-texto-timeline" placeholder="Buscar atualizações..." oninput="carregarTimeline()" style="flex: 1; min-width: 150px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
                 <input type="date" id="filtro-data-timeline" onchange="carregarTimeline()" style="padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
                 
-                <!-- Novos filtros de Turno e Responsável -->
                 <select id="filtro-turno-timeline" onchange="carregarTimeline()" style="padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
                     <option value="">Todos os Turnos</option>
                     <option value="☀️ Manhã">☀️ Manhã</option>
@@ -342,7 +341,6 @@
         </div>
     </div>
     
-    <!-- NOVO MODAL: Editar Responsável -->
     <div id="modal-editar-resp" class="modal-overlay">
         <div class="modal">
             <button class="close-btn" onclick="closeModal('modal-editar-resp')">&times;</button>
@@ -375,7 +373,7 @@
                 <label>Perfil</label>
                 <select id="usr-perfil"><option value="Cuidador">Cuidador</option><option value="Observador">Observador</option><option value="Administrador">Administrador</option><option value="Dependente">Dependente (Paciente)</option></select>
             </div>
-            <button class="btn-main" onclick="salvarUsuarioApp()">Finalizar Cadastro</button>
+            <button class="btn-main" id="btn-salvar-user" onclick="salvarUsuarioApp()">Finalizar Cadastro</button>
         </div>
     </div>
 
@@ -412,7 +410,15 @@
         // ---------------------------------------------------------
         const supabaseUrl = 'https://vlvpffaathuksyqvpkpd.supabase.co'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsdnBmZmFhdGh1a3N5cXZwa3BkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxODk5MTgsImV4cCI6MjEwMjc2NTkxOH0.WnibeFstwbt2CR1lLkS5pB9GaH7slCd_y6pBA1PNdrU';
+        
+        // Cliente principal (MANTÉM A SESSÃO DO USUÁRIO LOGADO)
         const clienteSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // NOVO: Cliente temporário embutido (NÃO SALVA A SESSÃO NO NAVEGADOR)
+        // Isso impede que a criação de um novo usuário deslogue o Admin.
+        const supabaseTemp = window.supabase.createClient(supabaseUrl, supabaseKey, {
+            auth: { persistSession: false, autoRefreshToken: false }
+        });
 
         // ---------------------------------------------------------
         // 2. VARIÁVEIS GLOBAIS DE ESTADO
@@ -438,13 +444,32 @@
         let graficos = {};
         let contadorNotificacoes = 0;
 
-        // --- VALIDADORES ---
+        // --- VALIDADORES E SEGURANÇA ---
         function mascaraCPF(c) { let v=c.value.replace(/\D/g,""); v=v.replace(/(\d{3})(\d)/,"$1.$2"); v=v.replace(/(\d{3})(\d)/,"$1.$2"); c.value=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2"); }
         function mascaraTelefone(c) { let v=c.value.replace(/\D/g,""); v=v.replace(/^(\d{2})(\d)/g,"($1) $2"); c.value=v.replace(/(\d)(\d{4})$/,"$1-$2"); }
         function validarEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
         function validarCPF(c) { return /^\d{3}\.\d{3}\.\d{3}\-\d{2}$/.test(c); }
         function validarTelefone(t) { return t.length >= 14; }
         function validarSenha(s) { return /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@#$!]).{10,}$/.test(s); }
+
+        // NOVO: Verifica se a senha vazou usando a API gratuita HIBP (Mesma do Google/Apple) - K-Anonymity
+        async function verificarSenhaVazada(senha) {
+            try {
+                const buffer = new TextEncoder().encode(senha);
+                const hashBuffer = await crypto.subtle.digest('SHA-1', buffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+                const prefix = hashHex.substring(0, 5);
+                const suffix = hashHex.substring(5);
+
+                const res = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+                const text = await res.text();
+                return text.includes(suffix);
+            } catch (e) {
+                console.error("Aviso: Falha ao checar vazamento de senha (ignorando a trava).", e);
+                return false; 
+            }
+        }
 
         function mudarAbaAuth(aba) {
             document.querySelectorAll('#auth-view .tab-btn-auth').forEach(b => b.classList.remove('active'));
@@ -553,6 +578,12 @@
             if(hoje.getMonth() < nasc.getMonth() || (hoje.getMonth() === nasc.getMonth() && hoje.getDate() < nasc.getDate())) idade--;
             if(idade < 18) return alert("⚠️ Cadastro bloqueado: Necessário ter 18 anos ou mais.");
 
+            btn.innerText = "Verificando segurança...";
+            if (await verificarSenhaVazada(sn)) {
+                btn.innerText = "Finalizar Cadastro";
+                return alert("⚠️ ALERTA DE SEGURANÇA: Esta senha já foi exposta em vazamentos de dados na internet. Por favor, escolha uma senha diferente para proteger sua conta.");
+            }
+
             btn.innerText = "Criando conta...";
             
             const { data: authData, error: authError } = await clienteSupabase.auth.signUp({
@@ -592,6 +623,13 @@
             const btn = document.getElementById('btn-salvar-senha');
             const novaSenha = document.getElementById('nova-senha').value;
             if(!validarSenha(novaSenha)) return alert("⚠️ Senha fraca.");
+            
+            btn.innerText = "Verificando...";
+            if (await verificarSenhaVazada(novaSenha)) {
+                btn.innerText = "Atualizar Senha";
+                return alert("⚠️ ALERTA DE SEGURANÇA: Esta senha já foi exposta em vazamentos de dados na internet. Por favor, escolha uma senha diferente.");
+            }
+
             btn.innerText = "Atualizando...";
             const { error } = await clienteSupabase.auth.updateUser({ password: novaSenha });
             if(error) { alert("❌ Erro ao atualizar senha: " + error.message); btn.innerText = "Atualizar Senha"; } 
@@ -616,18 +654,32 @@
             const depNm = document.getElementById('dep-nome').value; const depCpf = document.getElementById('dep-cpf').value; const depDt = document.getElementById('dep-nascimento').value;
             const depTel = document.getElementById('dep-telefone').value; const depEm = document.getElementById('dep-email').value; const depSn = document.getElementById('dep-senha').value;
             const conf = document.getElementById('dep-confirma').value;
+            const btn = document.getElementById('btn-criar-familia');
+            
             if(!nomeFam || !depNm || !depCpf || !depDt || !depTel || !depEm || !depSn) return alert("⚠️ Preencha tudo.");
             if(depSn !== conf) return alert("⚠️ As senhas do paciente não coincidem.");
+
+            btn.innerText = "Processando...";
+            if (await verificarSenhaVazada(depSn)) {
+                btn.innerText = "Criar Família e Cadastrar Paciente";
+                return alert("⚠️ ALERTA DE SEGURANÇA: A senha escolhida para o paciente é vulnerável (vazada). Escolha outra.");
+            }
+
             const { data: novaFamilia, error: errFam } = await clienteSupabase.from('familias').insert([{ nome_familia: nomeFam }]).select().single();
-            if(errFam) return alert("❌ Erro ao criar família: " + errFam.message);
+            if(errFam) { btn.innerText = "Criar Família e Cadastrar Paciente"; return alert("❌ Erro ao criar família: " + errFam.message); }
+            
             const { data: { user } } = await clienteSupabase.auth.getUser();
             const { data: adminAtualizado, error: errAdmin } = await clienteSupabase.from('usuarios').update({ familia_id: novaFamilia.id, perfil: 'Administrador' }).eq('id', user.id).select(); 
-            if (errAdmin) return alert("❌ Erro: " + errAdmin.message);
-            const { data: depAuth, error: errDep } = await clienteSupabase.auth.signUp({ email: depEm, password: depSn, options: { data: { nome: depNm, cpf: depCpf, telefone: depTel, data_nascimento: depDt, perfil: 'Dependente' } } });
-            if(errDep) return alert("❌ Erro ao criar login do paciente: " + errDep.message);
+            if (errAdmin) { btn.innerText = "Criar Família e Cadastrar Paciente"; return alert("❌ Erro: " + errAdmin.message); }
+            
+            // NOVO: Usa o cliente Temporário (supabaseTemp) para não quebrar a sessão do criador (Admin)
+            const { data: depAuth, error: errDep } = await supabaseTemp.auth.signUp({ email: depEm, password: depSn, options: { data: { nome: depNm, cpf: depCpf, telefone: depTel, data_nascimento: depDt, perfil: 'Dependente' } } });
+            if(errDep) { btn.innerText = "Criar Família e Cadastrar Paciente"; return alert("❌ Erro ao criar login do paciente: " + errDep.message); }
+            
             if (depAuth.user) { await clienteSupabase.from('usuarios').upsert([{ id: depAuth.user.id, email: depEm, nome: depNm, cpf: depCpf, telefone: depTel, data_nascimento: depDt, familia_id: novaFamilia.id, perfil: 'Dependente' }]); }
-            await clienteSupabase.auth.signOut();
-            alert("✅ Família criada e Paciente cadastrado com sucesso! Acesse agora com sua conta de Administrador.");
+            
+            btn.innerText = "Criar Família e Cadastrar Paciente";
+            alert("✅ Família criada e Paciente cadastrado com sucesso! Você entrará agora no painel da família.");
             window.location.reload();
         }
 
@@ -814,7 +866,6 @@
 
         // --- 7. LÓGICA DE ROTINAS E TURNOS ---
         
-        // NOVO: Função para buscar as rotinas do banco de dados (Supabase)
         async function carregarRotinas() {
             if(!familiaIdAtual) return;
             
@@ -892,7 +943,6 @@
             return nd;
         }
         
-        // NOVO: Função para edição de responsável
         function abrirModalEditarResp(id) {
             const rotina = listaDeRotinas.find(r => r.id === id);
             if(!rotina) return;
@@ -905,7 +955,6 @@
             openModal('modal-editar-resp');
         }
 
-        // NOVO: Editado para salvar o responsável no Supabase
         async function salvarNovoResponsavel() {
             const id = document.getElementById('edit-resp-id').value;
             const novoResp = document.getElementById('edit-resp-select').value;
@@ -982,7 +1031,6 @@
                 const isAdm = (usuarioAtual && usuarioAtual.perfil === 'Administrador');
 
                 if(rotina.status === 'concluido') {
-                    // Admins agora podem excluir itens já concluídos!
                     const btnDeleteDone = isAdm ? `<button class="btn-trash" onclick="abrirModalExclusao('${rotina.id}')" title="Excluir rotina concluída">🗑️</button>` : '';
 
                     ul.innerHTML += `<li class="task-done" style="border-left: 4px solid var(--success); background-color: var(--success-bg); display:flex; justify-content:space-between; align-items:center;">
@@ -1029,7 +1077,6 @@
                     
                     if (!rotina.responsavel && diffMinutos <= 30 && diffMinutos >= 0 && !rotina.alertaRespEnviado) {
                         rotina.alertaRespEnviado = true;
-                        // Atualiza no banco para outros não enviarem também
                         clienteSupabase.from('rotinas').update({ alerta_resp_enviado: true }).eq('id', rotina.id).then();
                         adicionarNaTimeline(`🚨 Responsável Pendente`, `A tarefa <strong>${rotina.nome}</strong> (Turno da ${rotina.turno}) começa em menos de 30 minutos e ainda não tem um responsável (A Definir) atribuído!`, true);
                     }
@@ -1041,7 +1088,6 @@
             });
         }
 
-        // NOVO: Editado para salvar o batch no Supabase
         async function salvarItinerario() {
             const dataStr = document.getElementById('itin-data').value;
             const horStr = document.getElementById('itin-horario').value;
@@ -1114,7 +1160,6 @@
             openModal('modal-checkin');
         }
 
-        // NOVO: Editado para salvar o check-in no Supabase e gerar a próxima caso seja manual
         async function salvarCheckin() {
             const sel = document.getElementById('checkin-tarefa');
             const idTarefa = sel.value;
@@ -1140,7 +1185,6 @@
 
             adicionarNaTimeline(`Tarefa Concluída`, `A tarefa <strong>${rotina.nome}</strong> foi finalizada.<br><small>✅ Confirmado por: <strong>${usuarioAtual.nome}</strong></small> ${obs ? `<br><em>Obs: ${obs}</em>` : ''}`);
             
-            // Se a repetição for até que seja excluído (manual), insere o próximo evento na nuvem!
             if (rotina.freq !== 'Único' && rotina.fimTipo === 'manual') {
                 const proxData = calcularProximaData(rotina.dataHora, rotina.freq, rotina.hrExtra);
                 let turnoProx = obterTurno(`${proxData.getHours()}:00`);
@@ -1165,7 +1209,6 @@
             if (repetiu) { openModal('modal-excluir-rotina'); } else { if(confirm(`Deseja excluir a tarefa pontual "${rotinaParaExcluir.nome}"?`)) executarExclusaoRotina('unica'); }
         }
 
-        // NOVO: Editado para deletar no Supabase
         async function executarExclusaoRotina(modo) {
             if(!rotinaParaExcluir) return;
             
@@ -1274,7 +1317,6 @@
 
             const btn = event.target; const txtOriginal = btn.innerText; btn.innerText = "Salvando na nuvem...";
             
-            // NOVO: Concatena o nome de quem registrou no campo observações para salvar na aba Saúde!
             const obsFinal = obs ? `${obs} (Reg. por: ${usuarioAtual.nome})` : `(Reg. por: ${usuarioAtual.nome})`;
             
             const { error } = await clienteSupabase.from('sinais_vitais').insert([{ familia_id: familiaIdAtual, tipo: tipo, valor: valor, observacoes: obsFinal, alerta: foraRef }]);
@@ -1324,7 +1366,6 @@
             if(!nm || !hr) return alert("⚠️ Preencha o nome do medicamento e o horário."); if(!familiaIdAtual) return alert("⚠️ Erro de sessão: ID da Família não encontrado.");
             const btn = event.target; const txtOriginal = btn.innerText; btn.innerText = "Salvando na nuvem...";
             
-            // NOVO: Adiciona a assinatura para ficar gravada e vísivel na lista "Saúde"
             const obsFinal = obs ? `${obs} (Reg. por: ${usuarioAtual.nome})` : `(Reg. por: ${usuarioAtual.nome})`;
 
             const { error } = await clienteSupabase.from('medicamentos').insert([{ familia_id: familiaIdAtual, nome_dosagem: nm, horario_primeiro_consumo: hr, observacoes: obsFinal }]);
@@ -1368,6 +1409,7 @@
         async function salvarUsuarioApp() {
             const nm = document.getElementById('usr-nome').value; const cpf = document.getElementById('usr-cpf').value; const dt = document.getElementById('usr-nascimento').value;
             const tel = document.getElementById('usr-telefone').value; const em = document.getElementById('usr-email').value; const sn = document.getElementById('usr-senha').value; const prf = document.getElementById('usr-perfil').value;
+            const btn = document.getElementById('btn-salvar-user');
             
             if(!nm || !cpf || !tel || !em || !sn || !dt) return alert("⚠️ Preencha todos os campos.");
             if(!validarCPF(cpf)) return alert("⚠️ CPF inválido."); if(!validarTelefone(tel)) return alert("⚠️ Telefone incompleto."); if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
@@ -1376,9 +1418,34 @@
             const cards = Array.from(document.querySelectorAll('#lista-usuarios .card')); const duplicado = cards.some(c => c.getAttribute('data-cpf') === cpf || c.querySelector('.user-email').innerText === em || c.querySelector('.user-tel').innerText === tel);
             if(duplicado) return alert("⚠️ Cadastro Bloqueado: Já existe um usuário cadastrado com este E-mail, CPF ou Telefone.");
 
-            const { data, error } = await clienteSupabase.auth.signUp({ email: em, password: sn, options: { data: { full_name: nm, cpf: cpf, perfil: prf, telefone: tel, data_nascimento: dt } } });
-            if(error) return alert("❌ Erro ao salvar no banco de dados Supabase: " + error.message);
-            alert(`✅ Usuário ${nm} cadastrado com sucesso!\n\n⚠️ Atenção: Por medida de segurança (comportamento Serverless), seu acesso atual de administrador foi encerrado e a página será recarregada. Faça login novamente.`);
+            btn.innerText = "Verificando Segurança...";
+            if (await verificarSenhaVazada(sn)) {
+                btn.innerText = "Finalizar Cadastro";
+                return alert("⚠️ ALERTA DE SEGURANÇA: Esta senha já foi exposta em vazamentos de dados na internet. Escolha outra para proteger a conta.");
+            }
+            
+            btn.innerText = "Criando Usuário...";
+            
+            // NOVO: Usa o cliente Temporário (supabaseTemp) para não deslogar o Admin
+            const { data: novoAuth, error } = await supabaseTemp.auth.signUp({ email: em, password: sn, options: { data: { full_name: nm, cpf: cpf, perfil: prf, telefone: tel, data_nascimento: dt, familia_id: familiaIdAtual } } });
+            
+            if(error) {
+                btn.innerText = "Finalizar Cadastro";
+                return alert("❌ Erro ao salvar no banco de dados Supabase: " + error.message);
+            }
+            
+            if (novoAuth.user) {
+                // Como o trigger às vezes não puxa a familia_id (ou não está lá), o Administrador insere o registro ativamente
+                const { error: errDb } = await clienteSupabase.from('usuarios').upsert([{ id: novoAuth.user.id, email: em, nome: nm, cpf: cpf, telefone: tel, data_nascimento: dt, familia_id: familiaIdAtual, perfil: prf }]);
+                if (errDb) {
+                    btn.innerText = "Finalizar Cadastro";
+                    return alert("❌ Usuário criado na base Auth, mas houve erro ao vinculá-lo à família: " + errDb.message);
+                }
+            }
+
+            btn.innerText = "Finalizar Cadastro";
+            alert(`✅ Usuário ${nm} cadastrado com sucesso e vinculado à sua família!`);
+            closeModal('modal-usuario');
             window.location.reload(); 
         }
 
