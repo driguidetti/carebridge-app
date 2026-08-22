@@ -215,15 +215,27 @@
 
         <main id="timeline" class="tab-content active">
             <h2 class="section-title">Últimas Atualizações</h2>
+
+            <!-- NOVO: FILTROS DA LINHA DO TEMPO -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 200px;">
+                    <input type="text" id="filtro-texto-timeline" placeholder="Buscar atualizações..." oninput="carregarTimeline()" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label style="font-size: 0.9rem; font-weight: 600;">Data:</label>
+                    <input type="date" id="filtro-data-timeline" onchange="carregarTimeline()" style="padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
+                    <button class="btn-outline" style="margin-top: 0; padding: 8px 12px;" onclick="limparFiltrosTimeline()">Limpar</button>
+                </div>
+            </div>
+
             <div id="timeline-feed">
-                <div class="card warning"><strong>⚠️ Alerta de Sistema</strong><p>Bem-vindo ao CareBridge! O painel está conectado e pronto para uso.</p></div>
+                <!-- Conteúdo carregado via banco de dados -->
             </div>
         </main>
 
         <main id="saude" class="tab-content">
             <h2 class="section-title">Prontuário Unificado</h2>
 
-            <!-- NOVO: BARRA DE FILTROS NA ABA SAÚDE -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                 <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 200px;">
                     <input type="text" id="filtro-texto-saude" placeholder="Buscar registros ou remédios..." oninput="aplicarFiltrosSaude()" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
@@ -268,7 +280,6 @@
         <main id="configuracoes" class="tab-content">
             <h2 class="section-title">Ajustes do Sistema</h2>
             
-            <!-- Mostrar Código da Família -->
             <div class="card" style="border-left-color: var(--success); background-color: var(--success-bg);">
                 <strong>Código de Acesso da Família</strong>
                 <p style="font-size: 0.85rem; color: var(--text-main); margin-bottom: 10px;">Envie este código para convidar familiares ou cuidadores para acessar o painel.</p>
@@ -277,9 +288,7 @@
 
             <div class="card">
                 <strong>Gerenciamento de Usuários</strong>
-                <div id="lista-usuarios">
-                    <!-- Usuários serão carregados aqui dinamicamente -->
-                </div>
+                <div id="lista-usuarios"></div>
                 <button class="btn-main" onclick="openModal('modal-usuario')">Cadastrar Novo Usuário +</button>
             </div>
 
@@ -295,41 +304,12 @@
     <!-- ======================================================= -->
     <!-- MODAIS -->
     <!-- ======================================================= -->
-    <div id="modal-itinerario" class="modal-overlay">
-        <div class="modal">
-            <button class="close-btn" onclick="closeModal('modal-itinerario')">&times;</button>
-            <h3 style="margin-bottom: 20px;">Configurar Turno</h3>
-            <div class="flex-row">
-                <div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div>
-                <div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div>
-            </div>
-            <div class="form-group"><label>Frequência</label><select id="itin-freq" onchange="verificarFrequencia()"><option value="Único">Único (Sem repetição)</option><option value="Diariamente">Diariamente</option><option value="A cada X horas">A cada X horas</option><option value="Mensal">Mensal</option><option value="Anual">Anual</option></select></div>
-            <div class="form-group" id="grupo-itin-horas" style="display: none;"><label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8"></div>
-            <div class="form-group"><label>Fim da Repetição</label><select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser excluído)</option></select></div>
-            <div class="form-group" id="grupo-itin-fim" style="display: none;"><input type="text" id="itin-fim-valor" placeholder=""></div>
-            <div class="form-group"><label>Tarefas (Separe por vírgula)</label><textarea id="itin-tarefas" rows="3" placeholder="Ex: Antibiótico 500mg, Fisioterapia, Banho"></textarea></div>
-            <button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button>
-        </div>
-    </div>
-
-    <div id="modal-excluir-rotina" class="modal-overlay">
-        <div class="modal">
-            <h3 style="margin-bottom: 15px;">Excluir Rotina</h3>
-            <p style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.95rem;">Esta tarefa faz parte de uma série de repetições agendadas. O que você deseja fazer?</p>
-            <button class="btn-outline" style="width: 100%; margin-bottom: 10px;" onclick="executarExclusaoRotina('unica')">🗑️ Excluir APENAS esta tarefa</button>
-            <button class="btn-danger" style="width: 100%; margin-bottom: 15px; margin-top: 0;" onclick="executarExclusaoRotina('serie')">🚨 Excluir TODA a série futura</button>
-            <button class="btn-outline" style="width: 100%; border: none; color: var(--text-muted);" onclick="closeModal('modal-excluir-rotina')">Cancelar</button>
-        </div>
-    </div>
-
+    <div id="modal-itinerario" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-itinerario')">&times;</button><h3 style="margin-bottom: 20px;">Configurar Turno</h3><div class="flex-row"><div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div><div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div></div><div class="form-group"><label>Frequência</label><select id="itin-freq" onchange="verificarFrequencia()"><option value="Único">Único (Sem repetição)</option><option value="Diariamente">Diariamente</option><option value="A cada X horas">A cada X horas</option><option value="Mensal">Mensal</option><option value="Anual">Anual</option></select></div><div class="form-group" id="grupo-itin-horas" style="display: none;"><label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8"></div><div class="form-group"><label>Fim da Repetição</label><select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser excluído)</option></select></div><div class="form-group" id="grupo-itin-fim" style="display: none;"><input type="text" id="itin-fim-valor" placeholder=""></div><div class="form-group"><label>Tarefas (Separe por vírgula)</label><textarea id="itin-tarefas" rows="3" placeholder="Ex: Antibiótico 500mg, Fisioterapia, Banho"></textarea></div><button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button></div></div>
+    <div id="modal-excluir-rotina" class="modal-overlay"><div class="modal"><h3 style="margin-bottom: 15px;">Excluir Rotina</h3><p style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.95rem;">Esta tarefa faz parte de uma série de repetições agendadas. O que você deseja fazer?</p><button class="btn-outline" style="width: 100%; margin-bottom: 10px;" onclick="executarExclusaoRotina('unica')">🗑️ Excluir APENAS esta tarefa</button><button class="btn-danger" style="width: 100%; margin-bottom: 15px; margin-top: 0;" onclick="executarExclusaoRotina('serie')">🚨 Excluir TODA a série futura</button><button class="btn-outline" style="width: 100%; border: none; color: var(--text-muted);" onclick="closeModal('modal-excluir-rotina')">Cancelar</button></div></div>
     <div id="modal-vitais" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-vitais')">&times;</button><h3 style="margin-bottom: 20px;">Registrar Sinal Vital</h3><div class="form-group"><label>Sinal Vital</label><select id="vital-tipo"></select><span class="password-hint" id="vital-hint"></span></div><div class="form-group"><label>Resultado Medido</label><input type="text" id="vital-valor" placeholder="Ex: 120/80 ou 95"></div><div class="form-group"><label>Observações (Opcional)</label><input type="text" id="vital-obs" placeholder="Ex: Paciente estava deitado"></div><button class="btn-main" onclick="salvarSinalVital()">Salvar Medição</button></div></div>
-    
     <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Novo Medicamento</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário do Primeiro Consumo</label><input type="time" id="med-hora"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
-    
     <div id="modal-checkin" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button><h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3><div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div><div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div><div class="form-group"><label>Comprovante (Foto):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div><button class="btn-main" onclick="salvarCheckin()">Concluir Tarefa</button></div></div>
-    
     <div id="modal-parametro" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-parametro')">&times;</button><h3 style="margin-bottom: 20px;" id="param-titulo">Editar Parâmetro</h3><div id="param-inputs"></div><button class="btn-main" onclick="salvarParametro()">Atualizar Referência</button></div></div>
-    
     <div id="modal-novo-sinal" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-novo-sinal')">&times;</button><h3 style="margin-bottom: 20px;">Novo Sinal Vital</h3><div class="form-group"><label>Nome do Sinal (Ex: Nível de Dor)</label><input type="text" id="ns-nome"></div><div class="flex-row"><div class="form-group flex-1"><label>Mínimo Ideal</label><input type="number" step="0.1" id="ns-min"></div><div class="form-group flex-1"><label>Máximo Ideal</label><input type="number" step="0.1" id="ns-max"></div></div><div class="form-group"><label>Unidade de Medida (Ex: mg/dL, bpm)</label><input type="text" id="ns-unidade" placeholder="Opcional"></div><button class="btn-main" onclick="salvarNovoSinal()">Criar Parâmetro</button></div></div>
 
     <div id="modal-usuario" class="modal-overlay">
@@ -337,23 +317,12 @@
             <button class="close-btn" onclick="closeModal('modal-usuario')">&times;</button>
             <h3 style="margin-bottom: 20px;">Cadastrar Novo Usuário</h3>
             <div class="form-group"><label>Nome Completo</label><input type="text" id="usr-nome"></div>
-            <div class="flex-row">
-                <div class="form-group flex-1"><label>CPF</label><input type="text" id="usr-cpf" maxlength="14" oninput="mascaraCPF(this)"></div>
-                <div class="form-group flex-1"><label>Nascimento</label><input type="date" id="usr-nascimento"></div>
-            </div>
-            <div class="flex-row">
-                <div class="form-group flex-1"><label>Telefone</label><input type="text" id="usr-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div>
-                <div class="form-group flex-1"><label>E-mail</label><input type="email" id="usr-email"></div>
-            </div>
+            <div class="flex-row"><div class="form-group flex-1"><label>CPF</label><input type="text" id="usr-cpf" maxlength="14" oninput="mascaraCPF(this)"></div><div class="form-group flex-1"><label>Nascimento</label><input type="date" id="usr-nascimento"></div></div>
+            <div class="flex-row"><div class="form-group flex-1"><label>Telefone</label><input type="text" id="usr-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="form-group flex-1"><label>E-mail</label><input type="email" id="usr-email"></div></div>
             <div class="form-group"><label>Definir Senha de Acesso</label><input type="password" id="usr-senha" placeholder="Mínimo 10 caracteres"></div>
             <div class="form-group">
                 <label>Perfil</label>
-                <select id="usr-perfil">
-                    <option value="Cuidador">Cuidador</option>
-                    <option value="Observador">Observador</option>
-                    <option value="Administrador">Administrador</option>
-                    <option value="Dependente">Dependente (Paciente)</option>
-                </select>
+                <select id="usr-perfil"><option value="Cuidador">Cuidador</option><option value="Observador">Observador</option><option value="Administrador">Administrador</option><option value="Dependente">Dependente (Paciente)</option></select>
             </div>
             <button class="btn-main" onclick="salvarUsuarioApp()">Finalizar Cadastro</button>
         </div>
@@ -364,22 +333,11 @@
             <button class="close-btn" onclick="closeModal('modal-personalizar')">&times;</button>
             <h3 style="margin-bottom: 20px;">Gerenciar Cadastro</h3>
             <div class="form-group"><label>Nome</label><input type="text" id="edit-nome"></div>
-            <div class="flex-row">
-                <div class="form-group flex-1"><label>CPF</label><input type="text" id="edit-cpf" maxlength="14" oninput="mascaraCPF(this)"></div>
-                <div class="form-group flex-1"><label>Nascimento</label><input type="date" id="edit-nascimento"></div>
-            </div>
-            <div class="flex-row">
-                <div class="form-group flex-1"><label>Telefone</label><input type="text" id="edit-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div>
-                <div class="form-group flex-1"><label>E-mail</label><input type="email" id="edit-email"></div>
-            </div>
+            <div class="flex-row"><div class="form-group flex-1"><label>CPF</label><input type="text" id="edit-cpf" maxlength="14" oninput="mascaraCPF(this)"></div><div class="form-group flex-1"><label>Nascimento</label><input type="date" id="edit-nascimento"></div></div>
+            <div class="flex-row"><div class="form-group flex-1"><label>Telefone</label><input type="text" id="edit-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="form-group flex-1"><label>E-mail</label><input type="email" id="edit-email"></div></div>
             <div class="form-group">
                 <label>Perfil</label>
-                <select id="edit-perfil">
-                    <option value="Cuidador">Cuidador</option>
-                    <option value="Observador">Observador</option>
-                    <option value="Administrador">Administrador</option>
-                    <option value="Dependente">Dependente (Paciente)</option>
-                </select>
+                <select id="edit-perfil"><option value="Cuidador">Cuidador</option><option value="Observador">Observador</option><option value="Administrador">Administrador</option><option value="Dependente">Dependente (Paciente)</option></select>
                 <span id="hint-dependente" class="password-hint" style="display: none; color: var(--danger);">O perfil 'Dependente' é protegido e não pode ser alterado.</span>
             </div>
             <button class="btn-outline" style="width:100%;" onclick="enviarLinkSenha(true)">✉️ Enviar Link de Redefinição de Senha</button>
@@ -403,7 +361,6 @@
         // ---------------------------------------------------------
         const supabaseUrl = 'https://vlvpffaathuksyqvpkpd.supabase.co'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsdnBmZmFhdGh1a3N5cXZwa3BkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxODk5MTgsImV4cCI6MjEwMjc2NTkxOH0.WnibeFstwbt2CR1lLkS5pB9GaH7slCd_y6pBA1PNdrU';
-        
         const clienteSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         // ---------------------------------------------------------
@@ -707,7 +664,6 @@
 
                 if (errInsertDep) {
                     alert("❌ Erro ao salvar os dados do paciente na tabela: " + errInsertDep.message);
-                    console.error("Erro no Upsert:", errInsertDep);
                 }
             }
 
@@ -756,7 +712,8 @@
             renderizarConfigVitais();
             inicializarGraficos();
             carregarMedicamentos(); 
-            carregarSinaisVitais(); // Chamando a nova função conectada ao banco
+            carregarSinaisVitais();
+            carregarTimeline(); 
         }
 
         function openTabApp(tabId) {
@@ -796,16 +753,74 @@
             }
         }
 
-        function adicionarNaTimeline(titulo, descricao, alerta = false, retroativo = false) {
-            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            let classe = 'card'; let flag = '';
-            
-            if(alerta) { classe = 'card alert'; flag = '🚨 '; }
-            else if(retroativo) { classe = 'card warning'; flag = '⚠️ [Retroativo] '; }
-            
-            const html = `<div class="${classe}" style="animation: fadeIn 0.4s;"><strong>${flag}${titulo} (${time})</strong><p>${descricao}</p></div>`;
-            document.getElementById('timeline-feed').insertAdjacentHTML('afterbegin', html);
-            
+        // --- SISTEMA DE TIMELINE ---
+        function limparFiltrosTimeline() {
+            document.getElementById('filtro-texto-timeline').value = '';
+            document.getElementById('filtro-data-timeline').value = '';
+            carregarTimeline();
+        }
+
+        async function carregarTimeline() {
+            if(!familiaIdAtual) return;
+            const feed = document.getElementById('timeline-feed');
+            feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Carregando atualizações...</div>';
+
+            const textoFiltro = document.getElementById('filtro-texto-timeline').value.toLowerCase();
+            const dataFiltro = document.getElementById('filtro-data-timeline').value;
+
+            // Busca da tabela conectada
+            const { data: timeline, error } = await clienteSupabase
+                .from('linha_do_tempo')
+                .select('*')
+                .eq('familia_id', familiaIdAtual)
+                .order('criado_em', { ascending: false });
+
+            if (error) {
+                console.error("Erro ao carregar linha do tempo:", error);
+                feed.innerHTML = '<div class="card alert">Erro ao carregar o histórico.</div>';
+                return;
+            }
+
+            feed.innerHTML = '';
+            let temResultados = false;
+
+            if(timeline) {
+                timeline.forEach(item => {
+                    const dataReg = new Date(item.criado_em);
+                    const horaStr = dataReg.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                    
+                    let passaFiltroTexto = item.titulo.toLowerCase().includes(textoFiltro) || item.descricao.toLowerCase().includes(textoFiltro);
+                    let passaFiltroData = true;
+
+                    if (dataFiltro) {
+                        const [ano, mes, dia] = dataFiltro.split('-').map(Number);
+                        passaFiltroData = (dataReg.getFullYear() === ano && dataReg.getMonth() === (mes - 1) && dataReg.getDate() === dia);
+                    }
+
+                    if (passaFiltroTexto && passaFiltroData) {
+                        temResultados = true;
+                        let classe = 'card'; let flag = '';
+                        if(item.alerta) { classe = 'card alert'; flag = '🚨 '; }
+                        else if(item.retroativo) { classe = 'card warning'; flag = '⚠️ [Retroativo] '; }
+                        
+                        feed.innerHTML += `<div class="${classe}" style="animation: fadeIn 0.4s;">
+                            <strong>${flag}${item.titulo} (${horaStr})</strong>
+                            <p>${item.descricao}</p>
+                            <span style="font-size:0.75rem; color:var(--border); display:block; margin-top:8px;">${dataReg.toLocaleDateString('pt-BR')}</span>
+                        </div>`;
+                    }
+                });
+            }
+
+            if(!temResultados) {
+                feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma atualização encontrada para os filtros.</div>';
+            }
+        }
+
+        async function adicionarNaTimeline(titulo, descricao, alerta = false, retroativo = false) {
+            if(!familiaIdAtual) return;
+
+            // Atualiza notificação se não estiver visualizando a tela
             const timelineAtiva = document.getElementById('timeline').classList.contains('active');
             if(!timelineAtiva) {
                 contadorNotificacoes++;
@@ -813,6 +828,22 @@
                 badge.style.display = 'block';
                 badge.innerText = contadorNotificacoes;
             }
+
+            // Envia para o BD
+            const { error } = await clienteSupabase.from('linha_do_tempo').insert([{
+                familia_id: familiaIdAtual,
+                titulo: titulo,
+                descricao: descricao,
+                alerta: alerta,
+                retroativo: retroativo
+            }]);
+
+            if (error) {
+                console.error("Erro ao salvar timeline na nuvem:", error);
+            }
+
+            // Recarrega do banco para garantir consistência
+            carregarTimeline();
         }
 
         // --- 7. LÓGICA DE ROTINAS ---
@@ -1040,8 +1071,7 @@
             rotinaParaExcluir = null;
         }
 
-        // --- 8. LÓGICA DE FILTROS, SINAIS VITAIS E MEDICAMENTOS ---
-        
+        // --- 8. LÓGICA DE FILTROS E SINAIS VITAIS ---
         function aplicarFiltrosSaude() {
             carregarSinaisVitais();
             carregarMedicamentos();
@@ -1170,7 +1200,6 @@
             closeModal('modal-novo-sinal');
         }
 
-        // --- SISTEMA DE SINAIS VITAIS CONECTADO AO SUPABASE ---
         async function carregarSinaisVitais() {
             const lista = document.getElementById('lista-vitais');
             lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Carregando prontuário...</li>';
@@ -1178,7 +1207,6 @@
             const textoFiltro = document.getElementById('filtro-texto-saude').value.toLowerCase();
             const dataFiltro = document.getElementById('filtro-data-saude').value;
 
-            // Busca no Supabase ordenado pela data para os gráficos montarem corretamente
             const { data: vitais, error } = await clienteSupabase
                 .from('sinais_vitais')
                 .select('*')
@@ -1190,7 +1218,6 @@
                 return;
             }
 
-            // Limpa os gráficos locais para receber os dados frescos do banco
             for (let chave in historicoDados) {
                 historicoDados[chave] = { labels: [], dataset1: [], dataset2: [] };
             }
@@ -1205,7 +1232,6 @@
                     const dataStr = dataReg.toLocaleDateString('pt-BR');
                     const cor = v.alerta ? 'var(--danger)' : 'var(--text-main)';
                     
-                    // 1. Alimenta os gráficos (Todos os registros, independente do filtro visual)
                     if(historicoDados[v.tipo]) {
                         historicoDados[v.tipo].labels.push(horaStr);
                         const ref = referenciasVitais[v.tipo];
@@ -1220,7 +1246,6 @@
                         }
                     }
 
-                    // 2. Aplica Filtros APENAS para a Lista Visual na tela
                     let passaFiltroTexto = v.tipo.toLowerCase().includes(textoFiltro) || (v.observacoes && v.observacoes.toLowerCase().includes(textoFiltro));
                     let passaFiltroData = true;
 
@@ -1231,7 +1256,6 @@
 
                     if (passaFiltroTexto && passaFiltroData) {
                         listaVazia = false;
-                        // Monta a lista inserindo no começo para os mais novos ficarem no topo da UI
                         htmlLista = `
                             <li>
                                 <div>
@@ -1250,7 +1274,6 @@
             if(listaVazia) htmlLista = '<li style="text-align:center; color:var(--text-muted); border:none;">Nenhum registro encontrado para este filtro.</li>';
             lista.innerHTML = htmlLista;
 
-            // Atualiza os desenhos dos gráficos na tela
             for (let chave in graficos) {
                 if (graficos[chave]) graficos[chave].update();
             }
@@ -1283,7 +1306,6 @@
             const txtOriginal = btn.innerText;
             btn.innerText = "Salvando na nuvem...";
 
-            // Envia para o Supabase
             const { error } = await clienteSupabase.from('sinais_vitais').insert([{
                 familia_id: familiaIdAtual,
                 tipo: tipo,
@@ -1300,21 +1322,18 @@
 
             let txtAlerta = foraRef ? `Atenção Clínica: ${tipo} (${valor}) fora da referência segura!` : `Sinal vital ${tipo} registrado: ${valor}.`;
             if (obs) txtAlerta += ` <br><em>Obs: ${obs}</em>`;
+            
             adicionarNaTimeline(`Medição de ${tipo}`, txtAlerta, foraRef);
             
             if(foraRef) alert(`🚨 ALERTA MÉDICO: A medição de ${tipo} está fora da referência segura configurada (${ref.desc}).`);
 
             closeModal('modal-vitais');
-            
-            // Recarrega a lista e os gráficos atualizados da nuvem
             carregarSinaisVitais();
         }
 
         async function excluirSinalVital(id) {
             if(!confirm("Deseja realmente excluir este registro do prontuário? Essa ação atualizará os gráficos.")) return;
-            
             const { error } = await clienteSupabase.from('sinais_vitais').delete().eq('id', id);
-            
             if (error) {
                 alert("❌ Erro ao excluir: " + error.message);
             } else {
@@ -1331,7 +1350,6 @@
             const textoFiltro = document.getElementById('filtro-texto-saude').value.toLowerCase();
             const dataFiltro = document.getElementById('filtro-data-saude').value;
 
-            // Busca no Supabase, trazendo os criados mais recentemente por cima
             const { data: meds, error } = await clienteSupabase
                 .from('medicamentos')
                 .select('*')
@@ -1348,14 +1366,11 @@
 
             if (meds) {
                 meds.forEach(m => {
-                    // Extrai a data de criação do Banco (criado_em)
                     const dataReg = m.criado_em ? new Date(m.criado_em) : new Date();
                     const dataStr = dataReg.toLocaleDateString('pt-BR');
                     const horaRegStr = dataReg.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-                    
                     const horaFormatada = m.horario_primeiro_consumo.substring(0, 5);
                     
-                    // Filtros
                     let passaFiltroTexto = m.nome_dosagem.toLowerCase().includes(textoFiltro) || (m.observacoes && m.observacoes.toLowerCase().includes(textoFiltro));
                     let passaFiltroData = true;
                     
@@ -1422,15 +1437,12 @@
             
             alert("✅ Medicamento cadastrado com sucesso!");
             closeModal('modal-medicamento');
-            
             carregarMedicamentos();
         }
 
         async function excluirMedicamento(id) {
             if(!confirm("Deseja realmente remover este medicamento do prontuário?")) return;
-            
             const { error } = await clienteSupabase.from('medicamentos').delete().eq('id', id);
-            
             if (error) {
                 alert("❌ Erro ao excluir: " + error.message);
             } else {
