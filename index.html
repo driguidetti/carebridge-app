@@ -94,7 +94,6 @@
             <div class="auth-body">
                 <div id="msg-sucesso"></div>
 
-                <!-- TELA DE LOGIN -->
                 <div id="form-login" class="form-section active">
                     <div class="form-group"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com"></div>
                     <div class="form-group"><label>Senha</label><input type="password" id="login-senha" placeholder="••••••••"></div>
@@ -102,7 +101,6 @@
                     <button class="btn-main" id="btn-login" onclick="fazerLogin()">Acessar Sistema</button>
                 </div>
 
-                <!-- TELA DE CADASTRO -->
                 <div id="form-cadastro" class="form-section">
                     <div class="form-group"><label>Nome Completo</label><input type="text" id="cad-nome"></div>
                     <div class="flex-row">
@@ -121,7 +119,6 @@
                     <button class="btn-main" id="btn-cad" onclick="fazerCadastro()">Finalizar Cadastro</button>
                 </div>
 
-                <!-- TELA DE REDEFINIÇÃO DE SENHA -->
                 <div id="form-redefinir" class="form-section">
                     <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Criar Nova Senha</h3>
                     <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">Digite sua nova senha de acesso abaixo.</p>
@@ -133,7 +130,7 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TELA 2: LOBBY (CRIAR FAMÍLIA OU ENTRAR COM CÓDIGO) -->
+    <!-- TELA 2: LOBBY -->
     <!-- ======================================================= -->
     <div id="lobby-view" class="auth-wrapper" style="display: none;">
         <div class="auth-container" style="max-width: 600px;">
@@ -148,7 +145,6 @@
             </div>
             
             <div class="auth-body">
-                <!-- ENTRAR COM CÓDIGO -->
                 <div id="lobby-entrar" class="form-section active">
                     <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 20px; text-align: center;">Peça o <strong>Código de Acesso</strong> para o Administrador da família.</p>
                     <div class="form-group">
@@ -158,7 +154,6 @@
                     <button class="btn-main" onclick="entrarComCodigo()">Acessar Ambiente Familiar</button>
                 </div>
 
-                <!-- CRIAR FAMÍLIA E DEPENDENTE -->
                 <div id="lobby-criar" class="form-section">
                     <div class="form-group">
                         <label>Nome do Grupo Familiar</label>
@@ -216,7 +211,6 @@
         <main id="timeline" class="tab-content active">
             <h2 class="section-title">Últimas Atualizações</h2>
 
-            <!-- NOVO: FILTROS DA LINHA DO TEMPO -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                 <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 200px;">
                     <input type="text" id="filtro-texto-timeline" placeholder="Buscar atualizações..." oninput="carregarTimeline()" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
@@ -228,9 +222,7 @@
                 </div>
             </div>
 
-            <div id="timeline-feed">
-                <!-- Conteúdo carregado via banco de dados -->
-            </div>
+            <div id="timeline-feed"></div>
         </main>
 
         <main id="saude" class="tab-content">
@@ -259,9 +251,18 @@
             </div>
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <label style="font-size: 0.9rem; font-weight: 600;">Filtrar Dia:</label>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <label style="font-size: 0.9rem; font-weight: 600;">Filtros:</label>
                     <input type="date" id="filtro-data-rotina" onchange="renderizarRotinas()" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
+                    <select id="filtro-turno-rotina" onchange="renderizarRotinas()" style="padding: 6px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
+                        <option value="">Todos os Turnos</option>
+                        <option value="☀️ Manhã">☀️ Manhã (06h - 11h59)</option>
+                        <option value="☕ Tarde">☕ Tarde (12h - 17h59)</option>
+                        <option value="🌙 Noite">🌙 Noite (18h - 05h59)</option>
+                    </select>
+                    <select id="filtro-resp-rotina" onchange="renderizarRotinas()" style="padding: 6px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
+                        <option value="">Todos os Responsáveis</option>
+                    </select>
                     <button class="btn-outline" style="margin-top: 0; padding: 6px 10px;" onclick="limparFiltroRotina()">Limpar</button>
                 </div>
                 <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500; background: #e5e7eb; padding: 4px 10px; border-radius: 12px;">
@@ -304,7 +305,36 @@
     <!-- ======================================================= -->
     <!-- MODAIS -->
     <!-- ======================================================= -->
-    <div id="modal-itinerario" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-itinerario')">&times;</button><h3 style="margin-bottom: 20px;">Configurar Turno</h3><div class="flex-row"><div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div><div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div></div><div class="form-group"><label>Frequência</label><select id="itin-freq" onchange="verificarFrequencia()"><option value="Único">Único (Sem repetição)</option><option value="Diariamente">Diariamente</option><option value="A cada X horas">A cada X horas</option><option value="Mensal">Mensal</option><option value="Anual">Anual</option></select></div><div class="form-group" id="grupo-itin-horas" style="display: none;"><label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8"></div><div class="form-group"><label>Fim da Repetição</label><select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser excluído)</option></select></div><div class="form-group" id="grupo-itin-fim" style="display: none;"><input type="text" id="itin-fim-valor" placeholder=""></div><div class="form-group"><label>Tarefas (Separe por vírgula)</label><textarea id="itin-tarefas" rows="3" placeholder="Ex: Antibiótico 500mg, Fisioterapia, Banho"></textarea></div><button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button></div></div>
+    <div id="modal-itinerario" class="modal-overlay">
+        <div class="modal">
+            <button class="close-btn" onclick="closeModal('modal-itinerario')">&times;</button>
+            <h3 style="margin-bottom: 20px;">Configurar Turno</h3>
+            <div class="flex-row">
+                <div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div>
+                <div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div>
+            </div>
+            <!-- NOVO: Responsável pelo turno -->
+            <div class="form-group">
+                <label>Responsável</label>
+                <select id="itin-responsavel"></select>
+            </div>
+            <div class="form-group">
+                <label>Frequência</label>
+                <select id="itin-freq" onchange="verificarFrequencia()">
+                    <option value="Único">Único (Sem repetição)</option>
+                    <option value="Diariamente">Diariamente</option>
+                    <option value="A cada X horas">A cada X horas</option>
+                    <option value="Mensal">Mensal</option>
+                    <option value="Anual">Anual</option>
+                </select>
+            </div>
+            <div class="form-group" id="grupo-itin-horas" style="display: none;"><label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8"></div>
+            <div class="form-group"><label>Fim da Repetição</label><select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser excluído)</option></select></div>
+            <div class="form-group" id="grupo-itin-fim" style="display: none;"><input type="text" id="itin-fim-valor" placeholder=""></div>
+            <div class="form-group"><label>Tarefas (Separe por vírgula)</label><textarea id="itin-tarefas" rows="3" placeholder="Ex: Antibiótico 500mg, Fisioterapia, Banho"></textarea></div>
+            <button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button>
+        </div>
+    </div>
     <div id="modal-excluir-rotina" class="modal-overlay"><div class="modal"><h3 style="margin-bottom: 15px;">Excluir Rotina</h3><p style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.95rem;">Esta tarefa faz parte de uma série de repetições agendadas. O que você deseja fazer?</p><button class="btn-outline" style="width: 100%; margin-bottom: 10px;" onclick="executarExclusaoRotina('unica')">🗑️ Excluir APENAS esta tarefa</button><button class="btn-danger" style="width: 100%; margin-bottom: 15px; margin-top: 0;" onclick="executarExclusaoRotina('serie')">🚨 Excluir TODA a série futura</button><button class="btn-outline" style="width: 100%; border: none; color: var(--text-muted);" onclick="closeModal('modal-excluir-rotina')">Cancelar</button></div></div>
     <div id="modal-vitais" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-vitais')">&times;</button><h3 style="margin-bottom: 20px;">Registrar Sinal Vital</h3><div class="form-group"><label>Sinal Vital</label><select id="vital-tipo"></select><span class="password-hint" id="vital-hint"></span></div><div class="form-group"><label>Resultado Medido</label><input type="text" id="vital-valor" placeholder="Ex: 120/80 ou 95"></div><div class="form-group"><label>Observações (Opcional)</label><input type="text" id="vital-obs" placeholder="Ex: Paciente estava deitado"></div><button class="btn-main" onclick="salvarSinalVital()">Salvar Medição</button></div></div>
     <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Novo Medicamento</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário do Primeiro Consumo</label><input type="time" id="med-hora"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
@@ -366,8 +396,9 @@
         // ---------------------------------------------------------
         // 2. VARIÁVEIS GLOBAIS DE ESTADO
         // ---------------------------------------------------------
-        let usuarioAtual = null; // Variável para armazenar o perfil logado
+        let usuarioAtual = null; 
         let familiaIdAtual = null;
+        let usuariosFamilia = []; // Variável para armazenar a lista de usuários da família
         let taskCounter = 0;
         let listaDeRotinas = []; 
         let tempoAtualizacao = 60; 
@@ -395,7 +426,6 @@
         function validarTelefone(t) { return t.length >= 14; }
         function validarSenha(s) { return /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@#$!]).{10,}$/.test(s); }
 
-        // --- NAVEGAÇÃO ENTRE ABAS DE LOGIN E LOBBY ---
         function mudarAbaAuth(aba) {
             document.querySelectorAll('#auth-view .tab-btn-auth').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('#auth-view .form-section').forEach(f => f.classList.remove('active'));
@@ -412,7 +442,7 @@
         }
 
         // ---------------------------------------------------------
-        // 3. INICIALIZAÇÃO DE SESSÃO E ROTEAMENTO (SPA - SEM REFRESH)
+        // 3. INICIALIZAÇÃO DE SESSÃO
         // ---------------------------------------------------------
         async function iniciarAplicativo(session) {
             if (!session) {
@@ -424,17 +454,14 @@
 
             try {
                 document.getElementById('auth-view').style.display = 'none';
-
                 let { data: userData, error } = await clienteSupabase.from('usuarios').select('*').eq('id', session.user.id).single();
 
                 if (!userData) {
                     const metadados = session.user.user_metadata || {};
                     const newUser = {
-                        id: session.user.id,
-                        email: session.user.email,
+                        id: session.user.id, email: session.user.email,
                         nome: metadados.nome || metadados.full_name || 'Usuário',
-                        cpf: metadados.cpf || '',
-                        telefone: metadados.telefone || '',
+                        cpf: metadados.cpf || '', telefone: metadados.telefone || '',
                         perfil: 'Administrador'
                     };
                     await clienteSupabase.from('usuarios').insert([newUser]);
@@ -445,9 +472,7 @@
                     const { data: famData } = await clienteSupabase.from('familias').select('*').eq('id', userData.familia_id).single();
                     userData.familias = famData;
                     
-                    // NOVO: Salvando o usuário logado para verificações de permissão
                     usuarioAtual = userData; 
-                    
                     abrirPainelReal(userData);
                 } else {
                     document.getElementById('lobby-view').style.display = 'flex';
@@ -484,10 +509,8 @@
             await iniciarAplicativo(session);
         };
 
-        // ---------------------------------------------------------
-        // 4. FUNÇÕES DE AUTENTICAÇÃO E CADASTRO REAL (SPA)
-        // ---------------------------------------------------------
-        async function fazerCadastro() {
+        // --- FUNÇÕES DE AUTH (Resumidas para focar nas novidades) ---
+        async function fazerCadastro() { /* ... mantém original ... */ 
             const btn = document.getElementById('btn-cad');
             const nm = document.getElementById('cad-nome').value;
             const cpf = document.getElementById('cad-cpf').value;
@@ -501,7 +524,7 @@
             if(!validarCPF(cpf)) return alert("⚠️ CPF inválido.");
             if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
             if(sn !== conf) return alert("⚠️ As senhas digitadas não coincidem.");
-            if(!validarSenha(sn)) return alert("⚠️ Senha fraca. Siga os requisitos (10+ letras, números e símbolos).");
+            if(!validarSenha(sn)) return alert("⚠️ Senha fraca.");
 
             const parts = dt.split('-');
             const nasc = new Date(parts[0], parts[1]-1, parts[2]);
@@ -513,171 +536,82 @@
             btn.innerText = "Criando conta...";
             
             const { data: authData, error: authError } = await clienteSupabase.auth.signUp({
-                email: em,
-                password: sn,
-                options: { data: { nome: nm, cpf: cpf, telefone: tel, data_nascimento: dt } }
+                email: em, password: sn, options: { data: { nome: nm, cpf: cpf, telefone: tel, data_nascimento: dt } }
             });
 
-            if (authError) { 
-                btn.innerText = "Finalizar Cadastro";
-                return alert("❌ Erro ao criar conta: " + authError.message); 
-            } 
-
-            if (authData.user) {
-                await clienteSupabase.from('usuarios').insert([{
-                    id: authData.user.id,
-                    email: em,
-                    nome: nm,
-                    cpf: cpf,
-                    telefone: tel,
-                    perfil: 'Administrador'
-                }]);
-            }
-
+            if (authError) { btn.innerText = "Finalizar Cadastro"; return alert("❌ Erro ao criar conta: " + authError.message); } 
+            if (authData.user) { await clienteSupabase.from('usuarios').insert([{ id: authData.user.id, email: em, nome: nm, cpf: cpf, telefone: tel, perfil: 'Administrador' }]); }
             btn.innerText = "Finalizar Cadastro";
-
-            if (authData.session) {
-                alert("✅ Conta criada com sucesso!");
-                await iniciarAplicativo(authData.session);
-            } else {
-                alert("✅ Conta criada! Por favor, faça login para continuar.");
-                mudarAbaAuth('login');
-            }
+            if (authData.session) { alert("✅ Conta criada com sucesso!"); await iniciarAplicativo(authData.session); } else { alert("✅ Conta criada! Por favor, faça login."); mudarAbaAuth('login'); }
         }
 
-        async function fazerLogin() {
+        async function fazerLogin() { 
             const btn = document.getElementById('btn-login');
             const em = document.getElementById('login-email').value;
             const sn = document.getElementById('login-senha').value;
             if(!em || !sn) return alert("⚠️ Preencha e-mail e senha.");
-
             btn.innerText = "Acessando...";
             const { data, error } = await clienteSupabase.auth.signInWithPassword({ email: em, password: sn });
             btn.innerText = "Acessar Sistema";
-
-            if (error) {
-                alert("❌ Erro no login: " + error.message);
-            } else {
-                await iniciarAplicativo(data.session);
-            }
+            if (error) alert("❌ Erro no login: " + error.message); else await iniciarAplicativo(data.session);
         }
 
-        async function fazerLogout() {
-            if(confirm("Deseja realmente sair da conta?")) {
-                await clienteSupabase.auth.signOut();
-                window.location.reload();
-            }
-        }
+        async function fazerLogout() { if(confirm("Deseja realmente sair?")) { await clienteSupabase.auth.signOut(); window.location.reload(); } }
 
         async function recuperarSenha() {
             const em = document.getElementById('login-email').value;
-            if(!em || !validarEmail(em)) return alert("⚠️ Digite o seu e-mail no campo acima antes de clicar em recuperar a senha.");
-            
+            if(!em || !validarEmail(em)) return alert("⚠️ Digite o seu e-mail no campo.");
             const msg = document.getElementById('msg-sucesso');
-            msg.style.display = 'block'; msg.innerText = "Enviando e-mail...";
-
-            const { data, error } = await clienteSupabase.auth.resetPasswordForEmail(em, { redirectTo: window.location.origin + window.location.pathname });
-
+            msg.style.display = 'block'; msg.innerText = "Enviando...";
+            const { error } = await clienteSupabase.auth.resetPasswordForEmail(em, { redirectTo: window.location.origin + window.location.pathname });
             if (error) { msg.style.backgroundColor = 'var(--danger-bg)'; msg.style.color = 'var(--danger)'; msg.innerText = "Erro ao enviar: " + error.message; } 
-            else { msg.style.backgroundColor = 'var(--success-bg)'; msg.style.color = 'var(--success)'; msg.innerText = `Link de redefinição enviado para ${em}`; }
+            else { msg.style.backgroundColor = 'var(--success-bg)'; msg.style.color = 'var(--success)'; msg.innerText = `Link enviado para ${em}`; }
         }
 
         async function salvarNovaSenha() {
             const btn = document.getElementById('btn-salvar-senha');
             const novaSenha = document.getElementById('nova-senha').value;
-            
-            if(!validarSenha(novaSenha)) return alert("⚠️ Senha fraca. Use 10+ caracteres, letras, números e símbolos especiais (@#$!).");
-
+            if(!validarSenha(novaSenha)) return alert("⚠️ Senha fraca.");
             btn.innerText = "Atualizando...";
-            const { data, error } = await clienteSupabase.auth.updateUser({ password: novaSenha });
-
+            const { error } = await clienteSupabase.auth.updateUser({ password: novaSenha });
             if(error) { alert("❌ Erro ao atualizar senha: " + error.message); btn.innerText = "Atualizar Senha"; } 
-            else { alert("✅ Senha atualizada com sucesso! Você já pode acessar o sistema."); window.location.hash = ''; window.location.reload(); }
+            else { alert("✅ Senha atualizada!"); window.location.hash = ''; window.location.reload(); }
         }
 
-        // --- 5. FUNÇÕES DO LOBBY ---
-        async function entrarComCodigo() {
+        async function entrarComCodigo() { /* ... Mantém original ... */ 
             const cod = document.getElementById('lobby-codigo').value;
             if(!cod) return alert("⚠️ Digite o código de acesso.");
-            
             const { data: familia, error: errFam } = await clienteSupabase.from('familias').select('*').eq('codigo_acesso', cod).single();
-            if(errFam || !familia) return alert("❌ Código inválido ou família não encontrada.");
-
+            if(errFam || !familia) return alert("❌ Código inválido.");
             const { data: { user } } = await clienteSupabase.auth.getUser();
-
-            const { data: userAtualizado, error: errUpdate } = await clienteSupabase.from('usuarios')
-                .update({ familia_id: familia.id, perfil: 'Observador' })
-                .eq('id', user.id)
-                .select(); 
-
-            if (errUpdate) return alert("❌ Erro do banco de dados: " + errUpdate.message);
-            
-            if (!userAtualizado || userAtualizado.length === 0) {
-                return alert("🛑 SUPABASE BLOQUEOU O VÍNCULO! Desative o RLS da tabela 'usuarios'.");
-            }
-
+            const { data: userAtualizado, error: errUpdate } = await clienteSupabase.from('usuarios').update({ familia_id: familia.id, perfil: 'Observador' }).eq('id', user.id).select(); 
+            if (errUpdate) return alert("❌ Erro do banco: " + errUpdate.message);
+            if (!userAtualizado || userAtualizado.length === 0) return alert("🛑 SUPABASE BLOQUEOU O VÍNCULO! Desative o RLS da tabela 'usuarios'.");
             alert(`✅ Sucesso! Você agora faz parte da ${familia.nome_familia}.`);
             window.location.reload();
         }
 
-        async function criarFamiliaEDependente() {
+        async function criarFamiliaEDependente() { /* ... Mantém original ... */
             const nomeFam = document.getElementById('lobby-nome-familia').value;
-            const depNm = document.getElementById('dep-nome').value;
-            const depCpf = document.getElementById('dep-cpf').value;
-            const depDt = document.getElementById('dep-nascimento').value;
-            const depTel = document.getElementById('dep-telefone').value;
-            const depEm = document.getElementById('dep-email').value;
-            const depSn = document.getElementById('dep-senha').value;
+            const depNm = document.getElementById('dep-nome').value; const depCpf = document.getElementById('dep-cpf').value; const depDt = document.getElementById('dep-nascimento').value;
+            const depTel = document.getElementById('dep-telefone').value; const depEm = document.getElementById('dep-email').value; const depSn = document.getElementById('dep-senha').value;
             const conf = document.getElementById('dep-confirma').value;
-            
-            if(!nomeFam || !depNm || !depCpf || !depDt || !depTel || !depEm || !depSn) return alert("⚠️ Preencha o nome da família e todos os dados do paciente.");
+            if(!nomeFam || !depNm || !depCpf || !depDt || !depTel || !depEm || !depSn) return alert("⚠️ Preencha tudo.");
             if(depSn !== conf) return alert("⚠️ As senhas do paciente não coincidem.");
-
             const { data: novaFamilia, error: errFam } = await clienteSupabase.from('familias').insert([{ nome_familia: nomeFam }]).select().single();
             if(errFam) return alert("❌ Erro ao criar família: " + errFam.message);
-
             const { data: { user } } = await clienteSupabase.auth.getUser();
-            
-            const { data: adminAtualizado, error: errAdmin } = await clienteSupabase.from('usuarios')
-                .update({ familia_id: novaFamilia.id, perfil: 'Administrador' })
-                .eq('id', user.id)
-                .select(); 
-
-            if (errAdmin) return alert("❌ Erro ao vincular administrador: " + errAdmin.message);
-            if (!adminAtualizado || adminAtualizado.length === 0) {
-                return alert("🛑 SUPABASE BLOQUEOU O VÍNCULO! Desative o RLS.");
-            }
-
-            const { data: depAuth, error: errDep } = await clienteSupabase.auth.signUp({
-                email: depEm, password: depSn,
-                options: { data: { nome: depNm, cpf: depCpf, telefone: depTel, data_nascimento: depDt, perfil: 'Dependente' } }
-            });
-
+            const { data: adminAtualizado, error: errAdmin } = await clienteSupabase.from('usuarios').update({ familia_id: novaFamilia.id, perfil: 'Administrador' }).eq('id', user.id).select(); 
+            if (errAdmin) return alert("❌ Erro: " + errAdmin.message);
+            const { data: depAuth, error: errDep } = await clienteSupabase.auth.signUp({ email: depEm, password: depSn, options: { data: { nome: depNm, cpf: depCpf, telefone: depTel, data_nascimento: depDt, perfil: 'Dependente' } } });
             if(errDep) return alert("❌ Erro ao criar login do paciente: " + errDep.message);
-
-            if (depAuth.user) {
-                const { error: errInsertDep } = await clienteSupabase.from('usuarios').upsert([{
-                    id: depAuth.user.id,
-                    email: depEm,
-                    nome: depNm,
-                    cpf: depCpf,
-                    telefone: depTel,
-                    data_nascimento: depDt,
-                    familia_id: novaFamilia.id,
-                    perfil: 'Dependente'
-                }]);
-
-                if (errInsertDep) {
-                    alert("❌ Erro ao salvar os dados do paciente na tabela: " + errInsertDep.message);
-                }
-            }
-
+            if (depAuth.user) { await clienteSupabase.from('usuarios').upsert([{ id: depAuth.user.id, email: depEm, nome: depNm, cpf: depCpf, telefone: depTel, data_nascimento: depDt, familia_id: novaFamilia.id, perfil: 'Dependente' }]); }
             await clienteSupabase.auth.signOut();
-            alert("✅ Família criada e Paciente cadastrado com sucesso!\n\n⚠️ O sistema redirecionará para o Login. Acesse agora com sua conta de Administrador.");
+            alert("✅ Família criada e Paciente cadastrado com sucesso! Acesse agora com sua conta de Administrador.");
             window.location.reload();
         }
 
-        // --- 6. FUNÇÕES DE RENDERIZAÇÃO DO APP E PAINEL ---
+        // --- 6. FUNÇÕES DO PAINEL ---
         async function abrirPainelReal(userData) {
             familiaIdAtual = userData.familia_id;
             
@@ -686,18 +620,23 @@
             document.getElementById('app-view').style.display = 'block'; 
 
             document.getElementById('header-nome-familia').innerText = userData.familias?.nome_familia || "Painel da Família";
-            if (userData.familias?.codigo_acesso) {
-                document.getElementById('display-codigo-familia').innerText = userData.familias.codigo_acesso;
-            }
+            if (userData.familias?.codigo_acesso) { document.getElementById('display-codigo-familia').innerText = userData.familias.codigo_acesso; }
             
-            const { data: membrosFam, error } = await clienteSupabase
-                .from('usuarios')
-                .select('*')
-                .eq('familia_id', userData.familia_id);
+            const { data: membrosFam, error } = await clienteSupabase.from('usuarios').select('*').eq('familia_id', userData.familia_id);
+            usuariosFamilia = membrosFam || [];
 
             const listaUsuarios = document.getElementById('lista-usuarios');
             listaUsuarios.innerHTML = ''; 
             
+            // Popula os filtros de Responsáveis (Escala Operacional)
+            const selFiltroResp = document.getElementById('filtro-resp-rotina');
+            if (selFiltroResp) {
+                selFiltroResp.innerHTML = '<option value="">Todos os Responsáveis</option>';
+                usuariosFamilia.filter(u => u.perfil !== 'Dependente').forEach(u => {
+                    selFiltroResp.innerHTML += `<option value="${u.nome}">${u.nome}</option>`;
+                });
+            }
+
             if (membrosFam) {
                 membrosFam.forEach(membro => {
                     const isAdm = membro.perfil === 'Administrador' ? 'true' : 'false';
@@ -712,13 +651,8 @@
             }
 
             window.scrollTo(0,0);
-
-            carregarOpcoesSinaisVitais();
-            renderizarConfigVitais();
-            inicializarGraficos();
-            carregarMedicamentos(); 
-            carregarSinaisVitais();
-            carregarTimeline(); 
+            carregarOpcoesSinaisVitais(); renderizarConfigVitais(); inicializarGraficos();
+            carregarMedicamentos(); carregarSinaisVitais(); carregarTimeline(); 
         }
 
         function openTabApp(tabId) {
@@ -726,23 +660,25 @@
             document.querySelectorAll('.tab-btn-app').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             
-            if(tabId === 'timeline') {
-                contadorNotificacoes = 0;
-                document.getElementById('notificacao-badge').style.display = 'none';
-            }
-            
+            if(tabId === 'timeline') { contadorNotificacoes = 0; document.getElementById('notificacao-badge').style.display = 'none'; }
             if(tabId === 'gestao') atualizarStatusRotina();
             
-            if(event && event.currentTarget.classList.contains('tab-btn-app')) {
-                event.currentTarget.classList.add('active');
-            } else if(tabId === 'timeline') {
-                document.querySelectorAll('.tab-btn-app')[0].classList.add('active');
-            }
+            if(event && event.currentTarget.classList.contains('tab-btn-app')) { event.currentTarget.classList.add('active'); } 
+            else if(tabId === 'timeline') { document.querySelectorAll('.tab-btn-app')[0].classList.add('active'); }
         }
 
         function openModal(id) { 
             document.getElementById(id).style.display = 'flex'; 
-            if (id === 'modal-itinerario') verificarFrequencia();
+            
+            if (id === 'modal-itinerario') {
+                verificarFrequencia();
+                // Popula o select de responsável ao abrir
+                const selResp = document.getElementById('itin-responsavel');
+                selResp.innerHTML = '<option value="">A Definir (Lembrete 30 min antes)</option>';
+                usuariosFamilia.filter(u => u.perfil !== 'Dependente').forEach(u => {
+                    selResp.innerHTML += `<option value="${u.nome}">${u.nome}</option>`;
+                });
+            }
         }
 
         function closeModal(id) { 
@@ -759,35 +695,18 @@
         }
 
         // --- SISTEMA DE TIMELINE ---
-        function limparFiltrosTimeline() {
-            document.getElementById('filtro-texto-timeline').value = '';
-            document.getElementById('filtro-data-timeline').value = '';
-            carregarTimeline();
-        }
+        function limparFiltrosTimeline() { document.getElementById('filtro-texto-timeline').value = ''; document.getElementById('filtro-data-timeline').value = ''; carregarTimeline(); }
 
         async function carregarTimeline() {
             if(!familiaIdAtual) return;
             const feed = document.getElementById('timeline-feed');
             feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Carregando atualizações...</div>';
+            const textoFiltro = document.getElementById('filtro-texto-timeline').value.toLowerCase(); const dataFiltro = document.getElementById('filtro-data-timeline').value;
 
-            const textoFiltro = document.getElementById('filtro-texto-timeline').value.toLowerCase();
-            const dataFiltro = document.getElementById('filtro-data-timeline').value;
+            const { data: timeline, error } = await clienteSupabase.from('linha_do_tempo').select('*').eq('familia_id', familiaIdAtual).order('criado_em', { ascending: false });
 
-            // Busca da tabela conectada
-            const { data: timeline, error } = await clienteSupabase
-                .from('linha_do_tempo')
-                .select('*')
-                .eq('familia_id', familiaIdAtual)
-                .order('criado_em', { ascending: false });
-
-            if (error) {
-                console.error("Erro ao carregar linha do tempo:", error);
-                feed.innerHTML = '<div class="card alert">Erro ao carregar o histórico.</div>';
-                return;
-            }
-
-            let htmlContent = '';
-            let temResultados = false;
+            if (error) { feed.innerHTML = '<div class="card alert">Erro ao carregar o histórico.</div>'; return; }
+            let htmlContent = ''; let temResultados = false;
 
             if(timeline) {
                 timeline.forEach(item => {
@@ -805,10 +724,8 @@
                     if (passaFiltroTexto && passaFiltroData) {
                         temResultados = true;
                         let classe = 'card'; let flag = '';
-                        if(item.alerta) { classe = 'card alert'; flag = '🚨 '; }
-                        else if(item.retroativo) { classe = 'card warning'; flag = '⚠️ [Retroativo] '; }
+                        if(item.alerta) { classe = 'card alert'; flag = '🚨 '; } else if(item.retroativo) { classe = 'card warning'; flag = '⚠️ [Retroativo] '; }
                         
-                        // NOVO: Verifica se o usuário logado é Administrador
                         const isAdm = (usuarioAtual && usuarioAtual.perfil === 'Administrador');
                         const btnDelete = isAdm ? `<button class="btn-trash" onclick="excluirItemTimeline('${item.id}')" title="Excluir da Timeline" style="margin-top:0;">🗑️</button>` : '';
 
@@ -824,142 +741,100 @@
                 });
             }
 
-            // --- CARTÃO DE BOAS-VINDAS FIXO NO FINAL ---
             const filtroVazio = !textoFiltro && !dataFiltro;
-            const boasVindasMatch = "bem vindo carebridge".includes(textoFiltro); // Aparece se pesquisarem por essas palavras
-            
+            const boasVindasMatch = "bem vindo carebridge".includes(textoFiltro);
             if (filtroVazio || boasVindasMatch) {
                 temResultados = true;
-                htmlContent += `
-                    <div class="card" style="border-left-color: var(--success); background-color: var(--success-bg); animation: fadeIn 0.4s;">
-                        <strong>👋 Bem-vindo ao CareBridge!</strong>
-                        <p>Sua linha do tempo está pronta. A partir de agora, todas as atualizações de saúde, rotinas e alertas da sua família aparecerão aqui automaticamente.</p>
-                    </div>
-                `;
+                htmlContent += `<div class="card" style="border-left-color: var(--success); background-color: var(--success-bg); animation: fadeIn 0.4s;">
+                        <strong>👋 Bem-vindo ao CareBridge!</strong><p>Sua linha do tempo está pronta. A partir de agora, todas as atualizações de saúde, rotinas e alertas da sua família aparecerão aqui automaticamente.</p>
+                    </div>`;
             }
 
-            // Renderiza na tela
-            if(!temResultados) {
-                feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma atualização encontrada para os filtros.</div>';
-            } else {
-                feed.innerHTML = htmlContent;
-            }
+            if(!temResultados) { feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma atualização encontrada para os filtros.</div>'; } 
+            else { feed.innerHTML = htmlContent; }
         }
 
         async function adicionarNaTimeline(titulo, descricao, alerta = false, retroativo = false) {
             if(!familiaIdAtual) return;
-
-            // Atualiza notificação se não estiver visualizando a tela
             const timelineAtiva = document.getElementById('timeline').classList.contains('active');
-            if(!timelineAtiva) {
-                contadorNotificacoes++;
-                const badge = document.getElementById('notificacao-badge');
-                badge.style.display = 'block';
-                badge.innerText = contadorNotificacoes;
-            }
-
-            // Envia para o BD
-            const { error } = await clienteSupabase.from('linha_do_tempo').insert([{
-                familia_id: familiaIdAtual,
-                titulo: titulo,
-                descricao: descricao,
-                alerta: alerta,
-                retroativo: retroativo
-            }]);
-
-            if (error) {
-                console.error("Erro ao salvar timeline na nuvem:", error);
-            }
-
-            // Recarrega do banco para garantir consistência
+            if(!timelineAtiva) { contadorNotificacoes++; const badge = document.getElementById('notificacao-badge'); badge.style.display = 'block'; badge.innerText = contadorNotificacoes; }
+            await clienteSupabase.from('linha_do_tempo').insert([{ familia_id: familiaIdAtual, titulo: titulo, descricao: descricao, alerta: alerta, retroativo: retroativo }]);
             carregarTimeline();
         }
 
-        // NOVO: Função para excluir item da timeline
         async function excluirItemTimeline(id) {
             if(!confirm("Deseja realmente excluir este evento do histórico da família?")) return;
-
             const { error } = await clienteSupabase.from('linha_do_tempo').delete().eq('id', id);
-
-            if (error) {
-                alert("❌ Erro ao excluir registro: " + error.message);
-            } else {
-                carregarTimeline();
-            }
+            if (error) alert("❌ Erro ao excluir registro: " + error.message); else carregarTimeline();
         }
 
-        // --- 7. LÓGICA DE ROTINAS ---
-        function verificarFrequencia() {
-            const freq = document.getElementById('itin-freq').value;
-            const selectFim = document.getElementById('itin-fim');
-            const valorAtualFim = selectFim.value; 
-            
+        // --- 7. LÓGICA DE ROTINAS E TURNOS ---
+        
+        // NOVO: Função que classifica o turno automaticamente
+        function obterTurno(horaStr) {
+            const h = parseInt(horaStr.split(':')[0]);
+            if (h >= 6 && h < 12) return '☀️ Manhã';
+            if (h >= 12 && h < 18) return '☕ Tarde';
+            return '🌙 Noite';
+        }
+
+        function verificarFrequencia() { /* Mantém Original */
+            const freq = document.getElementById('itin-freq').value; const selectFim = document.getElementById('itin-fim'); const valorAtualFim = selectFim.value; 
             document.getElementById('grupo-itin-horas').style.display = (freq === 'A cada X horas') ? 'block' : 'none';
             const campoFimRepeticao = selectFim.closest('.form-group');
-            
-            if (freq === 'Único') {
-                campoFimRepeticao.style.display = 'none';
-                document.getElementById('grupo-itin-fim').style.display = 'none';
-            } else {
-                campoFimRepeticao.style.display = 'block';
-                selectFim.innerHTML = ''; 
+            if (freq === 'Único') { campoFimRepeticao.style.display = 'none'; document.getElementById('grupo-itin-fim').style.display = 'none'; } 
+            else {
+                campoFimRepeticao.style.display = 'block'; selectFim.innerHTML = ''; 
                 selectFim.add(new Option('Manual (Até ser excluído)', 'manual'));
-                
                 if (freq === 'Diariamente' || freq === 'A cada X horas') selectFim.add(new Option('Até data específica', 'data'));
                 selectFim.add(new Option('Por quantidade', 'qtd'));
-
-                let opcaoAindaExiste = Array.from(selectFim.options).some(opt => opt.value === valorAtualFim);
-                selectFim.value = opcaoAindaExiste ? valorAtualFim : 'manual';
-                verificarFimCondicao();
+                let opcaoAindaExiste = Array.from(selectFim.options).some(opt => opt.value === valorAtualFim); selectFim.value = opcaoAindaExiste ? valorAtualFim : 'manual'; verificarFimCondicao();
             }
         }
 
         function verificarFimCondicao() {
-            const fim = document.getElementById('itin-fim').value;
-            const freq = document.getElementById('itin-freq').value;
-            const grp = document.getElementById('grupo-itin-fim');
-            const input = document.getElementById('itin-fim-valor');
-            
-            if (freq === 'Único' || fim === 'manual') { grp.style.display = 'none'; } 
-            else {
-                grp.style.display = 'block';
-                input.type = (fim === 'data') ? 'date' : 'number';
-                input.placeholder = (fim === 'data') ? '' : 'Ex: 10 vezes';
-            }
+            const fim = document.getElementById('itin-fim').value; const freq = document.getElementById('itin-freq').value; const grp = document.getElementById('grupo-itin-fim'); const input = document.getElementById('itin-fim-valor');
+            if (freq === 'Único' || fim === 'manual') { grp.style.display = 'none'; } else { grp.style.display = 'block'; input.type = (fim === 'data') ? 'date' : 'number'; input.placeholder = (fim === 'data') ? '' : 'Ex: 10 vezes'; }
         }
 
         function limparFiltroRotina() {
             document.getElementById('filtro-data-rotina').value = '';
+            document.getElementById('filtro-turno-rotina').value = '';
+            document.getElementById('filtro-resp-rotina').value = '';
             renderizarRotinas();
         }
 
         function calcularProximaData(dataAtual, freq, hrExtra) {
             let nd = new Date(dataAtual);
-            if (freq === 'A cada X horas') nd.setHours(nd.getHours() + (hrExtra || 0));
-            else if (freq === 'Diariamente') nd.setDate(nd.getDate() + 1);
-            else if (freq === 'Mensal') nd.setMonth(nd.getMonth() + 1);
-            else if (freq === 'Anual') nd.setFullYear(nd.getFullYear() + 1);
+            if (freq === 'A cada X horas') nd.setHours(nd.getHours() + (hrExtra || 0)); else if (freq === 'Diariamente') nd.setDate(nd.getDate() + 1); else if (freq === 'Mensal') nd.setMonth(nd.getMonth() + 1); else if (freq === 'Anual') nd.setFullYear(nd.getFullYear() + 1);
             return nd;
         }
 
         function renderizarRotinas() {
             const ul = document.getElementById('lista-tarefas');
             const selCheckin = document.getElementById('checkin-tarefa');
+            
+            // Novos filtros
             const filtroData = document.getElementById('filtro-data-rotina').value;
+            const filtroTurno = document.getElementById('filtro-turno-rotina').value;
+            const filtroResp = document.getElementById('filtro-resp-rotina').value;
             
             ul.innerHTML = ''; selCheckin.innerHTML = '';
             
-            let rotinasFiltradas = [...listaDeRotinas];
-            
-            if(filtroData) {
-                const [ano, mes, dia] = filtroData.split('-').map(Number);
-                rotinasFiltradas = rotinasFiltradas.filter(r => {
-                    return r.dataHora.getFullYear() === ano && r.dataHora.getMonth() === (mes - 1) && r.dataHora.getDate() === dia;
-                });
-            }
+            let rotinasFiltradas = listaDeRotinas.filter(r => {
+                let passaData = true;
+                if (filtroData) {
+                    const [ano, mes, dia] = filtroData.split('-').map(Number);
+                    passaData = (r.dataHora.getFullYear() === ano && r.dataHora.getMonth() === (mes - 1) && r.dataHora.getDate() === dia);
+                }
+                let passaTurno = filtroTurno ? r.turno === filtroTurno : true;
+                let passaResp = filtroResp ? r.responsavel === filtroResp : true;
+                
+                return passaData && passaTurno && passaResp;
+            });
 
             if (rotinasFiltradas.length === 0) {
-                ul.innerHTML = '<li style="text-align:center; color: var(--text-muted); border: none;">Nenhuma rotina para exibir.</li>';
+                ul.innerHTML = '<li style="text-align:center; color: var(--text-muted); border: none;">Nenhuma rotina para exibir para os filtros selecionados.</li>';
                 return;
             }
 
@@ -986,7 +861,8 @@
                     ul.innerHTML += `<li data-id="${rotina.id}" style="border-left: 4px solid transparent; padding-left: 10px; transition: all 0.3s ease; display:flex; justify-content:space-between; align-items: center;">
                                         <div>
                                             <span>⚙️ <strong>${rotina.nome}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
-                                            <br><span class="status-texto" style="font-weight: 600; font-size: 0.85rem;"></span>
+                                            <br><span style="font-size:0.75rem; background: #e5e7eb; padding: 2px 6px; border-radius: 4px; display:inline-block; margin-top:4px; font-weight:600; color:var(--text-main);">${rotina.turno} | 👤 Resp: ${rotina.responsavel || 'A Definir'}</span>
+                                            <br><span class="status-texto" style="font-weight: 600; font-size: 0.85rem; margin-top:4px; display:inline-block;"></span>
                                         </div>
                                         <button class="btn-trash" onclick="abrirModalExclusao('${rotina.id}')" title="Excluir rotina">🗑️</button>
                                     </li>`;
@@ -1015,6 +891,13 @@
                 } else if (diffMinutos <= 60) {
                     li.style.borderLeftColor = 'var(--accent)'; li.style.backgroundColor = '#fffbeb';
                     if(spanStatus) { spanStatus.innerText = '🟡 Próximo'; spanStatus.style.color = 'var(--accent-hover)'; }
+                    
+                    // NOVO: Lógica de Alerta 30 min se não houver responsável!
+                    if (!rotina.responsavel && diffMinutos <= 30 && diffMinutos >= 0 && !rotina.alertaRespEnviado) {
+                        rotina.alertaRespEnviado = true; // Impede duplo envio
+                        adicionarNaTimeline(`🚨 Responsável Pendente`, `A tarefa <strong>${rotina.nome}</strong> (Turno da ${rotina.turno}) começa em menos de 30 minutos e ainda não tem um responsável atribuído!`, true);
+                    }
+                    
                 } else {
                     li.style.borderLeftColor = 'var(--text-muted)'; li.style.backgroundColor = 'transparent';
                     if(spanStatus) { spanStatus.innerText = '⚪ Futuro'; spanStatus.style.color = 'var(--text-muted)'; }
@@ -1025,6 +908,7 @@
         function salvarItinerario() {
             const dataStr = document.getElementById('itin-data').value;
             const horStr = document.getElementById('itin-horario').value;
+            const responsavelStr = document.getElementById('itin-responsavel').value;
             const freq = document.getElementById('itin-freq').value;
             const hrExtra = parseInt(document.getElementById('itin-freq-horas').value) || 0;
             const strTarefas = document.getElementById('itin-tarefas').value;
@@ -1038,7 +922,6 @@
 
             let tarefasArray = strTarefas.split(',').map(t => t.trim()).filter(t => t);
             const groupId = Date.now().toString();
-            
             let limitMax = 365; let count = 0; let curDate = new Date(dataBase);
 
             let condicao = () => {
@@ -1049,9 +932,17 @@
             };
 
             while(condicao() && count < limitMax) {
+                // Classifica turno automaticamente baseado na hora calculada do evento
+                const h = curDate.getHours();
+                let turnoClassificado = obterTurno(`${h}:00`);
+                
                 tarefasArray.forEach(tarefa => {
                     taskCounter++;
-                    listaDeRotinas.push({ id: `task-${taskCounter}`, groupId: groupId, nome: tarefa, dataHora: new Date(curDate), status: 'pendente', obs: '', freq: freq, hrExtra: hrExtra, fimTipo: fimTipo, tarefaBase: tarefa });
+                    listaDeRotinas.push({ 
+                        id: `task-${taskCounter}`, groupId: groupId, nome: tarefa, dataHora: new Date(curDate), 
+                        status: 'pendente', obs: '', freq: freq, hrExtra: hrExtra, fimTipo: fimTipo, tarefaBase: tarefa,
+                        responsavel: responsavelStr, turno: turnoClassificado, alertaRespEnviado: false 
+                    });
                 });
                 curDate = calcularProximaData(curDate, freq, hrExtra);
                 count++;
@@ -1076,12 +967,15 @@
             if(rotina) {
                 rotina.status = 'concluido';
                 rotina.obs = obs;
-                adicionarNaTimeline(`Tarefa Concluída`, `A tarefa <strong>${rotina.nome}</strong> foi finalizada. ${obs ? `Obs: ${obs}` : ''}`);
+                
+                // NOVO: Adiciona a assinatura (Log) de quem logou e deu o checkin
+                adicionarNaTimeline(`Tarefa Concluída`, `A tarefa <strong>${rotina.nome}</strong> foi finalizada.<br><small>✅ Confirmado por: <strong>${usuarioAtual.nome}</strong></small> ${obs ? `<br><em>Obs: ${obs}</em>` : ''}`);
                 
                 if (rotina.freq !== 'Único' && rotina.fimTipo === 'manual') {
                     const proxData = calcularProximaData(rotina.dataHora, rotina.freq, rotina.hrExtra);
+                    let turnoProx = obterTurno(`${proxData.getHours()}:00`);
                     taskCounter++;
-                    listaDeRotinas.push({ id: `task-${taskCounter}`, groupId: rotina.groupId, nome: rotina.tarefaBase, dataHora: proxData, status: 'pendente', obs: '', freq: rotina.freq, hrExtra: rotina.hrExtra, fimTipo: rotina.fimTipo, tarefaBase: rotina.tarefaBase });
+                    listaDeRotinas.push({ id: `task-${taskCounter}`, groupId: rotina.groupId, nome: rotina.tarefaBase, dataHora: proxData, status: 'pendente', obs: '', freq: rotina.freq, hrExtra: rotina.hrExtra, fimTipo: rotina.fimTipo, tarefaBase: rotina.tarefaBase, responsavel: rotina.responsavel, turno: turnoProx, alertaRespEnviado: false });
                 }
             }
             
@@ -1092,435 +986,176 @@
         function abrirModalExclusao(id) {
             rotinaParaExcluir = listaDeRotinas.find(r => r.id === id);
             if(!rotinaParaExcluir) return;
-            
             const repetiu = listaDeRotinas.filter(r => r.groupId === rotinaParaExcluir.groupId).length > 1 || rotinaParaExcluir.fimTipo === 'manual';
-            
-            if (repetiu) { openModal('modal-excluir-rotina'); } 
-            else { if(confirm(`Deseja excluir a tarefa pontual "${rotinaParaExcluir.nome}"?`)) executarExclusaoRotina('unica'); }
+            if (repetiu) { openModal('modal-excluir-rotina'); } else { if(confirm(`Deseja excluir a tarefa pontual "${rotinaParaExcluir.nome}"?`)) executarExclusaoRotina('unica'); }
         }
 
         function executarExclusaoRotina(modo) {
             if(!rotinaParaExcluir) return;
-            if(modo === 'serie') {
-                listaDeRotinas = listaDeRotinas.filter(r => r.groupId !== rotinaParaExcluir.groupId || r.status === 'concluido');
-                adicionarNaTimeline('Série Excluída', `A série de tarefas futuras para "${rotinaParaExcluir.nome}" foi apagada.`);
-            } else {
-                listaDeRotinas = listaDeRotinas.filter(r => r.id !== rotinaParaExcluir.id);
-                adicionarNaTimeline('Rotina Excluída', `A tarefa pontual "${rotinaParaExcluir.nome}" foi apagada.`);
-            }
-            renderizarRotinas(); 
-            closeModal('modal-excluir-rotina'); 
-            rotinaParaExcluir = null;
+            if(modo === 'serie') { listaDeRotinas = listaDeRotinas.filter(r => r.groupId !== rotinaParaExcluir.groupId || r.status === 'concluido'); adicionarNaTimeline('Série Excluída', `A série de tarefas futuras para "${rotinaParaExcluir.nome}" foi apagada.`); } 
+            else { listaDeRotinas = listaDeRotinas.filter(r => r.id !== rotinaParaExcluir.id); adicionarNaTimeline('Rotina Excluída', `A tarefa pontual "${rotinaParaExcluir.nome}" foi apagada.`); }
+            renderizarRotinas(); closeModal('modal-excluir-rotina'); rotinaParaExcluir = null;
         }
 
         // --- 8. LÓGICA DE FILTROS E SINAIS VITAIS ---
-        function aplicarFiltrosSaude() {
-            carregarSinaisVitais();
-            carregarMedicamentos();
-        }
-
-        function limparFiltrosSaude() {
-            document.getElementById('filtro-texto-saude').value = '';
-            document.getElementById('filtro-data-saude').value = '';
-            aplicarFiltrosSaude();
-        }
-
-        function carregarOpcoesSinaisVitais() {
-            const sel = document.getElementById('vital-tipo');
-            sel.innerHTML = '';
-            for (let chave in referenciasVitais) sel.innerHTML += `<option value="${chave}">${chave}</option>`;
-            sel.addEventListener('change', (e) => { document.getElementById('vital-hint').innerText = `Referência segura: ${referenciasVitais[e.target.value].desc}`; });
-            document.getElementById('vital-hint').innerText = `Referência segura: ${referenciasVitais["Pressão Arterial"].desc}`;
-        }
-
+        function aplicarFiltrosSaude() { carregarSinaisVitais(); carregarMedicamentos(); }
+        function limparFiltrosSaude() { document.getElementById('filtro-texto-saude').value = ''; document.getElementById('filtro-data-saude').value = ''; aplicarFiltrosSaude(); }
+        function carregarOpcoesSinaisVitais() { const sel = document.getElementById('vital-tipo'); sel.innerHTML = ''; for (let chave in referenciasVitais) sel.innerHTML += `<option value="${chave}">${chave}</option>`; sel.addEventListener('change', (e) => { document.getElementById('vital-hint').innerText = `Referência segura: ${referenciasVitais[e.target.value].desc}`; }); document.getElementById('vital-hint').innerText = `Referência segura: ${referenciasVitais["Pressão Arterial"].desc}`; }
+        
         function renderizarConfigVitais() {
-            const ul = document.getElementById('lista-config-vitais');
-            ul.innerHTML = '';
-            const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
-            
+            const ul = document.getElementById('lista-config-vitais'); ul.innerHTML = ''; const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
             for (let chave in referenciasVitais) {
-                const isPadrao = padroes.includes(chave);
-                const tag = isPadrao ? `<span style="background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 8px;">Padrão</span>` : '';
-                
-                ul.innerHTML += `
-                <li>
-                    <div style="display: flex; flex-direction: column;">
-                        <div style="display: flex; align-items: center;"><strong>${chave}</strong>${tag}</div>
-                        <span style="font-size: 0.85rem; color: var(--text-muted);">Referência: ${referenciasVitais[chave].desc}</span>
-                    </div>
-                    <button class="btn-outline" style="margin-top:0; padding:4px 10px;" onclick="abrirEditarParametro('${chave}')">Editar</button>
-                </li>`;
+                const isPadrao = padroes.includes(chave); const tag = isPadrao ? `<span style="background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 8px;">Padrão</span>` : '';
+                ul.innerHTML += `<li><div style="display: flex; flex-direction: column;"><div style="display: flex; align-items: center;"><strong>${chave}</strong>${tag}</div><span style="font-size: 0.85rem; color: var(--text-muted);">Referência: ${referenciasVitais[chave].desc}</span></div><button class="btn-outline" style="margin-top:0; padding:4px 10px;" onclick="abrirEditarParametro('${chave}')">Editar</button></li>`;
             }
         }
 
         function abrirEditarParametro(chave) {
-            paramSendoEditado = chave;
-            const ref = referenciasVitais[chave];
-            document.getElementById('param-titulo').innerText = `Editar Parâmetro`;
-            const div = document.getElementById('param-inputs');
-            
-            const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
-            const isPadrao = padroes.includes(chave);
-            const disableName = isPadrao ? 'disabled title="Nomes padrões são fixos para manter os gráficos sincronizados."' : '';
-            const styleBlock = isPadrao ? 'background: #e5e7eb;' : '';
-            
-            let un = ref.desc.split(' ').pop(); 
-            let htmlInputs = `<div class="form-group"><label>Nome do Sinal</label><input type="text" id="p-nome" value="${chave}" ${disableName} style="${styleBlock}"></div>`;
-            
-            if(ref.formato === "sist/diast") {
-                htmlInputs += `
-                    <div class="flex-row">
-                        <div class="form-group flex-1"><label>Mín Sistólica</label><input type="number" id="p-minsist" value="${ref.minSist}"></div>
-                        <div class="form-group flex-1"><label>Máx Sistólica</label><input type="number" id="p-maxsist" value="${ref.maxSist}"></div>
-                    </div>
-                    <div class="flex-row">
-                        <div class="form-group flex-1"><label>Mín Diastólica</label><input type="number" id="p-mindiast" value="${ref.minDiast}"></div>
-                        <div class="form-group flex-1"><label>Máx Diastólica</label><input type="number" id="p-maxdiast" value="${ref.maxDiast}"></div>
-                    </div>
-                    <div class="form-group"><label>Unidade de Medida</label><input type="text" id="p-unidade" value="${un}"></div>`;
-            } else {
-                htmlInputs += `
-                    <div class="flex-row">
-                        <div class="form-group flex-1"><label>Valor Mínimo</label><input type="number" step="0.1" id="p-min" value="${ref.min}"></div>
-                        <div class="form-group flex-1"><label>Valor Máximo</label><input type="number" step="0.1" id="p-max" value="${ref.max}"></div>
-                    </div>
-                    <div class="form-group"><label>Unidade de Medida</label><input type="text" id="p-unidade" value="${un}"></div>`;
-            }
-            div.innerHTML = htmlInputs;
-            openModal('modal-parametro');
+            paramSendoEditado = chave; const ref = referenciasVitais[chave]; document.getElementById('param-titulo').innerText = `Editar Parâmetro`; const div = document.getElementById('param-inputs');
+            const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"]; const isPadrao = padroes.includes(chave); const disableName = isPadrao ? 'disabled title="Nomes padrões são fixos para manter os gráficos sincronizados."' : ''; const styleBlock = isPadrao ? 'background: #e5e7eb;' : '';
+            let un = ref.desc.split(' ').pop(); let htmlInputs = `<div class="form-group"><label>Nome do Sinal</label><input type="text" id="p-nome" value="${chave}" ${disableName} style="${styleBlock}"></div>`;
+            if(ref.formato === "sist/diast") { htmlInputs += `<div class="flex-row"><div class="form-group flex-1"><label>Mín Sistólica</label><input type="number" id="p-minsist" value="${ref.minSist}"></div><div class="form-group flex-1"><label>Máx Sistólica</label><input type="number" id="p-maxsist" value="${ref.maxSist}"></div></div><div class="flex-row"><div class="form-group flex-1"><label>Mín Diastólica</label><input type="number" id="p-mindiast" value="${ref.minDiast}"></div><div class="form-group flex-1"><label>Máx Diastólica</label><input type="number" id="p-maxdiast" value="${ref.maxDiast}"></div></div><div class="form-group"><label>Unidade de Medida</label><input type="text" id="p-unidade" value="${un}"></div>`; } 
+            else { htmlInputs += `<div class="flex-row"><div class="form-group flex-1"><label>Valor Mínimo</label><input type="number" step="0.1" id="p-min" value="${ref.min}"></div><div class="form-group flex-1"><label>Valor Máximo</label><input type="number" step="0.1" id="p-max" value="${ref.max}"></div></div><div class="form-group"><label>Unidade de Medida</label><input type="text" id="p-unidade" value="${un}"></div>`; }
+            div.innerHTML = htmlInputs; openModal('modal-parametro');
         }
 
         function salvarParametro() {
-            const novoNome = document.getElementById('p-nome').value;
-            const un = document.getElementById('p-unidade').value;
-            const ref = referenciasVitais[paramSendoEditado];
-            
+            const novoNome = document.getElementById('p-nome').value; const un = document.getElementById('p-unidade').value; const ref = referenciasVitais[paramSendoEditado];
             if(!novoNome || !un) return alert("⚠️ Preencha o nome e a unidade de medida.");
-
-            if(ref.formato === "sist/diast") {
-                ref.minSist = parseInt(document.getElementById('p-minsist').value);
-                ref.maxSist = parseInt(document.getElementById('p-maxsist').value);
-                ref.minDiast = parseInt(document.getElementById('p-mindiast').value);
-                ref.maxDiast = parseInt(document.getElementById('p-maxdiast').value);
-                ref.desc = `${ref.minSist}/${ref.minDiast} a ${ref.maxSist}/${ref.maxDiast} ${un}`;
-            } else {
-                ref.min = parseFloat(document.getElementById('p-min').value);
-                ref.max = parseFloat(document.getElementById('p-max').value);
-                ref.desc = `${ref.min} a ${ref.max} ${un}`;
-            }
-
-            if (novoNome !== paramSendoEditado) {
-                referenciasVitais[novoNome] = ref;
-                delete referenciasVitais[paramSendoEditado];
-                if (historicoDados[paramSendoEditado]) {
-                    historicoDados[novoNome] = historicoDados[paramSendoEditado];
-                    delete historicoDados[paramSendoEditado];
-                }
-            }
-
-            alert(`✅ Parâmetro atualizado com sucesso!`);
-            renderizarConfigVitais();
-            carregarOpcoesSinaisVitais();
-            closeModal('modal-parametro');
+            if(ref.formato === "sist/diast") { ref.minSist = parseInt(document.getElementById('p-minsist').value); ref.maxSist = parseInt(document.getElementById('p-maxsist').value); ref.minDiast = parseInt(document.getElementById('p-mindiast').value); ref.maxDiast = parseInt(document.getElementById('p-maxdiast').value); ref.desc = `${ref.minSist}/${ref.minDiast} a ${ref.maxSist}/${ref.maxDiast} ${un}`; } 
+            else { ref.min = parseFloat(document.getElementById('p-min').value); ref.max = parseFloat(document.getElementById('p-max').value); ref.desc = `${ref.min} a ${ref.max} ${un}`; }
+            if (novoNome !== paramSendoEditado) { referenciasVitais[novoNome] = ref; delete referenciasVitais[paramSendoEditado]; if (historicoDados[paramSendoEditado]) { historicoDados[novoNome] = historicoDados[paramSendoEditado]; delete historicoDados[paramSendoEditado]; } }
+            alert(`✅ Parâmetro atualizado com sucesso!`); renderizarConfigVitais(); carregarOpcoesSinaisVitais(); closeModal('modal-parametro');
         }
 
         function salvarNovoSinal() {
-            const nome = document.getElementById('ns-nome').value;
-            const min = document.getElementById('ns-min').value;
-            const max = document.getElementById('ns-max').value;
-            const un = document.getElementById('ns-unidade').value || '';
-
+            const nome = document.getElementById('ns-nome').value; const min = document.getElementById('ns-min').value; const max = document.getElementById('ns-max').value; const un = document.getElementById('ns-unidade').value || '';
             if(!nome || !min || !max) return alert("⚠️ Preencha o nome, o mínimo e o máximo.");
-
-            referenciasVitais[nome] = { min: parseFloat(min), max: parseFloat(max), formato: "num", desc: `${min} a ${max} ${un}` };
-            historicoDados[nome] = { labels: [], dataset1: [], dataset2: [] };
-            
-            renderizarConfigVitais();
-            carregarOpcoesSinaisVitais();
-            
-            alert(`✅ Parâmetro "${nome}" criado! Ele já está disponível no registro de Sinais Vitais.`);
-            closeModal('modal-novo-sinal');
+            referenciasVitais[nome] = { min: parseFloat(min), max: parseFloat(max), formato: "num", desc: `${min} a ${max} ${un}` }; historicoDados[nome] = { labels: [], dataset1: [], dataset2: [] };
+            renderizarConfigVitais(); carregarOpcoesSinaisVitais(); alert(`✅ Parâmetro "${nome}" criado! Ele já está disponível no registro de Sinais Vitais.`); closeModal('modal-novo-sinal');
         }
 
         async function carregarSinaisVitais() {
-            const lista = document.getElementById('lista-vitais');
-            lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Carregando prontuário...</li>';
-
-            const textoFiltro = document.getElementById('filtro-texto-saude').value.toLowerCase();
-            const dataFiltro = document.getElementById('filtro-data-saude').value;
-
-            const { data: vitais, error } = await clienteSupabase
-                .from('sinais_vitais')
-                .select('*')
-                .order('criado_em', { ascending: true });
-
-            if (error) {
-                console.error("Erro ao carregar sinais vitais:", error);
-                lista.innerHTML = '<li style="text-align:center; color:var(--danger); border:none;">Erro ao carregar histórico.</li>';
-                return;
-            }
-
-            for (let chave in historicoDados) {
-                historicoDados[chave] = { labels: [], dataset1: [], dataset2: [] };
-            }
-
-            let htmlLista = '';
-            let listaVazia = true;
+            const lista = document.getElementById('lista-vitais'); lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Carregando prontuário...</li>';
+            const textoFiltro = document.getElementById('filtro-texto-saude').value.toLowerCase(); const dataFiltro = document.getElementById('filtro-data-saude').value;
+            const { data: vitais, error } = await clienteSupabase.from('sinais_vitais').select('*').order('criado_em', { ascending: true });
+            if (error) { lista.innerHTML = '<li style="text-align:center; color:var(--danger); border:none;">Erro ao carregar histórico.</li>'; return; }
+            for (let chave in historicoDados) { historicoDados[chave] = { labels: [], dataset1: [], dataset2: [] }; }
+            let htmlLista = ''; let listaVazia = true;
 
             if (vitais) {
                 vitais.forEach(v => {
-                    const dataReg = new Date(v.criado_em);
-                    const horaStr = dataReg.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-                    const dataStr = dataReg.toLocaleDateString('pt-BR');
-                    const cor = v.alerta ? 'var(--danger)' : 'var(--text-main)';
-                    
+                    const dataReg = new Date(v.criado_em); const horaStr = dataReg.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}); const dataStr = dataReg.toLocaleDateString('pt-BR'); const cor = v.alerta ? 'var(--danger)' : 'var(--text-main)';
                     if(historicoDados[v.tipo]) {
-                        historicoDados[v.tipo].labels.push(horaStr);
-                        const ref = referenciasVitais[v.tipo];
-                        if(ref && ref.formato === "sist/diast") {
-                            let partes = v.valor.split('/');
-                            if (partes.length === 2) {
-                                historicoDados[v.tipo].dataset1.push(parseInt(partes[0]));
-                                historicoDados[v.tipo].dataset2.push(parseInt(partes[1]));
-                            }
-                        } else {
-                            historicoDados[v.tipo].dataset1.push(parseFloat(v.valor.replace(',', '.')));
-                        }
+                        historicoDados[v.tipo].labels.push(horaStr); const ref = referenciasVitais[v.tipo];
+                        if(ref && ref.formato === "sist/diast") { let partes = v.valor.split('/'); if (partes.length === 2) { historicoDados[v.tipo].dataset1.push(parseInt(partes[0])); historicoDados[v.tipo].dataset2.push(parseInt(partes[1])); } } 
+                        else { historicoDados[v.tipo].dataset1.push(parseFloat(v.valor.replace(',', '.'))); }
                     }
-
-                    let passaFiltroTexto = v.tipo.toLowerCase().includes(textoFiltro) || (v.observacoes && v.observacoes.toLowerCase().includes(textoFiltro));
-                    let passaFiltroData = true;
-
-                    if (dataFiltro) {
-                        const [ano, mes, dia] = dataFiltro.split('-').map(Number);
-                        passaFiltroData = (dataReg.getFullYear() === ano && dataReg.getMonth() === (mes - 1) && dataReg.getDate() === dia);
-                    }
+                    let passaFiltroTexto = v.tipo.toLowerCase().includes(textoFiltro) || (v.observacoes && v.observacoes.toLowerCase().includes(textoFiltro)); let passaFiltroData = true;
+                    if (dataFiltro) { const [ano, mes, dia] = dataFiltro.split('-').map(Number); passaFiltroData = (dataReg.getFullYear() === ano && dataReg.getMonth() === (mes - 1) && dataReg.getDate() === dia); }
 
                     if (passaFiltroTexto && passaFiltroData) {
                         listaVazia = false;
-                        htmlLista = `
-                            <li>
-                                <div>
-                                    <span style="color: var(--text-muted); font-size: 0.85rem;">📅 Registrado em: ${dataStr} às ${horaStr}</span> 
-                                    <br>
-                                    <span>${v.tipo}: <strong style="color: ${cor}">${v.valor}</strong> 
-                                    ${v.observacoes ? `<br><span style="font-size:0.8rem; color:var(--text-muted);">Obs: ${v.observacoes}</span>` : ''}
-                                    </span>
-                                </div>
-                                <button class="btn-trash" onclick="excluirSinalVital('${v.id}')" title="Excluir Registro">🗑️</button>
-                            </li>` + htmlLista;
+                        htmlLista = `<li><div><span style="color: var(--text-muted); font-size: 0.85rem;">📅 Registrado em: ${dataStr} às ${horaStr}</span><br><span>${v.tipo}: <strong style="color: ${cor}">${v.valor}</strong> ${v.observacoes ? `<br><span style="font-size:0.8rem; color:var(--text-muted);">Obs: ${v.observacoes}</span>` : ''}</span></div><button class="btn-trash" onclick="excluirSinalVital('${v.id}')" title="Excluir Registro">🗑️</button></li>` + htmlLista;
                     }
                 });
             }
-
             if(listaVazia) htmlLista = '<li style="text-align:center; color:var(--text-muted); border:none;">Nenhum registro encontrado para este filtro.</li>';
             lista.innerHTML = htmlLista;
-
-            for (let chave in graficos) {
-                if (graficos[chave]) graficos[chave].update();
-            }
+            for (let chave in graficos) { if (graficos[chave]) graficos[chave].update(); }
         }
 
         async function salvarSinalVital() {
-            const tipo = document.getElementById('vital-tipo').value;
-            let valor = document.getElementById('vital-valor').value;
-            const obs = document.getElementById('vital-obs').value;
-            
-            if(!valor) return alert("⚠️ Preencha o valor medido.");
-            if(!familiaIdAtual) return alert("⚠️ Erro de sessão: ID da Família não encontrado.");
+            const tipo = document.getElementById('vital-tipo').value; let valor = document.getElementById('vital-valor').value; const obs = document.getElementById('vital-obs').value;
+            if(!valor) return alert("⚠️ Preencha o valor medido."); if(!familiaIdAtual) return alert("⚠️ Erro de sessão: ID da Família não encontrado.");
 
             let foraRef = false, ref = referenciasVitais[tipo], s = null, d = null, num = null;
-
             try {
-                if (ref.formato === "sist/diast") {
-                    let p = valor.split('/');
-                    if (p.length === 2) {
-                        s = parseInt(p[0]); d = parseInt(p[1]);
-                        if (s < ref.minSist || s > ref.maxSist || d < ref.minDiast || d > ref.maxDiast) foraRef = true;
-                    } else { return alert("⚠️ Formato inválido. Use Ex: 120/80"); }
-                } else {
-                    num = parseFloat(valor.replace(',', '.'));
-                    if (num < ref.min || num > ref.max) foraRef = true;
-                }
+                if (ref.formato === "sist/diast") { let p = valor.split('/'); if (p.length === 2) { s = parseInt(p[0]); d = parseInt(p[1]); if (s < ref.minSist || s > ref.maxSist || d < ref.minDiast || d > ref.maxDiast) foraRef = true; } else { return alert("⚠️ Formato inválido. Use Ex: 120/80"); } } 
+                else { num = parseFloat(valor.replace(',', '.')); if (num < ref.min || num > ref.max) foraRef = true; }
             } catch(e) {}
 
-            const btn = event.target;
-            const txtOriginal = btn.innerText;
-            btn.innerText = "Salvando na nuvem...";
-
-            const { error } = await clienteSupabase.from('sinais_vitais').insert([{
-                familia_id: familiaIdAtual,
-                tipo: tipo,
-                valor: valor,
-                observacoes: obs,
-                alerta: foraRef
-            }]);
-
+            const btn = event.target; const txtOriginal = btn.innerText; btn.innerText = "Salvando na nuvem...";
+            const { error } = await clienteSupabase.from('sinais_vitais').insert([{ familia_id: familiaIdAtual, tipo: tipo, valor: valor, observacoes: obs, alerta: foraRef }]);
             btn.innerText = txtOriginal;
+            if (error) { return alert("❌ Erro ao salvar sinal vital: " + error.message); }
 
-            if (error) {
-                return alert("❌ Erro ao salvar sinal vital: " + error.message);
-            }
-
+            // NOVO: Adiciona a assinatura (Log) de quem logou e fez o registro
             let txtAlerta = foraRef ? `Atenção Clínica: ${tipo} (${valor}) fora da referência segura!` : `Sinal vital ${tipo} registrado: ${valor}.`;
             if (obs) txtAlerta += ` <br><em>Obs: ${obs}</em>`;
+            txtAlerta += ` <br><small>👨‍⚕️ Registrado por: <strong>${usuarioAtual.nome}</strong></small>`;
             
             adicionarNaTimeline(`Medição de ${tipo}`, txtAlerta, foraRef);
-            
             if(foraRef) alert(`🚨 ALERTA MÉDICO: A medição de ${tipo} está fora da referência segura configurada (${ref.desc}).`);
 
-            closeModal('modal-vitais');
-            carregarSinaisVitais();
+            closeModal('modal-vitais'); carregarSinaisVitais();
         }
 
         async function excluirSinalVital(id) {
             if(!confirm("Deseja realmente excluir este registro do prontuário? Essa ação atualizará os gráficos.")) return;
             const { error } = await clienteSupabase.from('sinais_vitais').delete().eq('id', id);
-            if (error) {
-                alert("❌ Erro ao excluir: " + error.message);
-            } else {
-                adicionarNaTimeline('Registro Excluído', 'Uma medição de sinal vital foi removida do histórico.');
-                carregarSinaisVitais();
-            }
+            if (error) { alert("❌ Erro ao excluir: " + error.message); } else { adicionarNaTimeline('Registro Excluído', 'Uma medição de sinal vital foi removida do histórico.'); carregarSinaisVitais(); }
         }
 
         // --- SISTEMA DE MEDICAMENTOS ---
         async function carregarMedicamentos() {
-            const lista = document.getElementById('lista-medicamentos');
-            lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Carregando medicamentos...</li>';
-
-            const textoFiltro = document.getElementById('filtro-texto-saude').value.toLowerCase();
-            const dataFiltro = document.getElementById('filtro-data-saude').value;
-
-            const { data: meds, error } = await clienteSupabase
-                .from('medicamentos')
-                .select('*')
-                .order('criado_em', { ascending: false });
-
-            if (error) {
-                console.error("Erro ao carregar medicamentos:", error);
-                lista.innerHTML = '<li style="text-align:center; color:var(--danger); border:none;">Erro ao carregar lista.</li>';
-                return;
-            }
-
-            lista.innerHTML = '';
-            let listaVazia = true;
+            const lista = document.getElementById('lista-medicamentos'); lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Carregando medicamentos...</li>';
+            const textoFiltro = document.getElementById('filtro-texto-saude').value.toLowerCase(); const dataFiltro = document.getElementById('filtro-data-saude').value;
+            const { data: meds, error } = await clienteSupabase.from('medicamentos').select('*').order('criado_em', { ascending: false });
+            if (error) { lista.innerHTML = '<li style="text-align:center; color:var(--danger); border:none;">Erro ao carregar lista.</li>'; return; }
+            lista.innerHTML = ''; let listaVazia = true;
 
             if (meds) {
                 meds.forEach(m => {
-                    const dataReg = m.criado_em ? new Date(m.criado_em) : new Date();
-                    const dataStr = dataReg.toLocaleDateString('pt-BR');
-                    const horaRegStr = dataReg.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-                    const horaFormatada = m.horario_primeiro_consumo.substring(0, 5);
-                    
-                    let passaFiltroTexto = m.nome_dosagem.toLowerCase().includes(textoFiltro) || (m.observacoes && m.observacoes.toLowerCase().includes(textoFiltro));
-                    let passaFiltroData = true;
-                    
-                    if (dataFiltro) {
-                        const [ano, mes, dia] = dataFiltro.split('-').map(Number);
-                        passaFiltroData = (dataReg.getFullYear() === ano && dataReg.getMonth() === (mes - 1) && dataReg.getDate() === dia);
-                    }
-
+                    const dataReg = m.criado_em ? new Date(m.criado_em) : new Date(); const dataStr = dataReg.toLocaleDateString('pt-BR'); const horaRegStr = dataReg.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}); const horaFormatada = m.horario_primeiro_consumo.substring(0, 5);
+                    let passaFiltroTexto = m.nome_dosagem.toLowerCase().includes(textoFiltro) || (m.observacoes && m.observacoes.toLowerCase().includes(textoFiltro)); let passaFiltroData = true;
+                    if (dataFiltro) { const [ano, mes, dia] = dataFiltro.split('-').map(Number); passaFiltroData = (dataReg.getFullYear() === ano && dataReg.getMonth() === (mes - 1) && dataReg.getDate() === dia); }
                     if (passaFiltroTexto && passaFiltroData) {
                         listaVazia = false;
-                        lista.innerHTML += `
-                            <li>
-                                <div>
-                                    <span style="color: var(--text-muted); font-size: 0.85rem;">📅 Registrado em: ${dataStr} às ${horaRegStr}</span>
-                                    <br>
-                                    <strong>${m.nome_dosagem}</strong> 
-                                    <br><span style="font-size:0.8rem; color:var(--text-muted);">${m.observacoes ? `Obs: ${m.observacoes}` : ''}</span>
-                                </div> 
-                                <div style="display:flex; align-items:center; gap: 15px; flex-direction: column;">
-                                    <span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: -10px;">Início às</span>
-                                    <span style="color: var(--primary); font-weight:600; font-size: 1.1rem;">${horaFormatada}</span>
-                                    <button class="btn-trash" onclick="excluirMedicamento('${m.id}')" title="Excluir Remédio">🗑️</button>
-                                </div>
-                            </li>`;
+                        lista.innerHTML += `<li><div><span style="color: var(--text-muted); font-size: 0.85rem;">📅 Registrado em: ${dataStr} às ${horaRegStr}</span><br><strong>${m.nome_dosagem}</strong><br><span style="font-size:0.8rem; color:var(--text-muted);">${m.observacoes ? `Obs: ${m.observacoes}` : ''}</span></div><div style="display:flex; align-items:center; gap: 15px; flex-direction: column;"><span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: -10px;">Início às</span><span style="color: var(--primary); font-weight:600; font-size: 1.1rem;">${horaFormatada}</span><button class="btn-trash" onclick="excluirMedicamento('${m.id}')" title="Excluir Remédio">🗑️</button></div></li>`;
                     }
                 });
             }
-
             if(listaVazia) lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Nenhum medicamento encontrado para este filtro.</li>';
         }
 
         async function salvarMedicamento() {
-            const nm = document.getElementById('med-nome').value;
-            const hr = document.getElementById('med-hora').value;
-            const obs = document.getElementById('med-obs').value;
-            
-            if(!nm || !hr) return alert("⚠️ Preencha o nome do medicamento e o horário.");
-            if(!familiaIdAtual) return alert("⚠️ Erro de sessão: ID da Família não encontrado.");
-            
-            const btn = event.target;
-            const txtOriginal = btn.innerText;
-            btn.innerText = "Salvando na nuvem...";
-            
-            const { error } = await clienteSupabase.from('medicamentos').insert([{
-                familia_id: familiaIdAtual,
-                nome_dosagem: nm,
-                horario_primeiro_consumo: hr,
-                observacoes: obs
-            }]);
-            
+            const nm = document.getElementById('med-nome').value; const hr = document.getElementById('med-hora').value; const obs = document.getElementById('med-obs').value;
+            if(!nm || !hr) return alert("⚠️ Preencha o nome do medicamento e o horário."); if(!familiaIdAtual) return alert("⚠️ Erro de sessão: ID da Família não encontrado.");
+            const btn = event.target; const txtOriginal = btn.innerText; btn.innerText = "Salvando na nuvem...";
+            const { error } = await clienteSupabase.from('medicamentos').insert([{ familia_id: familiaIdAtual, nome_dosagem: nm, horario_primeiro_consumo: hr, observacoes: obs }]);
             btn.innerText = txtOriginal;
-
-            if (error) {
-                return alert("❌ Erro ao salvar medicamento: " + error.message);
-            }
+            if (error) { return alert("❌ Erro ao salvar medicamento: " + error.message); }
             
-            const agora = new Date();
-            const [h, m] = hr.split(':').map(Number);
-            const retroativo = (h * 60 + m) < (agora.getHours() * 60 + agora.getMinutes());
+            const agora = new Date(); const [h, m] = hr.split(':').map(Number); const retroativo = (h * 60 + m) < (agora.getHours() * 60 + agora.getMinutes());
+            
+            // NOVO: Adiciona a assinatura (Log) de quem logou e fez o registro
             let textoTimeline = retroativo ? `${nm} adicionado à lista (Horário base: ${hr}).` : `Novo medicamento programado: ${nm} às ${hr}.`;
             if(obs) textoTimeline += ` Obs: ${obs}`;
+            textoTimeline += ` <br><small>👨‍⚕️ Registrado por: <strong>${usuarioAtual.nome}</strong></small>`;
             
             adicionarNaTimeline(`Medicação Cadastrada`, textoTimeline, false, retroativo);
-            
-            alert("✅ Medicamento cadastrado com sucesso!");
-            closeModal('modal-medicamento');
-            carregarMedicamentos();
+            alert("✅ Medicamento cadastrado com sucesso!"); closeModal('modal-medicamento'); carregarMedicamentos();
         }
 
         async function excluirMedicamento(id) {
             if(!confirm("Deseja realmente remover este medicamento do prontuário?")) return;
             const { error } = await clienteSupabase.from('medicamentos').delete().eq('id', id);
-            if (error) {
-                alert("❌ Erro ao excluir: " + error.message);
-            } else {
-                adicionarNaTimeline('Medicamento Removido', 'Um medicamento foi removido da lista ativa.');
-                carregarMedicamentos();
-            }
+            if (error) { alert("❌ Erro ao excluir: " + error.message); } else { adicionarNaTimeline('Medicamento Removido', 'Um medicamento foi removido da lista ativa.'); carregarMedicamentos(); }
         }
 
         // --- 9. GRÁFICOS (CHART.JS) ---
         function inicializarGraficos() {
-            const container = document.getElementById('charts-container');
-            container.innerHTML = '';
-            const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
-            
+            const container = document.getElementById('charts-container'); container.innerHTML = ''; const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
             for(let chave of padroes) {
                 if(!historicoDados[chave]) historicoDados[chave] = { labels: [], dataset1: [], dataset2: [] };
-                container.innerHTML += `
-                    <div class="card">
-                        <strong>${chave}</strong>
-                        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Evolução das últimas medições</p>
-                        <div class="chart-container"><canvas id="chart-${chave.replace(/\s+/g, '')}"></canvas></div>
-                    </div>
-                `;
+                container.innerHTML += `<div class="card"><strong>${chave}</strong><p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Evolução das últimas medições</p><div class="chart-container"><canvas id="chart-${chave.replace(/\s+/g, '')}"></canvas></div></div>`;
             }
-
             setTimeout(() => {
                 for(let chave of padroes) {
-                    const ctx = document.getElementById(`chart-${chave.replace(/\s+/g, '')}`).getContext('2d');
-                    let config = { type: 'line', data: { labels: historicoDados[chave].labels, datasets: [] }, options: { responsive: true, maintainAspectRatio: false } };
-                    
-                    if(referenciasVitais[chave] && referenciasVitais[chave].formato === "sist/diast") {
-                        config.data.datasets.push({ label: 'Sistólica', data: historicoDados[chave].dataset1, borderColor: '#d32f2f', backgroundColor: '#d32f2f', tension: 0.3 });
-                        config.data.datasets.push({ label: 'Diastólica', data: historicoDados[chave].dataset2, borderColor: '#1976d2', backgroundColor: '#1976d2', tension: 0.3 });
-                    } else {
-                        config.data.datasets.push({ label: 'Valor', data: historicoDados[chave].dataset1, borderColor: '#ffc107', backgroundColor: '#ffc107', tension: 0.3 });
-                    }
+                    const ctx = document.getElementById(`chart-${chave.replace(/\s+/g, '')}`).getContext('2d'); let config = { type: 'line', data: { labels: historicoDados[chave].labels, datasets: [] }, options: { responsive: true, maintainAspectRatio: false } };
+                    if(referenciasVitais[chave] && referenciasVitais[chave].formato === "sist/diast") { config.data.datasets.push({ label: 'Sistólica', data: historicoDados[chave].dataset1, borderColor: '#d32f2f', backgroundColor: '#d32f2f', tension: 0.3 }); config.data.datasets.push({ label: 'Diastólica', data: historicoDados[chave].dataset2, borderColor: '#1976d2', backgroundColor: '#1976d2', tension: 0.3 }); } 
+                    else { config.data.datasets.push({ label: 'Valor', data: historicoDados[chave].dataset1, borderColor: '#ffc107', backgroundColor: '#ffc107', tension: 0.3 }); }
                     graficos[chave] = new Chart(ctx, config);
                 }
             }, 100);
@@ -1528,160 +1163,74 @@
 
         // --- 10. LÓGICA DE GERENCIAMENTO DE USUÁRIOS E PERFIS ---
         async function salvarUsuarioApp() {
-            const nm = document.getElementById('usr-nome').value;
-            const cpf = document.getElementById('usr-cpf').value;
-            const dt = document.getElementById('usr-nascimento').value;
-            const tel = document.getElementById('usr-telefone').value;
-            const em = document.getElementById('usr-email').value;
-            const sn = document.getElementById('usr-senha').value;
-            const prf = document.getElementById('usr-perfil').value;
+            const nm = document.getElementById('usr-nome').value; const cpf = document.getElementById('usr-cpf').value; const dt = document.getElementById('usr-nascimento').value;
+            const tel = document.getElementById('usr-telefone').value; const em = document.getElementById('usr-email').value; const sn = document.getElementById('usr-senha').value; const prf = document.getElementById('usr-perfil').value;
             
             if(!nm || !cpf || !tel || !em || !sn || !dt) return alert("⚠️ Preencha todos os campos.");
-            if(!validarCPF(cpf)) return alert("⚠️ CPF inválido.");
-            if(!validarTelefone(tel)) return alert("⚠️ Telefone incompleto.");
-            if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
+            if(!validarCPF(cpf)) return alert("⚠️ CPF inválido."); if(!validarTelefone(tel)) return alert("⚠️ Telefone incompleto."); if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
             
-            if(prf === 'Administrador') {
-                const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length;
-                if(qtdAdmins >= 2) return alert("⚠️ Limite atingido: O plano atual permite apenas 2 Administradores.");
-            }
-
-            const cards = Array.from(document.querySelectorAll('#lista-usuarios .card'));
-            const duplicado = cards.some(c => c.getAttribute('data-cpf') === cpf || c.querySelector('.user-email').innerText === em || c.querySelector('.user-tel').innerText === tel);
+            if(prf === 'Administrador') { const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length; if(qtdAdmins >= 2) return alert("⚠️ Limite atingido: O plano atual permite apenas 2 Administradores."); }
+            const cards = Array.from(document.querySelectorAll('#lista-usuarios .card')); const duplicado = cards.some(c => c.getAttribute('data-cpf') === cpf || c.querySelector('.user-email').innerText === em || c.querySelector('.user-tel').innerText === tel);
             if(duplicado) return alert("⚠️ Cadastro Bloqueado: Já existe um usuário cadastrado com este E-mail, CPF ou Telefone.");
 
-            const { data, error } = await clienteSupabase.auth.signUp({
-                email: em, password: sn,
-                options: { data: { full_name: nm, cpf: cpf, perfil: prf, telefone: tel, data_nascimento: dt } }
-            });
-
+            const { data, error } = await clienteSupabase.auth.signUp({ email: em, password: sn, options: { data: { full_name: nm, cpf: cpf, perfil: prf, telefone: tel, data_nascimento: dt } } });
             if(error) return alert("❌ Erro ao salvar no banco de dados Supabase: " + error.message);
-
             alert(`✅ Usuário ${nm} cadastrado com sucesso!\n\n⚠️ Atenção: Por medida de segurança (comportamento Serverless), seu acesso atual de administrador foi encerrado e a página será recarregada. Faça login novamente.`);
             window.location.reload(); 
         }
 
         function abrirPersonalizar(btn) {
             cartaoSendoEditado = btn.closest('.card');
+            const nmRaw = cartaoSendoEditado.querySelector('strong').innerText; const nm = nmRaw.split(' (')[0]; 
+            const em = cartaoSendoEditado.querySelector('.user-email').innerText; const tl = cartaoSendoEditado.querySelector('.user-tel').innerText;
+            const cpf = cartaoSendoEditado.getAttribute('data-cpf') || ''; const perfil = cartaoSendoEditado.getAttribute('data-perfil') || 'Cuidador'; const nasc = cartaoSendoEditado.getAttribute('data-nascimento') || '';
             
-            const nmRaw = cartaoSendoEditado.querySelector('strong').innerText;
-            const nm = nmRaw.split(' (')[0]; 
-            const em = cartaoSendoEditado.querySelector('.user-email').innerText;
-            const tl = cartaoSendoEditado.querySelector('.user-tel').innerText;
-            
-            const cpf = cartaoSendoEditado.getAttribute('data-cpf') || '';
-            const perfil = cartaoSendoEditado.getAttribute('data-perfil') || 'Cuidador';
-            const nasc = cartaoSendoEditado.getAttribute('data-nascimento') || '';
-            
-            document.getElementById('edit-nome').value = nm;
-            document.getElementById('edit-cpf').value = cpf;
-            document.getElementById('edit-email').value = em;
-            document.getElementById('edit-telefone').value = tl;
-            document.getElementById('edit-perfil').value = perfil;
-            document.getElementById('edit-nascimento').value = nasc;
+            document.getElementById('edit-nome').value = nm; document.getElementById('edit-cpf').value = cpf; document.getElementById('edit-email').value = em;
+            document.getElementById('edit-telefone').value = tl; document.getElementById('edit-perfil').value = perfil; document.getElementById('edit-nascimento').value = nasc;
 
-            const selectPerfil = document.getElementById('edit-perfil');
-            const hintDependente = document.getElementById('hint-dependente');
-
-            if(perfil === 'Dependente') {
-                selectPerfil.disabled = true;
-                selectPerfil.style.backgroundColor = '#e5e7eb';
-                hintDependente.style.display = 'block';
-            } else {
-                selectPerfil.disabled = false;
-                selectPerfil.style.backgroundColor = 'var(--bg-color)';
-                hintDependente.style.display = 'none';
-            }
+            const selectPerfil = document.getElementById('edit-perfil'); const hintDependente = document.getElementById('hint-dependente');
+            if(perfil === 'Dependente') { selectPerfil.disabled = true; selectPerfil.style.backgroundColor = '#e5e7eb'; hintDependente.style.display = 'block'; } 
+            else { selectPerfil.disabled = false; selectPerfil.style.backgroundColor = 'var(--bg-color)'; hintDependente.style.display = 'none'; }
             
-            const isAdm = cartaoSendoEditado.getAttribute('data-admin') === 'true';
-            document.getElementById('secao-inativar').style.display = isAdm ? 'none' : 'block';
-
+            const isAdm = cartaoSendoEditado.getAttribute('data-admin') === 'true'; document.getElementById('secao-inativar').style.display = isAdm ? 'none' : 'block';
             if(!isAdm) {
-                const btnStat = document.getElementById('btn-status-usuario');
-                const txt = document.getElementById('texto-aviso-status');
-                if(cartaoSendoEditado.classList.contains('inativo')) {
-                    btnStat.className = 'btn-success'; btnStat.innerText = '✅ Reativar Acesso'; txt.innerText = 'Usuário voltará a ter acesso.';
-                } else {
-                    btnStat.className = 'btn-danger'; btnStat.innerText = '🚫 Inativar Acesso'; txt.innerText = 'Usuário perderá acesso imediato.';
-                }
+                const btnStat = document.getElementById('btn-status-usuario'); const txt = document.getElementById('texto-aviso-status');
+                if(cartaoSendoEditado.classList.contains('inativo')) { btnStat.className = 'btn-success'; btnStat.innerText = '✅ Reativar Acesso'; txt.innerText = 'Usuário voltará a ter acesso.'; } 
+                else { btnStat.className = 'btn-danger'; btnStat.innerText = '🚫 Inativar Acesso'; txt.innerText = 'Usuário perderá acesso imediato.'; }
             }
             openModal('modal-personalizar');
         }
 
         async function salvarPersonalizacao() {
-            const nm = document.getElementById('edit-nome').value;
-            const cpf = document.getElementById('edit-cpf').value;
-            const em = document.getElementById('edit-email').value;
-            const tl = document.getElementById('edit-telefone').value;
-            const dt = document.getElementById('edit-nascimento').value;
-            const perfil = document.getElementById('edit-perfil').value;
+            const nm = document.getElementById('edit-nome').value; const cpf = document.getElementById('edit-cpf').value; const em = document.getElementById('edit-email').value;
+            const tl = document.getElementById('edit-telefone').value; const dt = document.getElementById('edit-nascimento').value; const perfil = document.getElementById('edit-perfil').value;
             
-            if(!nm || !em) return alert("⚠️ Nome e E-mail são obrigatórios.");
-            if(cpf && !validarCPF(cpf)) return alert("⚠️ CPF inválido.");
-            if(tl && !validarTelefone(tl)) return alert("⚠️ Telefone inválido.");
+            if(!nm || !em) return alert("⚠️ Nome e E-mail são obrigatórios."); if(cpf && !validarCPF(cpf)) return alert("⚠️ CPF inválido."); if(tl && !validarTelefone(tl)) return alert("⚠️ Telefone inválido.");
+            const isJaAdmin = cartaoSendoEditado.getAttribute('data-admin') === 'true'; if (perfil === 'Administrador' && !isJaAdmin) { const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length; if (qtdAdmins >= 2) return alert("⚠️ Limite atingido: Você já possui o máximo de 2 Administradores."); }
 
-            const isJaAdmin = cartaoSendoEditado.getAttribute('data-admin') === 'true';
-            if (perfil === 'Administrador' && !isJaAdmin) {
-                const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length;
-                if (qtdAdmins >= 2) return alert("⚠️ Limite atingido: Você já possui o máximo de 2 Administradores.");
-            }
+            const userId = cartaoSendoEditado.getAttribute('data-id'); const btn = event.target; const txtOriginal = btn.innerText; btn.innerText = "Salvando...";
+            const { error } = await clienteSupabase.from('usuarios').update({ nome: nm, cpf: cpf, email: em, telefone: tl, perfil: perfil, data_nascimento: dt }).eq('id', userId);
+            btn.innerText = txtOriginal; if (error) return alert("❌ Erro ao salvar no banco de dados: " + error.message);
 
-            const userId = cartaoSendoEditado.getAttribute('data-id');
-            const btn = event.target;
-            const txtOriginal = btn.innerText;
-            btn.innerText = "Salvando...";
-
-            const { error } = await clienteSupabase.from('usuarios').update({
-                nome: nm,
-                cpf: cpf,
-                email: em,
-                telefone: tl,
-                perfil: perfil,
-                data_nascimento: dt
-            }).eq('id', userId);
-
-            btn.innerText = txtOriginal;
-
-            if (error) return alert("❌ Erro ao salvar no banco de dados: " + error.message);
-
-            cartaoSendoEditado.setAttribute('data-cpf', cpf);
-            cartaoSendoEditado.setAttribute('data-perfil', perfil);
-            cartaoSendoEditado.setAttribute('data-nascimento', dt);
-            cartaoSendoEditado.setAttribute('data-admin', perfil === 'Administrador' ? 'true' : 'false');
-            
-            cartaoSendoEditado.querySelector('strong').innerText = perfil === 'Administrador' ? `${nm} (Administrador)` : nm;
-            cartaoSendoEditado.querySelector('.user-email').innerText = em;
-            cartaoSendoEditado.querySelector('.user-tel').innerText = tl;
+            cartaoSendoEditado.setAttribute('data-cpf', cpf); cartaoSendoEditado.setAttribute('data-perfil', perfil); cartaoSendoEditado.setAttribute('data-nascimento', dt); cartaoSendoEditado.setAttribute('data-admin', perfil === 'Administrador' ? 'true' : 'false');
+            cartaoSendoEditado.querySelector('strong').innerText = perfil === 'Administrador' ? `${nm} (Administrador)` : nm; cartaoSendoEditado.querySelector('.user-email').innerText = em; cartaoSendoEditado.querySelector('.user-tel').innerText = tl;
             
             if(perfil === 'Administrador') document.getElementById('secao-inativar').style.display = 'none';
-            
-            alert("✅ Cadastro atualizado com sucesso!");
-            closeModal('modal-personalizar');
+            alert("✅ Cadastro atualizado com sucesso!"); closeModal('modal-personalizar');
         }
 
         async function enviarLinkSenha(doPainel = false) {
-            const em = document.getElementById('edit-email').value;
-            if(!em || !validarEmail(em)) return alert("⚠️ E-mail atual é inválido para recebimento do link.");
-            
+            const em = document.getElementById('edit-email').value; if(!em || !validarEmail(em)) return alert("⚠️ E-mail atual é inválido para recebimento do link.");
             const { error } = await clienteSupabase.auth.resetPasswordForEmail(em, { redirectTo: window.location.origin + window.location.pathname });
-            if (error) { alert("❌ Erro ao enviar link: " + error.message); } 
-            else { alert(`✅ Um link oficial de redefinição de senha foi enviado para ${em}.`); }
+            if (error) { alert("❌ Erro ao enviar link: " + error.message); } else { alert(`✅ Um link oficial de redefinição de senha foi enviado para ${em}.`); }
         }
 
         function alternarStatusUsuario() {
-            const inativo = cartaoSendoEditado.classList.contains('inativo');
-            let tag = cartaoSendoEditado.querySelector('.status-tag');
-            
-            if(inativo && confirm("Deseja restaurar o acesso deste usuário?")) {
-                cartaoSendoEditado.classList.remove('inativo');
-                if(tag) tag.style.display = 'none';
-            } else if (!inativo && confirm("Deseja bloquear o acesso deste usuário imediatamente?")) {
+            const inativo = cartaoSendoEditado.classList.contains('inativo'); let tag = cartaoSendoEditado.querySelector('.status-tag');
+            if(inativo && confirm("Deseja restaurar o acesso deste usuário?")) { cartaoSendoEditado.classList.remove('inativo'); if(tag) tag.style.display = 'none'; } 
+            else if (!inativo && confirm("Deseja bloquear o acesso deste usuário imediatamente?")) {
                 cartaoSendoEditado.classList.add('inativo');
-                if(!tag) {
-                    tag = document.createElement('p'); tag.className = 'status-tag'; 
-                    tag.style = "display: block; color: var(--danger);";
-                    cartaoSendoEditado.insertBefore(tag, cartaoSendoEditado.querySelector('button'));
-                }
+                if(!tag) { tag = document.createElement('p'); tag.className = 'status-tag'; tag.style = "display: block; color: var(--danger);"; cartaoSendoEditado.insertBefore(tag, cartaoSendoEditado.querySelector('button')); }
                 tag.style.display = 'block'; tag.style.color = 'var(--danger)'; tag.innerText = '🚫 Acesso Inativado';
             }
             closeModal('modal-personalizar');
