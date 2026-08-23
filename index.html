@@ -81,6 +81,12 @@
         .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 15px; }
         .btn-trash { background:transparent; border:none; cursor:pointer; font-size:1.2rem; opacity:0.5; transition:0.2s; padding: 5px; }
         .btn-trash:hover { opacity:1; transform: scale(1.1); }
+        
+        /* Adições para o botão de exibir senha */
+        .pwd-container { position: relative; }
+        .pwd-toggle { position: absolute; right: 12px; top: 12px; cursor: pointer; user-select: none; opacity: 0.6; transition: 0.2s; font-size: 1.2rem; }
+        .pwd-toggle:hover { opacity: 1; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -93,7 +99,7 @@
     <div id="auth-view" class="auth-wrapper">
         <div class="auth-container">
             <div class="auth-header">
-                <img src="https://vlvpffaathuksyqvpkpd.supabase.co/storage/v1/object/public/assets/carebridge%20logotipo.png" alt="CareBridge Logo" style="max-width: 180px; height: auto;">
+                <img src="https://vlvpffaathuksyqvpkpd.supabase.co/storage/v1/object/public/assets/carebridge%20logotipo.png?v=2" alt="CareBridge Logo" style="max-width: 280px; height: auto;">
             </div>
             
             <div id="auth-tabs-container" class="auth-tabs">
@@ -106,7 +112,13 @@
 
                 <div id="form-login" class="form-section active">
                     <div class="form-group"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com"></div>
-                    <div class="form-group"><label>Senha</label><input type="password" id="login-senha" placeholder="••••••••"></div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <div class="pwd-container">
+                            <input type="password" id="login-senha" placeholder="••••••••">
+                            <span class="pwd-toggle" onclick="togglePassword('login-senha')">👁️</span>
+                        </div>
+                    </div>
                     <a href="#" class="forgot-password" onclick="recuperarSenha()">Esqueci minha senha</a>
                     <button class="btn-main" id="btn-login" onclick="fazerLogin()">Acessar Sistema</button>
                 </div>
@@ -114,7 +126,7 @@
                 <div id="form-cadastro" class="form-section">
                     <div class="form-group"><label>Nome Completo</label><input type="text" id="cad-nome"></div>
                     <div class="flex-row">
-                        <div class="form-group flex-1"><label>CPF</label><input type="text" id="cad-cpf" maxlength="14" oninput="mascaraCPF(this)"></div>
+                        <div class="form-group flex-1"><label>CPF (Opcional)</label><input type="text" id="cad-cpf" maxlength="14" oninput="mascaraCPF(this)"></div>
                         <div class="form-group flex-1"><label>Nascimento</label><input type="date" id="cad-nascimento"></div>
                     </div>
                     <div class="flex-row">
@@ -122,17 +134,36 @@
                         <div class="form-group flex-1"><label>E-mail</label><input type="email" id="cad-email"></div>
                     </div>
                     <div class="flex-row">
-                        <div class="form-group flex-1"><label>Criar Senha</label><input type="password" id="cad-senha"></div>
-                        <div class="form-group flex-1"><label>Confirmar Senha</label><input type="password" id="cad-confirma"></div>
+                        <div class="form-group flex-1">
+                            <label>Criar Senha</label>
+                            <div class="pwd-container">
+                                <input type="password" id="cad-senha">
+                                <span class="pwd-toggle" onclick="togglePassword('cad-senha')">👁️</span>
+                            </div>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label>Confirmar Senha</label>
+                            <div class="pwd-container">
+                                <input type="password" id="cad-confirma">
+                                <span class="pwd-toggle" onclick="togglePassword('cad-confirma')">👁️</span>
+                            </div>
+                        </div>
                     </div>
-                    <span class="password-hint" style="margin-top:-10px; margin-bottom:15px;">10+ caracteres, letras, números e @#$!</span>
+                    <span class="password-hint" style="margin-top:-10px; margin-bottom:15px;">Mín. 7 caracteres: 1 maiúscula, 1 minúscula, 1 número e @#$!</span>
                     <button class="btn-main" id="btn-cad" onclick="fazerCadastro()">Finalizar Cadastro</button>
                 </div>
 
                 <div id="form-redefinir" class="form-section">
                     <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Criar Nova Senha</h3>
                     <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">Digite sua nova senha de acesso abaixo.</p>
-                    <div class="form-group"><label>Nova Senha</label><input type="password" id="nova-senha"><span class="password-hint">10+ caracteres, letras, números e @#$!</span></div>
+                    <div class="form-group">
+                        <label>Nova Senha</label>
+                        <div class="pwd-container">
+                            <input type="password" id="nova-senha">
+                            <span class="pwd-toggle" onclick="togglePassword('nova-senha')">👁️</span>
+                        </div>
+                        <span class="password-hint">Mín. 7 caracteres: 1 maiúscula, 1 minúscula, 1 número e @#$!</span>
+                    </div>
                     <button class="btn-main" id="btn-salvar-senha" onclick="salvarNovaSenha()">Atualizar Senha</button>
                 </div>
             </div>
@@ -145,7 +176,7 @@
     <div id="lobby-view" class="auth-wrapper" style="display: none;">
         <div class="auth-container" style="max-width: 600px;">
             <div class="auth-header">
-                <img src="https://vlvpffaathuksyqvpkpd.supabase.co/storage/v1/object/public/assets/carebridge%20logotipo.png" alt="CareBridge Logo" style="max-width: 180px; height: auto; margin-bottom: 10px;">
+                <img src="https://vlvpffaathuksyqvpkpd.supabase.co/storage/v1/object/public/assets/carebridge%20logotipo.png?v=2" alt="CareBridge Logo" style="max-width: 280px; height: auto; margin-bottom: 10px;">
                 <p style="color: rgba(255, 255, 255, 0.9);">Você precisa se vincular a uma Família para continuar.</p>
             </div>
             
@@ -175,7 +206,7 @@
                     
                     <div class="form-group"><label>Nome Completo do Paciente</label><input type="text" id="dep-nome"></div>
                     <div class="flex-row">
-                        <div class="form-group flex-1"><label>CPF</label><input type="text" id="dep-cpf" maxlength="14" oninput="mascaraCPF(this)"></div>
+                        <div class="form-group flex-1"><label>CPF (Opcional)</label><input type="text" id="dep-cpf" maxlength="14" oninput="mascaraCPF(this)"></div>
                         <div class="form-group flex-1"><label>Nascimento</label><input type="date" id="dep-nascimento"></div>
                     </div>
                     <div class="flex-row">
@@ -183,9 +214,22 @@
                         <div class="form-group flex-1"><label>E-mail</label><input type="email" id="dep-email"></div>
                     </div>
                     <div class="flex-row">
-                        <div class="form-group flex-1"><label>Criar Senha</label><input type="password" id="dep-senha"></div>
-                        <div class="form-group flex-1"><label>Confirmar Senha</label><input type="password" id="dep-confirma"></div>
+                        <div class="form-group flex-1">
+                            <label>Criar Senha</label>
+                            <div class="pwd-container">
+                                <input type="password" id="dep-senha">
+                                <span class="pwd-toggle" onclick="togglePassword('dep-senha')">👁️</span>
+                            </div>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label>Confirmar Senha</label>
+                            <div class="pwd-container">
+                                <input type="password" id="dep-confirma">
+                                <span class="pwd-toggle" onclick="togglePassword('dep-confirma')">👁️</span>
+                            </div>
+                        </div>
                     </div>
+                    <span class="password-hint" style="margin-top:-10px; margin-bottom:15px; display:block;">Mín. 7 caracteres: 1 maiúscula, 1 minúscula, 1 número e @#$!</span>
                     
                     <button class="btn-main" id="btn-criar-familia" onclick="criarFamiliaEDependente()">Criar Família e Cadastrar Paciente</button>
                 </div>
@@ -199,7 +243,7 @@
     <div id="app-view" style="display: none;">
         <header class="app-header">
             <div class="app-header-text">
-                <img src="https://vlvpffaathuksyqvpkpd.supabase.co/storage/v1/object/public/assets/carebridge%20logotipo.png" alt="CareBridge Logo" style="max-width: 140px; height: auto;">
+                <img src="https://vlvpffaathuksyqvpkpd.supabase.co/storage/v1/object/public/assets/carebridge%20logotipo.png?v=2" alt="CareBridge Logo" style="max-width: 200px; height: auto;">
                 <p id="header-nome-familia">Painel da Família</p>
             </div>
             <div style="display: flex; align-items: center; gap: 20px;">
@@ -388,9 +432,16 @@
             <button class="close-btn" onclick="closeModal('modal-usuario')">&times;</button>
             <h3 style="margin-bottom: 20px;">Cadastrar Novo Usuário</h3>
             <div class="form-group"><label>Nome Completo</label><input type="text" id="usr-nome"></div>
-            <div class="flex-row"><div class="form-group flex-1"><label>CPF</label><input type="text" id="usr-cpf" maxlength="14" oninput="mascaraCPF(this)"></div><div class="form-group flex-1"><label>Nascimento</label><input type="date" id="usr-nascimento"></div></div>
+            <div class="flex-row"><div class="form-group flex-1"><label>CPF (Opcional)</label><input type="text" id="usr-cpf" maxlength="14" oninput="mascaraCPF(this)"></div><div class="form-group flex-1"><label>Nascimento</label><input type="date" id="usr-nascimento"></div></div>
             <div class="flex-row"><div class="form-group flex-1"><label>Telefone</label><input type="text" id="usr-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="form-group flex-1"><label>E-mail</label><input type="email" id="usr-email"></div></div>
-            <div class="form-group"><label>Definir Senha de Acesso</label><input type="password" id="usr-senha" placeholder="Mínimo 10 caracteres"></div>
+            <div class="form-group">
+                <label>Definir Senha de Acesso</label>
+                <div class="pwd-container">
+                    <input type="password" id="usr-senha" placeholder="Mínimo 7 caracteres">
+                    <span class="pwd-toggle" onclick="togglePassword('usr-senha')">👁️</span>
+                </div>
+                <span class="password-hint">Mín. 7 caracteres: 1 maiúscula, 1 minúscula, 1 número e @#$!</span>
+            </div>
             <div class="form-group">
                 <label>Perfil</label>
                 <select id="usr-perfil"><option value="Cuidador">Cuidador</option><option value="Observador">Observador</option><option value="Administrador">Administrador</option><option value="Dependente">Dependente (Paciente)</option></select>
@@ -464,7 +515,21 @@
         function validarEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
         function validarCPF(c) { return /^\d{3}\.\d{3}\.\d{3}\-\d{2}$/.test(c); }
         function validarTelefone(t) { return t.length >= 14; }
-        function validarSenha(s) { return /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@#$!]).{10,}$/.test(s); }
+        
+        // Nova Regra: Mín 7 char, 1 maiúscula, 1 minúscula, 1 número, 1 especial
+        function validarSenha(s) { return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$!]).{7,}$/.test(s); }
+
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            const icon = input.nextElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerText = '🙈';
+            } else {
+                input.type = 'password';
+                icon.innerText = '👁️';
+            }
+        }
 
         async function verificarSenhaVazada(senha) {
             try {
@@ -584,11 +649,11 @@
             const sn = document.getElementById('cad-senha').value;
             const conf = document.getElementById('cad-confirma').value;
 
-            if(!nm || !cpf || !dt || !tel || !em || !sn || !conf) return alert("⚠️ Preencha todos os campos do cadastro.");
-            if(!validarCPF(cpf)) return alert("⚠️ CPF inválido.");
+            if(!nm || !dt || !tel || !em || !sn || !conf) return alert("⚠️ Preencha todos os campos obrigatórios.");
+            if(cpf && !validarCPF(cpf)) return alert("⚠️ CPF inválido.");
             if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
             if(sn !== conf) return alert("⚠️ As senhas digitadas não coincidem.");
-            if(!validarSenha(sn)) return alert("⚠️ Senha fraca.");
+            if(!validarSenha(sn)) return alert("⚠️ Senha fraca. Verifique as regras abaixo dos campos.");
 
             btn.innerText = "Verificando segurança...";
             if (await verificarSenhaVazada(sn)) {
@@ -633,7 +698,7 @@
         async function salvarNovaSenha() {
             const btn = document.getElementById('btn-salvar-senha');
             const novaSenha = document.getElementById('nova-senha').value;
-            if(!validarSenha(novaSenha)) return alert("⚠️ Senha fraca.");
+            if(!validarSenha(novaSenha)) return alert("⚠️ Senha fraca. Verifique as regras.");
             
             btn.innerText = "Verificando...";
             if (await verificarSenhaVazada(novaSenha)) {
@@ -666,7 +731,8 @@
             const conf = document.getElementById('dep-confirma').value;
             const btn = document.getElementById('btn-criar-familia');
             
-            if(!nomeFam || !depNm || !depCpf || !depDt || !depTel || !depEm || !depSn) return alert("⚠️ Preencha tudo.");
+            if(!nomeFam || !depNm || !depDt || !depTel || !depEm || !depSn) return alert("⚠️ Preencha os campos obrigatórios.");
+            if(depCpf && !validarCPF(depCpf)) return alert("⚠️ CPF do paciente inválido.");
             if(depSn !== conf) return alert("⚠️ As senhas do paciente não coincidem.");
 
             btn.innerText = "Processando...";
@@ -1439,11 +1505,11 @@
             const tel = document.getElementById('usr-telefone').value; const em = document.getElementById('usr-email').value; const sn = document.getElementById('usr-senha').value; const prf = document.getElementById('usr-perfil').value;
             const btn = document.getElementById('btn-salvar-user');
             
-            if(!nm || !cpf || !tel || !em || !sn || !dt) return alert("⚠️ Preencha todos os campos.");
-            if(!validarCPF(cpf)) return alert("⚠️ CPF inválido."); if(!validarTelefone(tel)) return alert("⚠️ Telefone incompleto."); if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
+            if(!nm || !tel || !em || !sn || !dt) return alert("⚠️ Preencha os campos obrigatórios.");
+            if(cpf && !validarCPF(cpf)) return alert("⚠️ CPF inválido."); if(!validarTelefone(tel)) return alert("⚠️ Telefone incompleto."); if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
             
             if(prf === 'Administrador') { const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length; if(qtdAdmins >= 2) return alert("⚠️ Limite atingido: O plano atual permite apenas 2 Administradores."); }
-            const cards = Array.from(document.querySelectorAll('#lista-usuarios .card')); const duplicado = cards.some(c => c.getAttribute('data-cpf') === cpf || c.querySelector('.user-email').innerText === em || c.querySelector('.user-tel').innerText === tel);
+            const cards = Array.from(document.querySelectorAll('#lista-usuarios .card')); const duplicado = cards.some(c => (cpf && c.getAttribute('data-cpf') === cpf) || c.querySelector('.user-email').innerText === em || c.querySelector('.user-tel').innerText === tel);
             if(duplicado) return alert("⚠️ Cadastro Bloqueado: Já existe um usuário cadastrado com este E-mail, CPF ou Telefone.");
 
             btn.innerText = "Verificando Segurança...";
