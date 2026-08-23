@@ -82,10 +82,26 @@
         .btn-trash { background:transparent; border:none; cursor:pointer; font-size:1.2rem; opacity:0.5; transition:0.2s; padding: 5px; }
         .btn-trash:hover { opacity:1; transform: scale(1.1); }
         
-        /* Adições para o botão de exibir senha */
+        /* Adições para o botão de exibir senha com ícones SVG nativos */
         .pwd-container { position: relative; }
-        .pwd-toggle { position: absolute; right: 12px; top: 12px; cursor: pointer; user-select: none; opacity: 0.6; transition: 0.2s; font-size: 1.2rem; }
+        .pwd-container input { padding-right: 42px; }
+        .pwd-toggle { 
+            position: absolute; 
+            right: 12px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            cursor: pointer; 
+            user-select: none; 
+            opacity: 0.6; 
+            transition: 0.2s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 24px; 
+            height: 24px; 
+        }
         .pwd-toggle:hover { opacity: 1; }
+        .pwd-toggle svg { width: 22px; height: 22px; stroke: var(--text-main); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -116,7 +132,9 @@
                         <label>Senha</label>
                         <div class="pwd-container">
                             <input type="password" id="login-senha" placeholder="••••••••">
-                            <span class="pwd-toggle" onclick="togglePassword('login-senha')">👁️</span>
+                            <span class="pwd-toggle" onclick="togglePassword('login-senha')">
+                                <svg class="icon-eye-closed" viewBox="0 0 24 24"><path d="M2 10s3.5 4 10 4 10-4 10-4"/><line x1="4" y1="13" x2="2" y2="16"/><line x1="8.5" y1="14" x2="7.5" y2="18"/><line x1="12" y1="14.5" x2="12" y2="18.5"/><line x1="15.5" y1="14" x2="16.5" y2="18"/><line x1="20" y1="13" x2="22" y2="16"/></svg>
+                            </span>
                         </div>
                     </div>
                     <a href="#" class="forgot-password" onclick="recuperarSenha()">Esqueci minha senha</a>
@@ -138,14 +156,18 @@
                             <label>Criar Senha</label>
                             <div class="pwd-container">
                                 <input type="password" id="cad-senha">
-                                <span class="pwd-toggle" onclick="togglePassword('cad-senha')">👁️</span>
+                                <span class="pwd-toggle" onclick="togglePassword('cad-senha')">
+                                    <svg class="icon-eye-closed" viewBox="0 0 24 24"><path d="M2 10s3.5 4 10 4 10-4 10-4"/><line x1="4" y1="13" x2="2" y2="16"/><line x1="8.5" y1="14" x2="7.5" y2="18"/><line x1="12" y1="14.5" x2="12" y2="18.5"/><line x1="15.5" y1="14" x2="16.5" y2="18"/><line x1="20" y1="13" x2="22" y2="16"/></svg>
+                                </span>
                             </div>
                         </div>
                         <div class="form-group flex-1">
                             <label>Confirmar Senha</label>
                             <div class="pwd-container">
                                 <input type="password" id="cad-confirma">
-                                <span class="pwd-toggle" onclick="togglePassword('cad-confirma')">👁️</span>
+                                <span class="pwd-toggle" onclick="togglePassword('cad-confirma')">
+                                    <svg class="icon-eye-closed" viewBox="0 0 24 24"><path d="M2 10s3.5 4 10 4 10-4 10-4"/><line x1="4" y1="13" x2="2" y2="16"/><line x1="8.5" y1="14" x2="7.5" y2="18"/><line x1="12" y1="14.5" x2="12" y2="18.5"/><line x1="15.5" y1="14" x2="16.5" y2="18"/><line x1="20" y1="13" x2="22" y2="16"/></svg>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -160,7 +182,9 @@
                         <label>Nova Senha</label>
                         <div class="pwd-container">
                             <input type="password" id="nova-senha">
-                            <span class="pwd-toggle" onclick="togglePassword('nova-senha')">👁️</span>
+                            <span class="pwd-toggle" onclick="togglePassword('nova-senha')">
+                                <svg class="icon-eye-closed" viewBox="0 0 24 24"><path d="M2 10s3.5 4 10 4 10-4 10-4"/><line x1="4" y1="13" x2="2" y2="16"/><line x1="8.5" y1="14" x2="7.5" y2="18"/><line x1="12" y1="14.5" x2="12" y2="18.5"/><line x1="15.5" y1="14" x2="16.5" y2="18"/><line x1="20" y1="13" x2="22" y2="16"/></svg>
+                            </span>
                         </div>
                         <span class="password-hint">Mín. 7 caracteres: 1 maiúscula, 1 minúscula, 1 número e @#$!</span>
                     </div>
@@ -218,14 +242,18 @@
                             <label>Criar Senha</label>
                             <div class="pwd-container">
                                 <input type="password" id="dep-senha">
-                                <span class="pwd-toggle" onclick="togglePassword('dep-senha')">👁️</span>
+                                <span class="pwd-toggle" onclick="togglePassword('dep-senha')">
+                                    <svg class="icon-eye-closed" viewBox="0 0 24 24"><path d="M2 10s3.5 4 10 4 10-4 10-4"/><line x1="4" y1="13" x2="2" y2="16"/><line x1="8.5" y1="14" x2="7.5" y2="18"/><line x1="12" y1="14.5" x2="12" y2="18.5"/><line x1="15.5" y1="14" x2="16.5" y2="18"/><line x1="20" y1="13" x2="22" y2="16"/></svg>
+                                </span>
                             </div>
                         </div>
                         <div class="form-group flex-1">
                             <label>Confirmar Senha</label>
                             <div class="pwd-container">
                                 <input type="password" id="dep-confirma">
-                                <span class="pwd-toggle" onclick="togglePassword('dep-confirma')">👁️</span>
+                                <span class="pwd-toggle" onclick="togglePassword('dep-confirma')">
+                                    <svg class="icon-eye-closed" viewBox="0 0 24 24"><path d="M2 10s3.5 4 10 4 10-4 10-4"/><line x1="4" y1="13" x2="2" y2="16"/><line x1="8.5" y1="14" x2="7.5" y2="18"/><line x1="12" y1="14.5" x2="12" y2="18.5"/><line x1="15.5" y1="14" x2="16.5" y2="18"/><line x1="20" y1="13" x2="22" y2="16"/></svg>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -438,7 +466,9 @@
                 <label>Definir Senha de Acesso</label>
                 <div class="pwd-container">
                     <input type="password" id="usr-senha" placeholder="Mínimo 7 caracteres">
-                    <span class="pwd-toggle" onclick="togglePassword('usr-senha')">👁️</span>
+                    <span class="pwd-toggle" onclick="togglePassword('usr-senha')">
+                        <svg class="icon-eye-closed" viewBox="0 0 24 24"><path d="M2 10s3.5 4 10 4 10-4 10-4"/><line x1="4" y1="13" x2="2" y2="16"/><line x1="8.5" y1="14" x2="7.5" y2="18"/><line x1="12" y1="14.5" x2="12" y2="18.5"/><line x1="15.5" y1="14" x2="16.5" y2="18"/><line x1="20" y1="13" x2="22" y2="16"/></svg>
+                    </span>
                 </div>
                 <span class="password-hint">Mín. 7 caracteres: 1 maiúscula, 1 minúscula, 1 número e @#$!</span>
             </div>
@@ -487,6 +517,10 @@
             auth: { persistSession: false, autoRefreshToken: false }
         });
 
+        // SVG Icons
+        const svgEyeOpen = `<svg class="icon-eye-open" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+        const svgEyeClosed = `<svg class="icon-eye-closed" viewBox="0 0 24 24"><path d="M2 10s3.5 4 10 4 10-4 10-4"/><line x1="4" y1="13" x2="2" y2="16"/><line x1="8.5" y1="14" x2="7.5" y2="18"/><line x1="12" y1="14.5" x2="12" y2="18.5"/><line x1="15.5" y1="14" x2="16.5" y2="18"/><line x1="20" y1="13" x2="22" y2="16"/></svg>`;
+
         // 2. VARIÁVEIS GLOBAIS DE ESTADO
         let usuarioAtual = null; 
         let familiaIdAtual = null;
@@ -521,13 +555,13 @@
 
         function togglePassword(id) {
             const input = document.getElementById(id);
-            const icon = input.nextElementSibling;
+            const toggleSpan = input.nextElementSibling;
             if (input.type === 'password') {
                 input.type = 'text';
-                icon.innerText = '🙈';
+                toggleSpan.innerHTML = svgEyeOpen;
             } else {
                 input.type = 'password';
-                icon.innerText = '👁️';
+                toggleSpan.innerHTML = svgEyeClosed;
             }
         }
 
@@ -1080,7 +1114,6 @@
                 if(rotina.status === 'concluido') {
                     const btnDeleteDone = isAdm ? `<button class="btn-trash" onclick="abrirModalExclusao('${rotina.id}')" title="Excluir rotina concluída">🗑️</button>` : '';
                     
-                    // Link com estilo de botão visível
                     const linkComprovante = rotina.fotoUrl ? `<br><a href="${rotina.fotoUrl}" target="_blank" style="background: var(--primary); color: var(--accent); padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold; display: inline-block; margin-top: 8px;">📷 Visualizar Foto</a>` : '';
                     
                     ul.innerHTML += `<li class="task-done" style="border-left: 4px solid var(--success); background-color: var(--success-bg); display:flex; justify-content:space-between; align-items:center;">
@@ -1209,7 +1242,6 @@
             let htmlTimeline = `A tarefa <strong>${rotina.nome}</strong> foi finalizada.<br><small>✅ Confirmado por: <strong>${usuarioAtual.nome}</strong></small>`;
             if (obs) htmlTimeline += `<br><em>Obs: ${obs}</em>`;
             
-            // Botão da foto na Linha do Tempo
             if (fotoUrlFinal) htmlTimeline += `<br><a href="${fotoUrlFinal}" target="_blank" style="background: var(--primary); color: var(--accent); padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold; display: inline-block; margin-top: 8px;">📷 Visualizar Foto</a>`;
 
             adicionarNaTimeline(`Tarefa Concluída`, htmlTimeline);
