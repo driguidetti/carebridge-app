@@ -357,7 +357,18 @@
     <div id="modal-excluir-rotina" class="modal-overlay"><div class="modal"><h3 style="margin-bottom: 15px;">Excluir Rotina</h3><p style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.95rem;">Esta tarefa faz parte de uma série de repetições agendadas. O que você deseja fazer?</p><button class="btn-outline" style="width: 100%; margin-bottom: 10px;" onclick="executarExclusaoRotina('unica')">🗑️ Excluir APENAS esta tarefa</button><button class="btn-danger" style="width: 100%; margin-bottom: 15px; margin-top: 0;" onclick="executarExclusaoRotina('serie')">🚨 Excluir TODA a série futura</button><button class="btn-outline" style="width: 100%; border: none; color: var(--text-muted);" onclick="closeModal('modal-excluir-rotina')">Cancelar</button></div></div>
     <div id="modal-vitais" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-vitais')">&times;</button><h3 style="margin-bottom: 20px;">Registrar Sinal Vital</h3><div class="form-group"><label>Sinal Vital</label><select id="vital-tipo"></select><span class="password-hint" id="vital-hint"></span></div><div class="form-group"><label>Resultado Medido</label><input type="text" id="vital-valor" placeholder="Ex: 120/80 ou 95"></div><div class="form-group"><label>Observações (Opcional)</label><input type="text" id="vital-obs" placeholder="Ex: Paciente estava deitado"></div><button class="btn-main" onclick="salvarSinalVital()">Salvar Medição</button></div></div>
     <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Novo Medicamento</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário do Primeiro Consumo</label><input type="time" id="med-hora"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
-    <div id="modal-checkin" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button><h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3><div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div><div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div><div class="form-group"><label>Comprovante (Foto):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div><button class="btn-main" id="btn-concluir-tarefa" onclick="salvarCheckin()">Concluir Tarefa</button></div></div>
+    
+    <div id="modal-checkin" class="modal-overlay">
+        <div class="modal">
+            <button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button>
+            <h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3>
+            <div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div>
+            <div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div>
+            <div class="form-group"><label>Comprovante (Foto - Opcional):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div>
+            <button class="btn-main" id="btn-concluir-tarefa" onclick="salvarCheckin()">Concluir Tarefa</button>
+        </div>
+    </div>
+    
     <div id="modal-parametro" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-parametro')">&times;</button><h3 style="margin-bottom: 20px;" id="param-titulo">Editar Parâmetro</h3><div id="param-inputs"></div><button class="btn-main" onclick="salvarParametro()">Atualizar Referência</button></div></div>
     <div id="modal-novo-sinal" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-novo-sinal')">&times;</button><h3 style="margin-bottom: 20px;">Novo Sinal Vital</h3><div class="form-group"><label>Nome do Sinal (Ex: Nível de Dor)</label><input type="text" id="ns-nome"></div><div class="flex-row"><div class="form-group flex-1"><label>Mínimo Ideal</label><input type="number" step="0.1" id="ns-min"></div><div class="form-group flex-1"><label>Máximo Ideal</label><input type="number" step="0.1" id="ns-max"></div></div><div class="form-group"><label>Unidade de Medida (Ex: mg/dL, bpm)</label><input type="text" id="ns-unidade" placeholder="Opcional"></div><button class="btn-main" onclick="salvarNovoSinal()">Criar Parâmetro</button></div></div>
 
@@ -446,6 +457,10 @@
 
         async function verificarSenhaVazada(senha) {
             try {
+                if (!window.crypto || !window.crypto.subtle) {
+                    console.warn("Aviso: API Crypto indisponível (requer HTTPS ou localhost). Ignorando checagem de vazamento.");
+                    return false;
+                }
                 const buffer = new TextEncoder().encode(senha);
                 const hashBuffer = await crypto.subtle.digest('SHA-1', buffer);
                 const hashArray = Array.from(new Uint8Array(hashBuffer));
@@ -495,10 +510,17 @@
                         id: session.user.id, email: session.user.email,
                         nome: metadados.nome || metadados.full_name || 'Usuário',
                         cpf: metadados.cpf || '', telefone: metadados.telefone || '',
-                        perfil: 'Administrador'
+                        perfil: 'Administrador', ativo: true
                     };
                     await clienteSupabase.from('usuarios').insert([newUser]);
                     userData = newUser;
+                }
+
+                if (userData.ativo === false) {
+                    alert("🚫 Acesso negado: Seu usuário foi inativado pelo administrador da família.");
+                    await clienteSupabase.auth.signOut();
+                    window.location.reload();
+                    return;
                 }
 
                 if (userData.familia_id) {
@@ -569,7 +591,7 @@
             });
 
             if (authError) { btn.innerText = "Finalizar Cadastro"; return alert("❌ Erro ao criar conta: " + authError.message); } 
-            if (authData.user) { await clienteSupabase.from('usuarios').insert([{ id: authData.user.id, email: em, nome: nm, cpf: cpf, telefone: tel, perfil: 'Administrador' }]); }
+            if (authData.user) { await clienteSupabase.from('usuarios').insert([{ id: authData.user.id, email: em, nome: nm, cpf: cpf, telefone: tel, perfil: 'Administrador', ativo: true }]); }
             btn.innerText = "Finalizar Cadastro";
             if (authData.session) { alert("✅ Conta criada com sucesso!"); await iniciarAplicativo(authData.session); } else { alert("✅ Conta criada! Por favor, faça login."); mudarAbaAuth('login'); }
         }
@@ -650,7 +672,7 @@
             const { data: depAuth, error: errDep } = await supabaseTemp.auth.signUp({ email: depEm, password: depSn, options: { data: { nome: depNm, cpf: depCpf, telefone: depTel, data_nascimento: depDt, perfil: 'Dependente' } } });
             if(errDep) { btn.innerText = "Criar Família e Cadastrar Paciente"; return alert("❌ Erro ao criar login do paciente: " + errDep.message); }
             
-            if (depAuth.user) { await clienteSupabase.from('usuarios').upsert([{ id: depAuth.user.id, email: depEm, nome: depNm, cpf: depCpf, telefone: depTel, data_nascimento: depDt, familia_id: novaFamilia.id, perfil: 'Dependente' }]); }
+            if (depAuth.user) { await clienteSupabase.from('usuarios').upsert([{ id: depAuth.user.id, email: depEm, nome: depNm, cpf: depCpf, telefone: depTel, data_nascimento: depDt, familia_id: novaFamilia.id, perfil: 'Dependente', ativo: true }]); }
             
             btn.innerText = "Criar Família e Cadastrar Paciente";
             alert("✅ Família criada e Paciente cadastrado com sucesso! Você entrará agora no painel da família.");
@@ -706,8 +728,11 @@
             if (membrosFam) {
                 membrosFam.forEach(membro => {
                     const isAdm = membro.perfil === 'Administrador' ? 'true' : 'false';
+                    const classeInativo = membro.ativo === false ? 'inativo' : '';
+                    const tagInativo = membro.ativo === false ? `<p class="status-tag" style="display: block; color: var(--danger);">🚫 Acesso Inativado</p>` : '';
                     listaUsuarios.innerHTML += `
-                        <div class="card" data-id="${membro.id}" data-admin="${isAdm}" data-cpf="${membro.cpf || ''}" data-perfil="${membro.perfil}" data-nascimento="${membro.data_nascimento || ''}" style="border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top: 15px;">
+                        <div class="card ${classeInativo}" data-id="${membro.id}" data-admin="${isAdm}" data-cpf="${membro.cpf || ''}" data-perfil="${membro.perfil}" data-nascimento="${membro.data_nascimento || ''}" style="border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top: 15px;">
+                            ${tagInativo}
                             <strong>${membro.nome} (${membro.perfil})</strong>
                             <p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">${membro.email}</span> • <span class="user-tel">${membro.telefone || '(Não informado)'}</span></p>
                             <button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>
@@ -752,7 +777,8 @@
         function closeModal(id) { 
             document.getElementById(id).style.display = 'none'; 
             const modal = document.getElementById(id);
-            modal.querySelectorAll('input').forEach(i => { if(i.type !== 'button' && i.type !== 'hidden') i.value = ''; });
+            modal.querySelectorAll('input').forEach(i => { if(i.type !== 'button' && i.type !== 'hidden' && i.type !== 'file') i.value = ''; });
+            modal.querySelectorAll('input[type="file"]').forEach(i => { i.value = ''; });
             modal.querySelectorAll('textarea').forEach(t => t.value = '');
             if(id === 'modal-itinerario') {
                 document.getElementById('grupo-itin-horas').style.display = 'none';
@@ -794,7 +820,6 @@
                     let descFormatada = item.descricao.toLowerCase();
                     let passaFiltroTexto = item.titulo.toLowerCase().includes(textoFiltro) || descFormatada.includes(textoFiltro);
                     let passaFiltroData = true;
-                    
                     let passaFiltroTurno = turnoFiltro ? descFormatada.includes(turnoFiltro) : true;
                     
                     let passaFiltroResp = true;
@@ -804,8 +829,9 @@
                     }
 
                     if (dataFiltro) {
-                        const [ano, mes, dia] = dataFiltro.split('-').map(Number);
-                        passaFiltroData = (dataReg.getFullYear() === ano && dataReg.getMonth() === (mes - 1) && dataReg.getDate() === dia);
+                        const [ano, mes, dia] = dataFiltro.split('-');
+                        const dataFiltroFormatada = `${dia}/${mes}/${ano}`;
+                        passaFiltroData = (dataReg.toLocaleDateString('pt-BR') === dataFiltroFormatada);
                     }
 
                     if (passaFiltroTexto && passaFiltroData && passaFiltroTurno && passaFiltroResp) {
@@ -868,7 +894,8 @@
                 id: r.id, groupId: r.group_id, nome: r.nome, dataHora: new Date(r.data_hora),
                 status: r.status, obs: r.obs, freq: r.freq, hrExtra: r.hr_extra,
                 fimTipo: r.fim_tipo, tarefaBase: r.tarefa_base, responsavel: r.responsavel,
-                turno: r.turno, alertaRespEnviado: r.alerta_resp_enviado, concluidoPor: r.concluido_por
+                turno: r.turno, alertaRespEnviado: r.alerta_resp_enviado, concluidoPor: r.concluido_por,
+                fotoUrl: r.foto_url
             }));
             renderizarRotinas();
         }
@@ -942,8 +969,9 @@
             let rotinasFiltradas = listaDeRotinas.filter(r => {
                 let passaData = true;
                 if (filtroData) {
-                    const [ano, mes, dia] = filtroData.split('-').map(Number);
-                    passaData = (r.dataHora.getFullYear() === ano && r.dataHora.getMonth() === (mes - 1) && r.dataHora.getDate() === dia);
+                    const [ano, mes, dia] = filtroData.split('-');
+                    const dataFiltroFormatada = `${dia}/${mes}/${ano}`;
+                    passaData = (r.dataHora.toLocaleDateString('pt-BR') === dataFiltroFormatada);
                 }
                 let passaTurno = filtroTurno ? r.turno === filtroTurno : true;
                 let passaResp = true;
@@ -972,10 +1000,13 @@
 
                 if(rotina.status === 'concluido') {
                     const btnDeleteDone = isAdm ? `<button class="btn-trash" onclick="abrirModalExclusao('${rotina.id}')" title="Excluir rotina concluída">🗑️</button>` : '';
+                    const linkComprovante = rotina.fotoUrl ? `<br><a href="${rotina.fotoUrl}" target="_blank" style="font-size:0.8rem; color:var(--primary); font-weight:600; margin-top:5px; display:inline-block;">📷 Ver Comprovante</a>` : '';
+                    
                     ul.innerHTML += `<li class="task-done" style="border-left: 4px solid var(--success); background-color: var(--success-bg); display:flex; justify-content:space-between; align-items:center;">
                                         <div>
                                             <span><s>${rotina.nome}</s> <span style="font-size:0.8rem;color:var(--text-main);">(${horaFormatada})</span> ${rotina.obs?`<br><span style="font-size:0.8rem;color:var(--text-main);">Obs: ${rotina.obs}</span>`:''}</span>
                                             <br><span style="color: var(--success); font-weight:bold; font-size: 0.85rem;">✔ Concluído por: ${rotina.concluidoPor || 'Não informado'}</span>
+                                            ${linkComprovante}
                                         </div>
                                         ${btnDeleteDone}
                                     </li>`;
@@ -1070,9 +1101,28 @@
         async function salvarCheckin() {
             const sel = document.getElementById('checkin-tarefa'); const idTarefa = sel.value; const obs = document.getElementById('checkin-obs').value;
             const rotina = listaDeRotinas.find(r => r.id === idTarefa); if(!rotina) return;
-            const btn = document.getElementById('btn-concluir-tarefa'); const txtOrig = btn.innerText; btn.innerText = "Registrando Conclusão...";
+            const btn = document.getElementById('btn-concluir-tarefa'); const txtOrig = btn.innerText; 
+            
+            let fotoUrlFinal = null;
+            const inputFoto = document.getElementById('checkin-foto');
+            
+            if (inputFoto.files && inputFoto.files.length > 0) {
+                btn.innerText = "Enviando Foto...";
+                const file = inputFoto.files[0];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${idTarefa}.${fileExt}`;
+                
+                const { data, error: uploadError } = await clienteSupabase.storage.from('comprovantes').upload(fileName, file);
+                if (uploadError) {
+                    alert("⚠️ Aviso: Erro ao fazer upload da foto (" + uploadError.message + "). A tarefa será concluída sem a imagem.");
+                } else {
+                    const { data: publicData } = clienteSupabase.storage.from('comprovantes').getPublicUrl(fileName);
+                    fotoUrlFinal = publicData.publicUrl;
+                }
+            }
 
-            const { error } = await clienteSupabase.from('rotinas').update({ status: 'concluido', obs: obs, concluido_por: usuarioAtual.nome }).eq('id', idTarefa);
+            btn.innerText = "Registrando Conclusão...";
+            const { error } = await clienteSupabase.from('rotinas').update({ status: 'concluido', obs: obs, concluido_por: usuarioAtual.nome, foto_url: fotoUrlFinal }).eq('id', idTarefa);
             if (error) { btn.innerText = txtOrig; alert("❌ Erro ao concluir tarefa: " + error.message); return; }
 
             adicionarNaTimeline(`Tarefa Concluída`, `A tarefa <strong>${rotina.nome}</strong> foi finalizada.<br><small>✅ Confirmado por: <strong>${usuarioAtual.nome}</strong></small> ${obs ? `<br><em>Obs: ${obs}</em>` : ''}`);
@@ -1177,8 +1227,12 @@
         }
 
         async function salvarNovoSinal() {
-            const nome = document.getElementById('ns-nome').value; const min = document.getElementById('ns-min').value; const max = document.getElementById('ns-max').value; const un = document.getElementById('ns-unidade').value || '';
-            if(!nome || !min || !max) return alert("⚠️ Preencha o nome, o mínimo e o máximo.");
+            const nome = document.getElementById('ns-nome').value; 
+            const min = parseFloat(document.getElementById('ns-min').value); 
+            const max = parseFloat(document.getElementById('ns-max').value); 
+            const un = document.getElementById('ns-unidade').value || '';
+            
+            if(!nome || isNaN(min) || isNaN(max)) return alert("⚠️ Preencha o nome, o mínimo e o máximo.");
             if(!familiaIdAtual) return alert("⚠️ Id da família não encontrado.");
 
             const btn = event.target; const txt = btn.innerText; btn.innerText = "Salvando...";
@@ -1189,7 +1243,7 @@
             btn.innerText = txt;
             if (error) return alert("❌ Erro ao salvar sinal vital customizado: " + error.message);
 
-            referenciasVitais[nome] = { min: parseFloat(min), max: parseFloat(max), formato: "num", desc: `${min} a ${max} ${un}`, isCustom: true, id: data.id }; 
+            referenciasVitais[nome] = { min: min, max: max, formato: "num", desc: `${min} a ${max} ${un}`, isCustom: true, id: data.id }; 
             historicoDados[nome] = { labels: [], dataset1: [], dataset2: [] };
             
             renderizarConfigVitais(); carregarOpcoesSinaisVitais(); 
@@ -1223,7 +1277,12 @@
                         else { historicoDados[v.tipo].dataset1.push(parseFloat(v.valor.replace(',', '.'))); }
                     }
                     let passaFiltroTexto = v.tipo.toLowerCase().includes(textoFiltro) || (v.observacoes && v.observacoes.toLowerCase().includes(textoFiltro)); let passaFiltroData = true;
-                    if (dataFiltro) { const [ano, mes, dia] = dataFiltro.split('-').map(Number); passaFiltroData = (dataReg.getFullYear() === ano && dataReg.getMonth() === (mes - 1) && dataReg.getDate() === dia); }
+                    
+                    if (dataFiltro) { 
+                        const [ano, mes, dia] = dataFiltro.split('-'); 
+                        const dataFiltroFormatada = `${dia}/${mes}/${ano}`;
+                        passaFiltroData = (dataStr === dataFiltroFormatada); 
+                    }
 
                     if (passaFiltroTexto && passaFiltroData) {
                         listaVazia = false;
@@ -1281,7 +1340,12 @@
                 meds.forEach(m => {
                     const dataReg = m.criado_em ? new Date(m.criado_em) : new Date(); const dataStr = dataReg.toLocaleDateString('pt-BR'); const horaRegStr = dataReg.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}); const horaFormatada = m.horario_primeiro_consumo.substring(0, 5);
                     let passaFiltroTexto = m.nome_dosagem.toLowerCase().includes(textoFiltro) || (m.observacoes && m.observacoes.toLowerCase().includes(textoFiltro)); let passaFiltroData = true;
-                    if (dataFiltro) { const [ano, mes, dia] = dataFiltro.split('-').map(Number); passaFiltroData = (dataReg.getFullYear() === ano && dataReg.getMonth() === (mes - 1) && dataReg.getDate() === dia); }
+                    if (dataFiltro) { 
+                        const [ano, mes, dia] = dataFiltro.split('-'); 
+                        const dataFiltroFormatada = `${dia}/${mes}/${ano}`;
+                        passaFiltroData = (dataStr === dataFiltroFormatada); 
+                    }
+                    
                     if (passaFiltroTexto && passaFiltroData) {
                         listaVazia = false;
                         lista.innerHTML += `<li><div><span style="color: var(--text-muted); font-size: 0.85rem;">📅 Registrado em: ${dataStr} às ${horaRegStr}</span><br><strong>${m.nome_dosagem}</strong><br><span style="font-size:0.8rem; color:var(--text-muted);">${m.observacoes ? `Obs: ${m.observacoes}` : ''}</span></div><div style="display:flex; align-items:center; gap: 15px; flex-direction: column;"><span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: -10px;">Início às</span><span style="color: var(--primary); font-weight:600; font-size: 1.1rem;">${horaFormatada}</span><button class="btn-trash" onclick="excluirMedicamento('${m.id}')" title="Excluir Remédio">🗑️</button></div></li>`;
@@ -1376,7 +1440,7 @@
             }
             
             if (novoAuth.user) {
-                const { error: errDb } = await clienteSupabase.from('usuarios').upsert([{ id: novoAuth.user.id, email: em, nome: nm, cpf: cpf, telefone: tel, data_nascimento: dt, familia_id: familiaIdAtual, perfil: prf }]);
+                const { error: errDb } = await clienteSupabase.from('usuarios').upsert([{ id: novoAuth.user.id, email: em, nome: nm, cpf: cpf, telefone: tel, data_nascimento: dt, familia_id: familiaIdAtual, perfil: prf, ativo: true }]);
                 if (errDb) {
                     btn.innerText = "Finalizar Cadastro";
                     return alert("❌ Usuário criado na base Auth, mas houve erro ao vinculá-lo à família: " + errDb.message);
@@ -1434,10 +1498,24 @@
             if (error) { alert("❌ Erro ao enviar link: " + error.message); } else { alert(`✅ Um link oficial de redefinição de senha foi enviado para ${em}.`); }
         }
 
-        function alternarStatusUsuario() {
-            const inativo = cartaoSendoEditado.classList.contains('inativo'); let tag = cartaoSendoEditado.querySelector('.status-tag');
-            if(inativo && confirm("Deseja restaurar o acesso deste usuário?")) { cartaoSendoEditado.classList.remove('inativo'); if(tag) tag.style.display = 'none'; } 
+        async function alternarStatusUsuario() {
+            const inativo = cartaoSendoEditado.classList.contains('inativo'); 
+            let tag = cartaoSendoEditado.querySelector('.status-tag');
+            const userId = cartaoSendoEditado.getAttribute('data-id');
+            const btnStat = document.getElementById('btn-status-usuario');
+            const txtOriginal = btnStat.innerText;
+
+            if(inativo && confirm("Deseja restaurar o acesso deste usuário?")) { 
+                btnStat.innerText = "Restaurando...";
+                const { error } = await clienteSupabase.from('usuarios').update({ ativo: true }).eq('id', userId);
+                if (error) { alert("Erro ao restaurar: " + error.message); btnStat.innerText = txtOriginal; return; }
+                cartaoSendoEditado.classList.remove('inativo'); 
+                if(tag) tag.style.display = 'none'; 
+            } 
             else if (!inativo && confirm("Deseja bloquear o acesso deste usuário imediatamente?")) {
+                btnStat.innerText = "Bloqueando...";
+                const { error } = await clienteSupabase.from('usuarios').update({ ativo: false }).eq('id', userId);
+                if (error) { alert("Erro ao inativar: " + error.message); btnStat.innerText = txtOriginal; return; }
                 cartaoSendoEditado.classList.add('inativo');
                 if(!tag) { tag = document.createElement('p'); tag.className = 'status-tag'; tag.style = "display: block; color: var(--danger);"; cartaoSendoEditado.insertBefore(tag, cartaoSendoEditado.querySelector('button')); }
                 tag.style.display = 'block'; tag.style.color = 'var(--danger)'; tag.innerText = '🚫 Acesso Inativado';
