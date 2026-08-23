@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Biblioteca de Confetes -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
@@ -30,6 +29,10 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
+        
+        /* Bloqueia o scroll durante o tour */
+        body.tour-active { overflow: hidden !important; }
+
         .auth-wrapper { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         .auth-container { background-color: var(--surface); width: 100%; max-width: 480px; border-radius: 20px; box-shadow: 0 10px 25px rgba(67, 85, 122, 0.08); overflow: hidden; }
         .auth-header { background-color: var(--primary); padding: 40px 20px 20px; text-align: center; }
@@ -43,10 +46,23 @@
         .forgot-password { display: block; text-align: right; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none; margin-top: -5px; margin-bottom: 25px; }
         .forgot-password:hover { text-decoration: underline; color: var(--accent-hover); }
         #msg-sucesso { display: none; background-color: var(--success-bg); color: var(--success); padding: 12px; border-radius: 8px; text-align: center; font-size: 0.9rem; margin-bottom: 20px; font-weight: 600; }
+        
         header.app-header { background-color: var(--primary); padding: 20px; border-bottom: 1px solid var(--primary-hover); display: flex; justify-content: space-between; align-items: center; }
+        .app-header-text img { max-width: 200px; height: auto; transition: 0.3s; }
         .app-header-text p { font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); font-weight: 500;}
+        .header-actions { display: flex; align-items: center; gap: 20px; transition: 0.3s; }
         .btn-logout { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
         .btn-logout:hover { background-color: rgba(231, 162, 58, 0.1); }
+        
+        /* Ajustes Mobile do Cabeçalho */
+        @media (max-width: 480px) {
+            header.app-header { padding: 15px; }
+            .app-header-text img { max-width: 140px; }
+            .header-actions { gap: 10px; }
+            .header-actions span { font-size: 1.15rem !important; }
+            .btn-logout { padding: 5px 10px; font-size: 0.75rem; }
+        }
+
         nav.app-nav { display: flex; background-color: var(--surface); padding: 10px 15px; overflow-x: auto; gap: 10px; border-bottom: 1px solid var(--border); scrollbar-width: none; }
         nav.app-nav::-webkit-scrollbar { display: none; } 
         .tab-btn-app { flex: 1; min-width: 105px; padding: 10px 15px; border: none; background: transparent; color: var(--text-muted); font-weight: 600; font-size: 0.9rem; cursor: pointer; border-radius: 100px; transition: all 0.3s; }
@@ -91,32 +107,14 @@
         .pwd-toggle svg { width: 22px; height: 22px; stroke: var(--text-main); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
         /* ================= TOUR GUIADO CSS ================= */
-        #tour-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 9998; display: none;
-        }
-        #tour-spotlight {
-            position: fixed; border-radius: 16px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75);
-            transition: all 0.4s ease; pointer-events: none; z-index: 9999; display: none;
-        }
-        .tour-tooltip {
-            position: fixed; background: var(--surface); padding: 25px; border-radius: 16px; width: 90%; max-width: 350px;
-            box-shadow: 0 20px 30px rgba(0,0,0,0.3); z-index: 10000;
-            transition: all 0.4s ease; pointer-events: auto; display: none;
-        }
+        #tour-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; display: none; }
+        #tour-spotlight { position: fixed; border-radius: 16px; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75); transition: all 0.4s ease; pointer-events: none; z-index: 9999; display: none; }
+        .tour-tooltip { position: fixed; background: var(--surface); padding: 25px; border-radius: 16px; width: 90%; max-width: 350px; box-shadow: 0 20px 30px rgba(0,0,0,0.3); z-index: 10000; transition: all 0.4s ease; pointer-events: auto; display: none; }
         .tour-tooltip h4 { color: var(--text-main); margin-bottom: 10px; font-size: 1.15rem; }
         .tour-tooltip p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; }
         .tour-buttons { display: flex; justify-content: space-between; gap: 10px; }
         
-        /* Modal de Início e Fim do Tour */
-        .tour-modal-centered {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: var(--surface); padding: 35px 25px; border-radius: 20px;
-            width: 90%; max-width: 400px; text-align: center;
-            box-shadow: 0 0 0 9999px rgba(0,0,0,0.75), 0 20px 30px rgba(0,0,0,0.2);
-            z-index: 10000; pointer-events: auto; display: none; animation: slideUp 0.4s ease;
-        }
+        .tour-modal-centered { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--surface); padding: 35px 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 0 9999px rgba(0,0,0,0.75), 0 20px 30px rgba(0,0,0,0.2); z-index: 10000; pointer-events: auto; display: none; animation: slideUp 0.4s ease; }
         .tour-modal-centered h3 { margin-bottom: 15px; font-size: 1.3rem; color: var(--primary); }
         .tour-modal-centered p { color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; font-size: 0.95rem; }
 
@@ -132,7 +130,6 @@
     <div id="tour-overlay"></div>
     <div id="tour-spotlight"></div>
     
-    <!-- Tooltip Apontador -->
     <div id="tour-tooltip" class="tour-tooltip">
         <h4 id="tour-title">Título</h4>
         <p id="tour-text">Texto explicativo do tour.</p>
@@ -142,7 +139,6 @@
         </div>
     </div>
 
-    <!-- Modal Inicial / Final -->
     <div id="tour-modal" class="tour-modal-centered">
         <h3 id="tour-modal-title">👋 Bem-vindo ao CareBridge!</h3>
         <p id="tour-modal-text">Gostaria de fazer um tour rápido de 1 minuto para conhecer as principais funcionalidades do seu painel?</p>
@@ -271,12 +267,12 @@
                     
                     <div class="form-group"><label>Nome Completo do Paciente</label><input type="text" id="dep-nome"></div>
                     <div class="flex-row">
-                        <div class="form-group flex-1"><label>CPF (Opcional)</label><input type="text" id="dep-cpf" maxlength="14" oninput="mascaraCPF(this)"></div>
+                        <div class="form-group flex-1"><label>CPF (Opcional)</label><input type="text" id="dep-cpf" maxlength="14" oninput="mascaraCPF(this)" placeholder="Opcional"></div>
                         <div class="form-group flex-1"><label>Nascimento</label><input type="date" id="dep-nascimento"></div>
                     </div>
                     <div class="flex-row">
-                        <div class="form-group flex-1"><label>Telefone</label><input type="text" id="dep-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div>
-                        <div class="form-group flex-1"><label>E-mail</label><input type="email" id="dep-email"></div>
+                        <div class="form-group flex-1"><label>Telefone (Opcional)</label><input type="text" id="dep-telefone" maxlength="15" oninput="mascaraTelefone(this)" placeholder="Opcional"></div>
+                        <div class="form-group flex-1"><label>E-mail (Opcional)</label><input type="email" id="dep-email" placeholder="Opcional"></div>
                     </div>
                     <div class="flex-row">
                         <div class="form-group flex-1">
@@ -312,11 +308,10 @@
     <div id="app-view" style="display: none;">
         <header class="app-header">
             <div class="app-header-text">
-                <img src="https://vlvpffaathuksyqvpkpd.supabase.co/storage/v1/object/public/assets/carebridge%20logotipo.png?v=2" alt="CareBridge Logo" style="max-width: 200px; height: auto;">
+                <img src="https://vlvpffaathuksyqvpkpd.supabase.co/storage/v1/object/public/assets/carebridge%20logotipo.png?v=2" alt="CareBridge Logo">
                 <p id="header-nome-familia">Painel da Família</p>
             </div>
-            <div style="display: flex; align-items: center; gap: 20px;">
-                <!-- Ícone da Lâmpada do Tour Guiado -->
+            <div class="header-actions">
                 <div style="cursor: pointer; position: relative;" onclick="iniciarTutorial()" title="Rever Tutorial">
                     <span style="font-size: 1.4rem;">💡</span>
                 </div>
@@ -800,14 +795,26 @@
 
         async function criarFamiliaEDependente() { 
             const nomeFam = document.getElementById('lobby-nome-familia').value;
-            const depNm = document.getElementById('dep-nome').value; const depCpf = document.getElementById('dep-cpf').value; const depDt = document.getElementById('dep-nascimento').value;
-            const depTel = document.getElementById('dep-telefone').value; const depEm = document.getElementById('dep-email').value; const depSn = document.getElementById('dep-senha').value;
+            const depNm = document.getElementById('dep-nome').value; 
+            const depCpf = document.getElementById('dep-cpf').value; 
+            const depDt = document.getElementById('dep-nascimento').value;
+            const depTel = document.getElementById('dep-telefone').value || ''; 
+            let depEm = document.getElementById('dep-email').value || ''; 
+            const depSn = document.getElementById('dep-senha').value;
             const conf = document.getElementById('dep-confirma').value;
             const btn = document.getElementById('btn-criar-familia');
             
-            if(!nomeFam || !depNm || !depDt || !depTel || !depEm || !depSn) return alert("⚠️ Preencha os campos obrigatórios.");
+            if(!nomeFam || !depNm || !depDt || !depSn) return alert("⚠️ Preencha Nome do Grupo Familiar, Nome do Paciente, Nascimento e Senha.");
             if(depCpf && !validarCPF(depCpf)) return alert("⚠️ CPF do paciente inválido.");
+            if(depEm && !validarEmail(depEm)) return alert("⚠️ E-mail inválido.");
             if(depSn !== conf) return alert("⚠️ As senhas do paciente não coincidem.");
+
+            // Gerador de e-mail fictício caso o campo esteja vazio (Auth do Supabase exige e-mail)
+            if(!depEm) {
+                const numAleatorio = Math.floor(Math.random() * 10000);
+                const nomeLimpo = depNm.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+                depEm = `${nomeLimpo}${numAleatorio}@dependente.local`;
+            }
 
             btn.innerText = "Processando...";
             if (await verificarSenhaVazada(depSn)) {
@@ -979,10 +986,11 @@
 
         function iniciarTutorial(forcarRecomeco = false) {
             currentTourStep = 0;
-            if(forcarRecomeco) openTabApp('timeline'); // Força a volta pra timeline se clicou no menu
+            if(forcarRecomeco) openTabApp('timeline');
             document.getElementById('tour-overlay').style.display = 'block';
             document.getElementById('tour-spotlight').style.display = 'none';
             document.getElementById('tour-tooltip').style.display = 'none';
+            document.body.classList.add('tour-active');
             renderizarStepAtual();
         }
 
@@ -991,6 +999,7 @@
             document.getElementById('tour-modal').style.display = 'none';
             document.getElementById('tour-spotlight').style.display = 'none';
             document.getElementById('tour-tooltip').style.display = 'none';
+            document.body.classList.remove('tour-active');
             
             // Dispara Confetes
             if (currentTourStep === tourSteps.length - 1) {
@@ -1014,6 +1023,7 @@
             }
             document.getElementById('tour-overlay').style.display = 'none';
             document.getElementById('tour-modal').style.display = 'none';
+            document.body.classList.remove('tour-active');
         }
 
         function tourProximo() {
@@ -1076,24 +1086,33 @@
                             spotlight.style.width = `${rect.width + (padding*2)}px`;
                             spotlight.style.height = `${rect.height + (padding*2)}px`;
                             
-                            // Posiciona o Tooltip (Caixa de Texto)
+                            // Define Textos
                             document.getElementById('tour-title').innerText = step.title;
                             document.getElementById('tour-text').innerText = step.text;
                             
-                            // Lógica básica de posicionamento do tooltip
+                            // Exibe para calcular o tamanho exato da caixa
                             tooltip.style.display = 'block';
-                            let tooltipTop = rect.bottom + padding + 15;
+                            const tooltipRect = tooltip.getBoundingClientRect();
                             
-                            // Se sair da tela para baixo, joga para cima
-                            if (tooltipTop + 200 > window.innerHeight) {
-                                tooltipTop = rect.top - padding - 200; // Aproximação da altura do tooltip
+                            // Lógica Inteligente de Posicionamento da Caixa
+                            let tooltipTop = rect.bottom + padding + 15;
+                            let tooltipLeft = Math.max(10, rect.left);
+                            
+                            // Se a caixa passar para baixo da tela, joga ela pra cima do elemento iluminado
+                            if (tooltipTop + tooltipRect.height > window.innerHeight) {
+                                tooltipTop = rect.top - padding - tooltipRect.height - 15;
                             }
                             
-                            tooltip.style.top = `${tooltipTop}px`;
-                            tooltip.style.left = `${Math.max(10, rect.left)}px`;
-                        }, 400); // Aguarda o scroll
+                            // Se a caixa passar para direita da tela, alinha a margem
+                            if (tooltipLeft + tooltipRect.width > window.innerWidth) {
+                                tooltipLeft = window.innerWidth - tooltipRect.width - 15;
+                            }
+                            
+                            tooltip.style.top = `${Math.max(10, tooltipTop)}px`;
+                            tooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
+                        }, 400); // Aguarda o término do scroll
                     }
-                }, 150); // Aguarda a troca de aba do DOM
+                }, 150); // Aguarda a troca da aba no DOM
             }
         }
         // =========================================================================================
