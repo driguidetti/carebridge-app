@@ -608,6 +608,7 @@
         }
 
         async function fazerLogout() { if(confirm("Deseja realmente sair?")) { await clienteSupabase.auth.signOut(); window.location.reload(); } }
+        
         async function recuperarSenha() {
             const em = document.getElementById('login-email').value;
             if(!em || !validarEmail(em)) return alert("⚠️ Digite o seu e-mail no campo.");
@@ -617,6 +618,7 @@
             if (error) { msg.style.backgroundColor = 'var(--danger-bg)'; msg.style.color = 'var(--danger)'; msg.innerText = "Erro ao enviar: " + error.message; } 
             else { msg.style.backgroundColor = 'var(--success-bg)'; msg.style.color = 'var(--success)'; msg.innerText = `Link enviado para ${em}`; }
         }
+        
         async function salvarNovaSenha() {
             const btn = document.getElementById('btn-salvar-senha');
             const novaSenha = document.getElementById('nova-senha').value;
@@ -1000,7 +1002,9 @@
 
                 if(rotina.status === 'concluido') {
                     const btnDeleteDone = isAdm ? `<button class="btn-trash" onclick="abrirModalExclusao('${rotina.id}')" title="Excluir rotina concluída">🗑️</button>` : '';
-                    const linkComprovante = rotina.fotoUrl ? `<br><a href="${rotina.fotoUrl}" target="_blank" style="font-size:0.8rem; color:var(--primary); font-weight:600; margin-top:5px; display:inline-block;">📷 Ver Comprovante</a>` : '';
+                    
+                    // Link com estilo de botão visível
+                    const linkComprovante = rotina.fotoUrl ? `<br><a href="${rotina.fotoUrl}" target="_blank" style="background: var(--primary); color: var(--accent); padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold; display: inline-block; margin-top: 8px;">📷 Visualizar Foto</a>` : '';
                     
                     ul.innerHTML += `<li class="task-done" style="border-left: 4px solid var(--success); background-color: var(--success-bg); display:flex; justify-content:space-between; align-items:center;">
                                         <div>
@@ -1125,7 +1129,13 @@
             const { error } = await clienteSupabase.from('rotinas').update({ status: 'concluido', obs: obs, concluido_por: usuarioAtual.nome, foto_url: fotoUrlFinal }).eq('id', idTarefa);
             if (error) { btn.innerText = txtOrig; alert("❌ Erro ao concluir tarefa: " + error.message); return; }
 
-            adicionarNaTimeline(`Tarefa Concluída`, `A tarefa <strong>${rotina.nome}</strong> foi finalizada.<br><small>✅ Confirmado por: <strong>${usuarioAtual.nome}</strong></small> ${obs ? `<br><em>Obs: ${obs}</em>` : ''}`);
+            let htmlTimeline = `A tarefa <strong>${rotina.nome}</strong> foi finalizada.<br><small>✅ Confirmado por: <strong>${usuarioAtual.nome}</strong></small>`;
+            if (obs) htmlTimeline += `<br><em>Obs: ${obs}</em>`;
+            
+            // Botão da foto na Linha do Tempo
+            if (fotoUrlFinal) htmlTimeline += `<br><a href="${fotoUrlFinal}" target="_blank" style="background: var(--primary); color: var(--accent); padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold; display: inline-block; margin-top: 8px;">📷 Visualizar Foto</a>`;
+
+            adicionarNaTimeline(`Tarefa Concluída`, htmlTimeline);
             
             if (rotina.freq !== 'Único' && rotina.fimTipo === 'manual') {
                 const proxData = calcularProximaData(rotina.dataHora, rotina.freq, rotina.hrExtra);
