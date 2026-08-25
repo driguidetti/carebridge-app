@@ -82,19 +82,23 @@
         ul.list-clean li:last-child { border-bottom: none; }
         .task-done { background-color: var(--success-bg); padding: 10px; border-radius: 12px; border: none !important; margin-bottom: 5px;}
         .status-tag { display: block; font-size: 0.85rem; font-weight: bold; margin-top: 10px; }
+        
         .btn-main { background-color: var(--accent); color: var(--surface); border: none; padding: 14px 20px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; width: 100%; margin-top: 15px; transition: all 0.2s; box-shadow: 0 4px 6px rgba(231, 162, 58, 0.3); }
         .btn-main:hover { background-color: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 8px rgba(231, 162, 58, 0.4); }
         .btn-outline { background-color: transparent; color: var(--primary); border: 1px solid var(--primary); margin-top: 15px; padding: 8px 16px; font-size: 0.9rem; font-weight: 600; width: auto; display: inline-block; cursor: pointer; border-radius: 8px; transition: 0.2s; }
         .btn-outline:hover { background-color: var(--border); }
+        .btn-filter-toggle { display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; background-color: var(--surface); color: var(--primary); border: 1px solid var(--border); padding: 10px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; cursor: pointer; margin-bottom: 15px; transition: 0.2s; }
+        .btn-filter-toggle:hover { background-color: var(--bg-color); border-color: var(--primary); }
         .btn-danger { background-color: var(--danger-bg); color: var(--danger); border: none; font-weight: 600; margin-top: 15px; padding: 12px; width: 100%; border-radius: 10px; cursor: pointer; transition: 0.2s;}
         .btn-success { background-color: var(--success-bg); color: var(--success); border: none; font-weight: 600; margin-top: 15px; padding: 12px; width: 100%; border-radius: 10px; cursor: pointer;}
+        
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(67, 85, 122, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; overflow-y: auto; padding: 20px 0; }
         .modal { background: var(--surface); padding: 30px 25px; border-radius: 20px; width: 90%; max-width: 450px; position: relative; margin: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); animation: slideUp 0.3s ease;}
         .close-btn { position: absolute; top: 15px; right: 20px; cursor: pointer; font-size: 1.8rem; border: none; background: none; color: var(--text-muted); transition: 0.2s;}
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-group label { display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600; color: var(--text-main);}
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; background-color: var(--bg-color); color: var(--text-main); transition: all 0.2s; resize: vertical; }
-        .form-group input:focus, .form-group select, .form-group textarea:focus { outline: none; border-color: var(--primary); background-color: var(--surface); box-shadow: 0 0 0 4px rgba(67, 85, 122, 0.1); }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background-color: var(--surface); box-shadow: 0 0 0 4px rgba(67, 85, 122, 0.1); }
         .flex-row { display: flex; gap: 10px; align-items: flex-start; }
         .flex-1 { flex: 1; }
         .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 15px; }
@@ -106,6 +110,15 @@
         .pwd-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none; opacity: 0.6; transition: 0.2s; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; }
         .pwd-toggle:hover { opacity: 1; }
         .pwd-toggle svg { width: 22px; height: 22px; stroke: var(--text-main); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        
+        /* Clicar na data para recolher */
+        .date-header { cursor: pointer; background: var(--bg-color); font-size: 0.85rem; font-weight: bold; color: var(--primary); padding: 10px; border-radius: 6px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .date-header:hover { background: #e5e7eb; }
+        .date-header::after { content: '▼'; font-size: 0.7rem; transition: transform 0.3s; }
+        .date-header.collapsed::after { transform: rotate(-90deg); }
+        
+        .hidden-filters { display: none; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px; animation: fadeIn 0.3s; }
+        .hidden-filters.show { display: flex; }
 
         /* ================= TOUR GUIADO CSS ================= */
         #tour-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; display: none; }
@@ -186,7 +199,7 @@
                         <div class="form-group flex-1"><label>Nascimento</label><input type="date" id="cad-nascimento"></div>
                     </div>
                     <div class="flex-row">
-                        <div class="form-group flex-1"><label>Telefone</label><input type="text" id="cad-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div>
+                        <div class="form-group flex-1"><label>Telefone (Opcional)</label><input type="text" id="cad-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div>
                         <div class="form-group flex-1"><label>E-mail</label><input type="email" id="cad-email"></div>
                     </div>
                     <div class="flex-row">
@@ -335,7 +348,14 @@
         <main id="timeline" class="tab-content active">
             <h2 class="section-title">Últimas Atualizações</h2>
 
-            <div id="tour-timeline-filters" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px;">
+            <!-- Botão de Filtro Toggle -->
+            <button class="btn-filter-toggle" onclick="toggleFiltros('filtros-timeline')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                Filtros e Buscas ▾
+            </button>
+
+            <!-- Área de Filtros Oculta -->
+            <div id="filtros-timeline" class="hidden-filters">
                 <input type="text" id="filtro-texto-timeline" placeholder="Buscar atualizações..." oninput="carregarTimeline()" style="flex: 1; min-width: 150px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
                 <input type="date" id="filtro-data-timeline" onchange="carregarTimeline()" style="padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
                 
@@ -349,7 +369,7 @@
                     <option value="">Todos os Responsáveis</option>
                 </select>
 
-                <button class="btn-outline" style="margin-top: 0; padding: 8px 12px;" onclick="limparFiltrosTimeline()">Limpar</button>
+                <button class="btn-outline" style="margin-top: 0; padding: 8px 12px;" onclick="limparFiltrosTimeline()">Limpar Filtros</button>
             </div>
 
             <div id="timeline-feed"></div>
@@ -358,49 +378,68 @@
         <main id="saude" class="tab-content">
             <h2 class="section-title">Prontuário Unificado</h2>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <button class="btn-filter-toggle" onclick="toggleFiltros('filtros-saude')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                Filtros e Buscas ▾
+            </button>
+
+            <div id="filtros-saude" class="hidden-filters" style="justify-content: space-between;">
                 <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 200px;">
                     <input type="text" id="filtro-texto-saude" placeholder="Buscar registros ou remédios..." oninput="aplicarFiltrosSaude()" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <label style="font-size: 0.9rem; font-weight: 600;">Data:</label>
                     <input type="date" id="filtro-data-saude" onchange="aplicarFiltrosSaude()" style="padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
                     <button class="btn-outline" style="margin-top: 0; padding: 8px 12px;" onclick="limparFiltrosSaude()">Limpar</button>
                 </div>
             </div>
 
-            <div class="card" id="card-vitais-tour"><strong>Sinais Vitais</strong><ul class="list-clean" id="lista-vitais"></ul><button class="btn-outline" style="width: 100%;" onclick="openModal('modal-vitais')">Registrar Sinal Vital +</button></div>
-            <div class="card" id="card-meds-tour"><strong>Medicamentos Ativos</strong><ul class="list-clean" id="lista-medicamentos"></ul><button class="btn-outline" style="width: 100%;" onclick="openModal('modal-medicamento')">Adicionar Medicamento</button></div>
+            <div class="card" id="card-vitais-tour"><strong>Sinais Vitais</strong><ul class="list-clean" id="lista-vitais"></ul><button class="btn-outline" style="width: 100%;" onclick="openModal('modal-vitais')">Registrar Histórico Antigo +</button></div>
+            <div class="card" id="card-meds-tour"><strong>Medicamentos Ativos</strong><ul class="list-clean" id="lista-medicamentos"></ul><button class="btn-outline" style="width: 100%;" onclick="openModal('modal-medicamento')">Registrar Histórico Antigo +</button></div>
         </main>
 
         <main id="gestao" class="tab-content">
             <h2 class="section-title">Escala Operacional</h2>
             <div class="card" id="card-planejamento-tour" style="border-left-color: var(--text-muted); background-color: #f8fafc;">
-                <strong>Planejamento Estrutural</strong><p>Configure a rotina semanal e os horários das tarefas.</p>
-                <button class="btn-outline" id="btn-config-turno-tour" style="width: 100%; border-style: dashed;" onclick="openModal('modal-itinerario')">+ Configurar Novo Turno</button>
+                <strong>Planejamento Estrutural</strong><p>Configure a rotina semanal, banhos e aferição de medicamentos.</p>
+                <button class="btn-outline" id="btn-config-turno-tour" style="width: 100%; border-style: dashed;" onclick="openModal('modal-itinerario')">+ Agendar Nova Tarefa / Medicação</button>
             </div>
             
-            <div id="tour-gestao-filtros" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                    <label style="font-size: 0.9rem; font-weight: 600;">Filtros:</label>
-                    <input type="date" id="filtro-data-rotina" onchange="renderizarRotinas()" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
-                    <select id="filtro-turno-rotina" onchange="renderizarRotinas()" style="padding: 6px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
-                        <option value="">Todos os Turnos</option>
-                        <option value="☀️ Manhã">☀️ Manhã (06h - 11h59)</option>
-                        <option value="☕ Tarde">☕ Tarde (12h - 17h59)</option>
-                        <option value="🌙 Noite">🌙 Noite (18h - 05h59)</option>
-                    </select>
-                    <select id="filtro-resp-rotina" onchange="renderizarRotinas()" style="padding: 6px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
-                        <option value="">Todos os Responsáveis</option>
-                    </select>
-                    <button class="btn-outline" style="margin-top: 0; padding: 6px 10px;" onclick="limparFiltroRotina()">Limpar</button>
-                </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <button class="btn-filter-toggle" style="margin-bottom: 0; width: auto; padding: 6px 12px;" onclick="toggleFiltros('filtros-rotina')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg> Filtros
+                </button>
                 <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500; background: #e5e7eb; padding: 4px 10px; border-radius: 12px;">
-                    ⏱ Atualiza status em: <strong id="contador-atualizacao" style="color: var(--primary);">60</strong>s
+                    ⏱ Atualiza em: <strong id="contador-atualizacao" style="color: var(--primary);">60</strong>s
                 </div>
             </div>
 
-            <div class="card"><strong>Rotina Pendente / Concluída</strong><ul class="list-clean" id="lista-tarefas"></ul><button class="btn-main" id="btn-checkin-tour" onclick="abrirModalCheckin()">📷 Fazer Check-in de Tarefa</button></div>
+            <div id="filtros-rotina" class="hidden-filters">
+                <input type="date" id="filtro-data-rotina" onchange="renderizarRotinas()" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
+                
+                <select id="filtro-status-rotina" onchange="renderizarRotinas()" style="padding: 6px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
+                    <option value="pendentes">Pendentes / Atrasadas</option>
+                    <option value="concluidas">Tarefas Concluídas</option>
+                    <option value="todas">Mostrar Todas</option>
+                </select>
+
+                <select id="filtro-turno-rotina" onchange="renderizarRotinas()" style="padding: 6px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
+                    <option value="">Todos os Turnos</option>
+                    <option value="☀️ Manhã">☀️ Manhã (06h - 11h59)</option>
+                    <option value="☕ Tarde">☕ Tarde (12h - 17h59)</option>
+                    <option value="🌙 Noite">🌙 Noite (18h - 05h59)</option>
+                </select>
+
+                <select id="filtro-resp-rotina" onchange="renderizarRotinas()" style="padding: 6px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
+                    <option value="">Todos os Responsáveis</option>
+                </select>
+                <button class="btn-outline" style="margin-top: 0; padding: 6px 10px;" onclick="limparFiltroRotina()">Limpar</button>
+            </div>
+
+            <div class="card" style="padding: 15px;">
+                <strong>Tarefas Agendadas</strong>
+                <ul class="list-clean" id="lista-tarefas"></ul>
+                <button class="btn-main" id="btn-checkin-tour" onclick="abrirModalCheckin()">📷 Fazer Check-in de Tarefa</button>
+            </div>
         </main>
 
         <main id="relatorios" class="tab-content">
@@ -438,10 +477,20 @@
     <div id="modal-itinerario" class="modal-overlay">
         <div class="modal">
             <button class="close-btn" onclick="closeModal('modal-itinerario')">&times;</button>
-            <h3 style="margin-bottom: 20px;">Configurar Turno</h3>
+            <h3 style="margin-bottom: 20px;">Agendar Nova Tarefa</h3>
+            
+            <div class="form-group">
+                <label>Tipo de Agendamento</label>
+                <select id="itin-tipo-tarefa" onchange="alternarCamposTarefa()">
+                    <option value="Geral">Tarefa Comum (Banho, Fisioterapia, etc)</option>
+                    <option value="Sinal Vital">Aferição de Sinal Vital (Pressão, Glicemia)</option>
+                    <option value="Medicamento">Administração de Medicamento</option>
+                </select>
+            </div>
+
             <div class="flex-row">
                 <div class="form-group flex-1"><label>Data Início</label><input type="date" id="itin-data"></div>
-                <div class="form-group flex-1"><label>Início (Hora)</label><input type="time" id="itin-horario"></div>
+                <div class="form-group flex-1"><label>Horário Inicial</label><input type="time" id="itin-horario"></div>
             </div>
             <div class="form-group">
                 <label>Responsável</label>
@@ -451,17 +500,30 @@
                 <label>Frequência</label>
                 <select id="itin-freq" onchange="verificarFrequencia()">
                     <option value="Único">Único (Sem repetição)</option>
-                    <option value="Diariamente">Diariamente</option>
-                    <option value="A cada X horas">A cada X horas</option>
-                    <option value="Mensal">Mensal</option>
-                    <option value="Anual">Anual</option>
+                    <option value="Diariamente">Diariamente (No mesmo horário)</option>
+                    <option value="A cada X horas">Repetir a cada X horas</option>
+                    <option value="Mensal">Mensalmente</option>
                 </select>
             </div>
-            <div class="form-group" id="grupo-itin-horas" style="display: none;"><label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8"></div>
-            <div class="form-group"><label>Fim da Repetição</label><select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser excluído)</option></select></div>
+            <div class="form-group" id="grupo-itin-horas" style="display: none;"><label>Repetir a cada quantas horas?</label><input type="number" id="itin-freq-horas" placeholder="Ex: 8 (para 8 em 8 horas)"></div>
+            <div class="form-group"><label>Fim da Repetição</label><select id="itin-fim" onchange="verificarFimCondicao()"><option value="manual">Manual (Até ser cancelado)</option></select></div>
             <div class="form-group" id="grupo-itin-fim" style="display: none;"><input type="text" id="itin-fim-valor" placeholder=""></div>
-            <div class="form-group"><label>Tarefas (Separe por vírgula)</label><textarea id="itin-tarefas" rows="3" placeholder="Ex: Antibiótico 500mg, Fisioterapia, Banho"></textarea></div>
-            <button class="btn-main" onclick="salvarItinerario()">Agendar Tarefas</button>
+            
+            <!-- Campos Dinâmicos (Alternam no JS) -->
+            <div class="form-group" id="grupo-itin-geral">
+                <label>Descrição da Tarefa</label>
+                <input type="text" id="itin-tarefas" placeholder="Ex: Fisioterapia, Banho">
+            </div>
+            <div class="form-group" id="grupo-itin-vital" style="display: none;">
+                <label>Qual Sinal Vital medir?</label>
+                <select id="itin-vital-sel"></select>
+            </div>
+            <div class="form-group" id="grupo-itin-med" style="display: none;">
+                <label>Qual Medicamento e Dosagem?</label>
+                <input type="text" id="itin-med-nome" placeholder="Ex: Dipirona 500mg">
+            </div>
+
+            <button class="btn-main" onclick="salvarItinerario()">Agendar na Escala</button>
         </div>
     </div>
     
@@ -479,19 +541,32 @@
     </div>
 
     <div id="modal-excluir-rotina" class="modal-overlay"><div class="modal"><h3 style="margin-bottom: 15px;">Excluir Rotina</h3><p style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.95rem;">Esta tarefa faz parte de uma série de repetições agendadas. O que você deseja fazer?</p><button class="btn-outline" style="width: 100%; margin-bottom: 10px;" onclick="executarExclusaoRotina('unica')">🗑️ Excluir APENAS esta tarefa</button><button class="btn-danger" style="width: 100%; margin-bottom: 15px; margin-top: 0;" onclick="executarExclusaoRotina('serie')">🚨 Excluir TODA a série futura</button><button class="btn-outline" style="width: 100%; border: none; color: var(--text-muted);" onclick="closeModal('modal-excluir-rotina')">Cancelar</button></div></div>
-    <div id="modal-vitais" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-vitais')">&times;</button><h3 style="margin-bottom: 20px;">Registrar Sinal Vital</h3><div class="form-group"><label>Sinal Vital</label><select id="vital-tipo"></select><span class="password-hint" id="vital-hint"></span></div><div class="form-group"><label>Resultado Medido</label><input type="text" id="vital-valor" placeholder="Ex: 120/80 ou 95"></div><div class="form-group"><label>Observações (Opcional)</label><input type="text" id="vital-obs" placeholder="Ex: Paciente estava deitado"></div><button class="btn-main" onclick="salvarSinalVital()">Salvar Medição</button></div></div>
-    <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Novo Medicamento</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário do Primeiro Consumo</label><input type="time" id="med-hora"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs" placeholder="Ex: Após o almoço"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
     
     <div id="modal-checkin" class="modal-overlay">
         <div class="modal">
             <button class="close-btn" onclick="closeModal('modal-checkin')">&times;</button>
             <h3 style="margin-bottom: 20px;">Check-in de Tarefa</h3>
-            <div class="form-group"><label>Qual tarefa você concluiu?</label><select id="checkin-tarefa"></select></div>
+            <div class="form-group">
+                <label>Qual tarefa você concluiu?</label>
+                <select id="checkin-tarefa" onchange="verificarTipoCheckin()"></select>
+            </div>
+            
+            <!-- Aparece apenas se a tarefa selecionada for SINAL VITAL -->
+            <div class="form-group" id="grupo-checkin-valor" style="display: none; background: #fffbeb; padding: 15px; border-left: 4px solid var(--accent); border-radius: 8px;">
+                <label style="color: var(--accent-hover);">Valor Medido (<span id="checkin-unidade-label"></span>)</label>
+                <input type="text" id="checkin-valor" placeholder="Ex: 120/80 ou 36.5" style="border-color: var(--accent);">
+                <span class="password-hint" id="checkin-hint-vital"></span>
+            </div>
+
             <div class="form-group"><label>Observações (Opcional):</label><input type="text" id="checkin-obs" placeholder="Ex: Aceitou bem a medicação"></div>
             <div class="form-group"><label>Comprovante (Foto - Opcional):</label><input type="file" id="checkin-foto" accept="image/*" capture="environment" style="background: transparent; border: none; padding: 0;"></div>
-            <button class="btn-main" id="btn-concluir-tarefa" onclick="salvarCheckin()">Concluir Tarefa</button>
+            <button class="btn-main" id="btn-concluir-tarefa" onclick="salvarCheckin()">Registrar Conclusão</button>
         </div>
     </div>
+
+    <!-- Modais legados para registro histórico sem agendamento -->
+    <div id="modal-vitais" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-vitais')">&times;</button><h3 style="margin-bottom: 20px;">Registrar Histórico Antigo</h3><div class="form-group"><label>Sinal Vital</label><select id="vital-tipo"></select><span class="password-hint" id="vital-hint"></span></div><div class="form-group"><label>Resultado Medido</label><input type="text" id="vital-valor" placeholder="Ex: 120/80 ou 95"></div><div class="form-group"><label>Observações (Opcional)</label><input type="text" id="vital-obs"></div><button class="btn-main" onclick="salvarSinalVital()">Salvar Medição</button></div></div>
+    <div id="modal-medicamento" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-medicamento')">&times;</button><h3 style="margin-bottom: 20px;">Registrar Medicamento Ativo (Legado)</h3><div class="form-group"><label>Nome e Dosagem</label><input type="text" id="med-nome" placeholder="Ex: Dipirona 500mg"></div><div class="form-group"><label>Horário Referência</label><input type="time" id="med-hora"></div><div class="form-group"><label>Observações</label><input type="text" id="med-obs"></div><button class="btn-main" onclick="salvarMedicamento()">Confirmar</button></div></div>
     
     <div id="modal-parametro" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-parametro')">&times;</button><h3 style="margin-bottom: 20px;" id="param-titulo">Editar Parâmetro</h3><div id="param-inputs"></div><button class="btn-main" onclick="salvarParametro()">Atualizar Referência</button></div></div>
     <div id="modal-novo-sinal" class="modal-overlay"><div class="modal"><button class="close-btn" onclick="closeModal('modal-novo-sinal')">&times;</button><h3 style="margin-bottom: 20px;">Novo Sinal Vital</h3><div class="form-group"><label>Nome do Sinal (Ex: Nível de Dor)</label><input type="text" id="ns-nome"></div><div class="flex-row"><div class="form-group flex-1"><label>Mínimo Ideal</label><input type="number" step="0.1" id="ns-min"></div><div class="form-group flex-1"><label>Máximo Ideal</label><input type="number" step="0.1" id="ns-max"></div></div><div class="form-group"><label>Unidade de Medida (Ex: mg/dL, bpm)</label><input type="text" id="ns-unidade" placeholder="Opcional"></div><button class="btn-main" onclick="salvarNovoSinal()">Criar Parâmetro</button></div></div>
@@ -502,7 +577,7 @@
             <h3 style="margin-bottom: 20px;">Cadastrar Novo Usuário</h3>
             <div class="form-group"><label>Nome Completo</label><input type="text" id="usr-nome"></div>
             <div class="flex-row"><div class="form-group flex-1"><label>CPF (Opcional)</label><input type="text" id="usr-cpf" maxlength="14" oninput="mascaraCPF(this)"></div><div class="form-group flex-1"><label>Nascimento</label><input type="date" id="usr-nascimento"></div></div>
-            <div class="flex-row"><div class="form-group flex-1"><label>Telefone</label><input type="text" id="usr-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="form-group flex-1"><label>E-mail</label><input type="email" id="usr-email"></div></div>
+            <div class="flex-row"><div class="form-group flex-1"><label>Telefone (Opcional)</label><input type="text" id="usr-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="form-group flex-1"><label>E-mail</label><input type="email" id="usr-email"></div></div>
             <div class="form-group">
                 <label>Definir Senha de Acesso</label>
                 <div class="pwd-container">
@@ -527,7 +602,7 @@
             <h3 style="margin-bottom: 20px;">Gerenciar Cadastro</h3>
             <div class="form-group"><label>Nome</label><input type="text" id="edit-nome"></div>
             <div class="flex-row"><div class="form-group flex-1"><label>CPF</label><input type="text" id="edit-cpf" maxlength="14" oninput="mascaraCPF(this)"></div><div class="form-group flex-1"><label>Nascimento</label><input type="date" id="edit-nascimento"></div></div>
-            <div class="flex-row"><div class="form-group flex-1"><label>Telefone</label><input type="text" id="edit-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="form-group flex-1"><label>E-mail</label><input type="email" id="edit-email"></div></div>
+            <div class="flex-row"><div class="form-group flex-1"><label>Telefone (Opcional)</label><input type="text" id="edit-telefone" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="form-group flex-1"><label>E-mail</label><input type="email" id="edit-email"></div></div>
             <div class="form-group">
                 <label>Perfil</label>
                 <select id="edit-perfil"><option value="Cuidador">Cuidador</option><option value="Observador">Observador</option><option value="Administrador">Administrador</option><option value="Dependente">Dependente (Paciente)</option></select>
@@ -545,18 +620,16 @@
         </div>
     </div>
 
-    <!-- ========================================================================= -->
-    <!-- LÓGICA JAVASCRIPT UNIFICADA -->
+<!-- ========================================================================= -->
+    <!-- LÓGICA JAVASCRIPT UNIFICADA - VERSÃO 2.0 (SAÚDE INTEGRADA) -->
     <!-- ========================================================================= -->
     <script>
-        // 1. CREDENCIAIS DO SUPABASE (REAIS)
+        // 1. CREDENCIAIS DO SUPABASE
         const supabaseUrl = 'https://vlvpffaathuksyqvpkpd.supabase.co'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsdnBmZmFhdGh1a3N5cXZwa3BkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxODk5MTgsImV4cCI6MjEwMjc2NTkxOH0.WnibeFstwbt2CR1lLkS5pB9GaH7slCd_y6pBA1PNdrU';
         
         const clienteSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        const supabaseTemp = window.supabase.createClient(supabaseUrl, supabaseKey, {
-            auth: { persistSession: false, autoRefreshToken: false }
-        });
+        const supabaseTemp = window.supabase.createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false, autoRefreshToken: false } });
 
         // SVG Icons
         const svgEyeOpen = `<svg class="icon-eye-open" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
@@ -584,25 +657,24 @@
         let graficos = {};
         let contadorNotificacoes = 0;
 
-        // --- VALIDADORES E SEGURANÇA ---
+        // --- VALIDADORES E INTERFACE GERAL ---
         function mascaraCPF(c) { let v=c.value.replace(/\D/g,""); v=v.replace(/(\d{3})(\d)/,"$1.$2"); v=v.replace(/(\d{3})(\d)/,"$1.$2"); c.value=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2"); }
         function mascaraTelefone(c) { let v=c.value.replace(/\D/g,""); v=v.replace(/^(\d{2})(\d)/g,"($1) $2"); c.value=v.replace(/(\d)(\d{4})$/,"$1-$2"); }
         function validarEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
         function validarCPF(c) { return /^\d{3}\.\d{3}\.\d{3}\-\d{2}$/.test(c); }
         function validarTelefone(t) { return t.length >= 14; }
-        
         function validarSenha(s) { return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$!]).{7,}$/.test(s); }
 
         function togglePassword(id) {
-            const input = document.getElementById(id);
-            const toggleSpan = input.nextElementSibling;
-            if (input.type === 'password') {
-                input.type = 'text';
-                toggleSpan.innerHTML = svgEyeOpen;
-            } else {
-                input.type = 'password';
-                toggleSpan.innerHTML = svgEyeClosed;
-            }
+            const input = document.getElementById(id); const toggleSpan = input.nextElementSibling;
+            if (input.type === 'password') { input.type = 'text'; toggleSpan.innerHTML = svgEyeOpen; } else { input.type = 'password'; toggleSpan.innerHTML = svgEyeClosed; }
+        }
+
+        // Função de exibir/ocultar Filtros
+        function toggleFiltros(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('show')) el.classList.remove('show');
+            else el.classList.add('show');
         }
 
         async function verificarSenhaVazada(senha) {
@@ -617,9 +689,7 @@
                 const res = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
                 const text = await res.text();
                 return text.includes(suffix);
-            } catch (e) {
-                return false; 
-            }
+            } catch (e) { return false; }
         }
 
         function mudarAbaAuth(aba) {
@@ -639,57 +709,32 @@
 
         // --- 3. INICIALIZAÇÃO ---
         async function iniciarAplicativo(session) {
-            if (!session) {
-                document.getElementById('auth-view').style.display = 'flex';
-                document.getElementById('lobby-view').style.display = 'none';
-                document.getElementById('app-view').style.display = 'none';
-                return;
-            }
-
+            if (!session) { document.getElementById('auth-view').style.display = 'flex'; document.getElementById('lobby-view').style.display = 'none'; document.getElementById('app-view').style.display = 'none'; return; }
             try {
                 document.getElementById('auth-view').style.display = 'none';
                 let { data: userData, error } = await clienteSupabase.from('usuarios').select('*').eq('id', session.user.id).single();
 
                 if (!userData) {
                     const metadados = session.user.user_metadata || {};
-                    const newUser = {
-                        id: session.user.id, email: session.user.email,
-                        nome: metadados.nome || metadados.full_name || 'Usuário',
-                        cpf: metadados.cpf || '', telefone: metadados.telefone || '',
-                        perfil: 'Administrador', ativo: true, tutorial_visto: false
-                    };
-                    await clienteSupabase.from('usuarios').insert([newUser]);
-                    userData = newUser;
+                    const newUser = { id: session.user.id, email: session.user.email, nome: metadados.nome || metadados.full_name || 'Usuário', cpf: metadados.cpf || '', telefone: metadados.telefone || '', perfil: 'Administrador', ativo: true, tutorial_visto: false };
+                    await clienteSupabase.from('usuarios').insert([newUser]); userData = newUser;
                 }
 
-                if (userData.ativo === false) {
-                    alert("🚫 Acesso negado: Seu usuário foi inativado pelo administrador da família.");
-                    await clienteSupabase.auth.signOut();
-                    window.location.reload();
-                    return;
-                }
+                if (userData.ativo === false) { alert("🚫 Acesso negado: Seu usuário foi inativado."); await clienteSupabase.auth.signOut(); window.location.reload(); return; }
 
                 if (userData.familia_id) {
                     const { data: famData } = await clienteSupabase.from('familias').select('*').eq('id', userData.familia_id).single();
-                    userData.familias = famData;
-                    
-                    usuarioAtual = userData; 
+                    userData.familias = famData; usuarioAtual = userData; 
                     abrirPainelReal(userData);
                 } else {
-                    document.getElementById('lobby-view').style.display = 'flex';
-                    document.getElementById('app-view').style.display = 'none';
+                    document.getElementById('lobby-view').style.display = 'flex'; document.getElementById('app-view').style.display = 'none';
                 }
-            } catch (e) {
-                alert("❌ Erro interno ao carregar dados: " + e.message);
-                document.getElementById('auth-view').style.display = 'flex'; 
-            }
+            } catch (e) { alert("❌ Erro interno: " + e.message); document.getElementById('auth-view').style.display = 'flex'; }
         }
 
         clienteSupabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'PASSWORD_RECOVERY') {
-                document.getElementById('auth-tabs-container').style.display = 'none';
-                document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
-                document.getElementById('form-redefinir').classList.add('active');
+                document.getElementById('auth-tabs-container').style.display = 'none'; document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active')); document.getElementById('form-redefinir').classList.add('active');
             }
         });
 
@@ -697,239 +742,156 @@
             if (window.location.hash.includes('type=recovery')) return;
             setInterval(() => {
                 tempoAtualizacao--;
-                if(tempoAtualizacao <= 0) {
-                    atualizarStatusRotina(); 
-                    tempoAtualizacao = 60;
-                }
+                if(tempoAtualizacao <= 0) { atualizarStatusRotina(); tempoAtualizacao = 60; }
                 const contadorEl = document.getElementById('contador-atualizacao');
                 if(contadorEl) contadorEl.innerText = tempoAtualizacao.toString().padStart(2, '0');
             }, 1000);
-            const { data: { session } } = await clienteSupabase.auth.getSession();
-            await iniciarAplicativo(session);
+            const { data: { session } } = await clienteSupabase.auth.getSession(); await iniciarAplicativo(session);
         };
 
-        // --- AUTH ---
+        // --- AUTH E LOGIN (Com o telefone removido da obrigação) ---
         async function fazerCadastro() { 
             const btn = document.getElementById('btn-cad');
-            const nm = document.getElementById('cad-nome').value;
-            const cpf = document.getElementById('cad-cpf').value;
-            const dt = document.getElementById('cad-nascimento').value;
-            const tel = document.getElementById('cad-telefone').value;
-            const em = document.getElementById('cad-email').value;
-            const sn = document.getElementById('cad-senha').value;
-            const conf = document.getElementById('cad-confirma').value;
+            const nm = document.getElementById('cad-nome').value; const cpf = document.getElementById('cad-cpf').value;
+            const dt = document.getElementById('cad-nascimento').value; const tel = document.getElementById('cad-telefone').value;
+            const em = document.getElementById('cad-email').value; const sn = document.getElementById('cad-senha').value; const conf = document.getElementById('cad-confirma').value;
 
-            if(!nm || !dt || !tel || !em || !sn || !conf) return alert("⚠️ Preencha todos os campos obrigatórios.");
+            // TELEFONE REMOVIDO DA VALIDAÇÃO ESTRITA
+            if(!nm || !dt || !em || !sn || !conf) return alert("⚠️ Preencha Nome, Nascimento, E-mail e Senhas.");
             if(cpf && !validarCPF(cpf)) return alert("⚠️ CPF inválido.");
+            if(tel && !validarTelefone(tel)) return alert("⚠️ Telefone incompleto.");
             if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
             if(sn !== conf) return alert("⚠️ As senhas digitadas não coincidem.");
-            if(!validarSenha(sn)) return alert("⚠️ Senha fraca. Verifique as regras abaixo dos campos.");
+            if(!validarSenha(sn)) return alert("⚠️ Senha fraca. Verifique as regras.");
 
-            btn.innerText = "Verificando segurança...";
-            if (await verificarSenhaVazada(sn)) {
-                btn.innerText = "Finalizar Cadastro";
-                return alert("⚠️ ALERTA DE SEGURANÇA: Esta senha já foi exposta em vazamentos de dados na internet. Por favor, escolha uma senha diferente para proteger sua conta.");
-            }
+            btn.innerText = "Verificando...";
+            if (await verificarSenhaVazada(sn)) { btn.innerText = "Finalizar Cadastro"; return alert("⚠️ ALERTA DE SEGURANÇA: Esta senha já foi vazada. Escolha outra."); }
 
             btn.innerText = "Criando conta...";
-            const { data: authData, error: authError } = await clienteSupabase.auth.signUp({
-                email: em, password: sn, options: { data: { nome: nm, cpf: cpf, telefone: tel, data_nascimento: dt } }
-            });
+            const { data: authData, error: authError } = await clienteSupabase.auth.signUp({ email: em, password: sn, options: { data: { nome: nm, cpf: cpf, telefone: tel, data_nascimento: dt } } });
 
-            if (authError) { btn.innerText = "Finalizar Cadastro"; return alert("❌ Erro ao criar conta: " + authError.message); } 
+            if (authError) { btn.innerText = "Finalizar Cadastro"; return alert("❌ Erro: " + authError.message); } 
             if (authData.user) { await clienteSupabase.from('usuarios').insert([{ id: authData.user.id, email: em, nome: nm, cpf: cpf, telefone: tel, perfil: 'Administrador', ativo: true }]); }
+            
             btn.innerText = "Finalizar Cadastro";
-            if (authData.session) { alert("✅ Conta criada com sucesso!"); await iniciarAplicativo(authData.session); } else { alert("✅ Conta criada! Por favor, faça login."); mudarAbaAuth('login'); }
+            if (authData.session) { alert("✅ Conta criada!"); await iniciarAplicativo(authData.session); } else { alert("✅ Conta criada! Faça login."); mudarAbaAuth('login'); }
         }
 
         async function fazerLogin() { 
-            const btn = document.getElementById('btn-login');
-            const em = document.getElementById('login-email').value;
-            const sn = document.getElementById('login-senha').value;
-            if(!em || !sn) return alert("⚠️ Preencha e-mail e senha.");
-            btn.innerText = "Acessando...";
+            const btn = document.getElementById('btn-login'); const em = document.getElementById('login-email').value; const sn = document.getElementById('login-senha').value;
+            if(!em || !sn) return alert("⚠️ Preencha e-mail e senha."); btn.innerText = "Acessando...";
             const { data, error } = await clienteSupabase.auth.signInWithPassword({ email: em, password: sn });
-            btn.innerText = "Acessar Sistema";
-            if (error) alert("❌ Erro no login: " + error.message); else await iniciarAplicativo(data.session);
+            btn.innerText = "Acessar Sistema"; if (error) alert("❌ Erro: " + error.message); else await iniciarAplicativo(data.session);
         }
 
         async function fazerLogout() { if(confirm("Deseja realmente sair?")) { await clienteSupabase.auth.signOut(); window.location.reload(); } }
         
         async function recuperarSenha() {
-            const em = document.getElementById('login-email').value;
-            if(!em || !validarEmail(em)) return alert("⚠️ Digite o seu e-mail no campo.");
-            const msg = document.getElementById('msg-sucesso');
-            msg.style.display = 'block'; msg.innerText = "Enviando...";
+            const em = document.getElementById('login-email').value; if(!em || !validarEmail(em)) return alert("⚠️ Digite o seu e-mail no campo.");
+            const msg = document.getElementById('msg-sucesso'); msg.style.display = 'block'; msg.innerText = "Enviando...";
             const { error } = await clienteSupabase.auth.resetPasswordForEmail(em, { redirectTo: window.location.origin + window.location.pathname });
-            if (error) { msg.style.backgroundColor = 'var(--danger-bg)'; msg.style.color = 'var(--danger)'; msg.innerText = "Erro ao enviar: " + error.message; } 
+            if (error) { msg.style.backgroundColor = 'var(--danger-bg)'; msg.style.color = 'var(--danger)'; msg.innerText = "Erro: " + error.message; } 
             else { msg.style.backgroundColor = 'var(--success-bg)'; msg.style.color = 'var(--success)'; msg.innerText = `Link enviado para ${em}`; }
         }
         
         async function salvarNovaSenha() {
-            const btn = document.getElementById('btn-salvar-senha');
-            const novaSenha = document.getElementById('nova-senha').value;
+            const btn = document.getElementById('btn-salvar-senha'); const novaSenha = document.getElementById('nova-senha').value;
             if(!validarSenha(novaSenha)) return alert("⚠️ Senha fraca. Verifique as regras.");
-            
             btn.innerText = "Verificando...";
-            if (await verificarSenhaVazada(novaSenha)) {
-                btn.innerText = "Atualizar Senha";
-                return alert("⚠️ ALERTA DE SEGURANÇA: Esta senha já foi exposta em vazamentos de dados na internet. Por favor, escolha uma senha diferente.");
-            }
-
+            if (await verificarSenhaVazada(novaSenha)) { btn.innerText = "Atualizar Senha"; return alert("⚠️ Esta senha já foi vazada. Escolha outra."); }
             btn.innerText = "Atualizando...";
             const { error } = await clienteSupabase.auth.updateUser({ password: novaSenha });
-            if(error) { alert("❌ Erro ao atualizar senha: " + error.message); btn.innerText = "Atualizar Senha"; } 
-            else { alert("✅ Senha atualizada!"); window.location.hash = ''; window.location.reload(); }
+            if(error) { alert("❌ Erro: " + error.message); btn.innerText = "Atualizar Senha"; } else { alert("✅ Senha atualizada!"); window.location.hash = ''; window.location.reload(); }
         }
 
         async function entrarComCodigo() { 
-            const cod = document.getElementById('lobby-codigo').value;
-            if(!cod) return alert("⚠️ Digite o código de acesso.");
+            const cod = document.getElementById('lobby-codigo').value; if(!cod) return alert("⚠️ Digite o código.");
             const { data: familia, error: errFam } = await clienteSupabase.from('familias').select('*').eq('codigo_acesso', cod).single();
             if(errFam || !familia) return alert("❌ Código inválido.");
             const { data: { user } } = await clienteSupabase.auth.getUser();
-            const { data: userAtualizado, error: errUpdate } = await clienteSupabase.from('usuarios').update({ familia_id: familia.id, perfil: 'Observador' }).eq('id', user.id).select(); 
-            if (errUpdate) return alert("❌ Erro do banco: " + errUpdate.message);
-            alert(`✅ Sucesso! Você agora faz parte da ${familia.nome_familia}.`);
-            window.location.reload();
+            await clienteSupabase.from('usuarios').update({ familia_id: familia.id, perfil: 'Observador' }).eq('id', user.id); 
+            alert(`✅ Sucesso! Bem-vindo à ${familia.nome_familia}.`); window.location.reload();
         }
 
         async function criarFamiliaEDependente() { 
-            const nomeFam = document.getElementById('lobby-nome-familia').value;
-            const depNm = document.getElementById('dep-nome').value; 
-            const depCpf = document.getElementById('dep-cpf').value; 
-            const depDt = document.getElementById('dep-nascimento').value;
-            const depTel = document.getElementById('dep-telefone').value || ''; 
-            let depEm = document.getElementById('dep-email').value || ''; 
-            const depSn = document.getElementById('dep-senha').value;
-            const conf = document.getElementById('dep-confirma').value;
+            const nomeFam = document.getElementById('lobby-nome-familia').value; const depNm = document.getElementById('dep-nome').value; const depCpf = document.getElementById('dep-cpf').value; const depDt = document.getElementById('dep-nascimento').value;
+            const depTel = document.getElementById('dep-telefone').value || ''; let depEm = document.getElementById('dep-email').value || ''; const depSn = document.getElementById('dep-senha').value; const conf = document.getElementById('dep-confirma').value;
             const btn = document.getElementById('btn-criar-familia');
             
-            if(!nomeFam || !depNm || !depDt || !depSn) return alert("⚠️ Preencha Nome do Grupo Familiar, Nome do Paciente, Nascimento e Senha.");
-            if(depCpf && !validarCPF(depCpf)) return alert("⚠️ CPF do paciente inválido.");
-            if(depEm && !validarEmail(depEm)) return alert("⚠️ E-mail inválido.");
-            if(depSn !== conf) return alert("⚠️ As senhas do paciente não coincidem.");
-
-            // Gerador de e-mail fictício caso o campo esteja vazio (Auth do Supabase exige e-mail)
-            if(!depEm) {
-                const numAleatorio = Math.floor(Math.random() * 10000);
-                const nomeLimpo = depNm.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
-                depEm = `${nomeLimpo}${numAleatorio}@dependente.local`;
-            }
+            if(!nomeFam || !depNm || !depDt || !depSn) return alert("⚠️ Preencha Nome da Família, Paciente, Nascimento e Senha.");
+            if(depCpf && !validarCPF(depCpf)) return alert("⚠️ CPF inválido."); if(depEm && !validarEmail(depEm)) return alert("⚠️ E-mail inválido.");
+            if(depSn !== conf) return alert("⚠️ As senhas não coincidem.");
+            if(!depEm) { const numAleatorio = Math.floor(Math.random() * 10000); const nomeLimpo = depNm.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, ''); depEm = `${nomeLimpo}${numAleatorio}@dependente.local`; }
 
             btn.innerText = "Processando...";
-            if (await verificarSenhaVazada(depSn)) {
-                btn.innerText = "Criar Família e Cadastrar Paciente";
-                return alert("⚠️ ALERTA DE SEGURANÇA: A senha escolhida para o paciente é vulnerável (vazada). Escolha outra.");
-            }
+            if (await verificarSenhaVazada(depSn)) { btn.innerText = "Criar Família"; return alert("⚠️ Senha vulnerável."); }
 
             const { data: novaFamilia, error: errFam } = await clienteSupabase.from('familias').insert([{ nome_familia: nomeFam }]).select().single();
-            if(errFam) { btn.innerText = "Criar Família e Cadastrar Paciente"; return alert("❌ Erro ao criar família: " + errFam.message); }
+            if(errFam) { btn.innerText = "Criar Família"; return alert("❌ Erro: " + errFam.message); }
             
             const { data: { user } } = await clienteSupabase.auth.getUser();
-            const { data: adminAtualizado, error: errAdmin } = await clienteSupabase.from('usuarios').update({ familia_id: novaFamilia.id, perfil: 'Administrador' }).eq('id', user.id).select(); 
-            if (errAdmin) { btn.innerText = "Criar Família e Cadastrar Paciente"; return alert("❌ Erro: " + errAdmin.message); }
-            
+            await clienteSupabase.from('usuarios').update({ familia_id: novaFamilia.id, perfil: 'Administrador' }).eq('id', user.id); 
             const { data: depAuth, error: errDep } = await supabaseTemp.auth.signUp({ email: depEm, password: depSn, options: { data: { nome: depNm, cpf: depCpf, telefone: depTel, data_nascimento: depDt, perfil: 'Dependente' } } });
-            if(errDep) { btn.innerText = "Criar Família e Cadastrar Paciente"; return alert("❌ Erro ao criar login do paciente: " + errDep.message); }
-            
             if (depAuth.user) { await clienteSupabase.from('usuarios').upsert([{ id: depAuth.user.id, email: depEm, nome: depNm, cpf: depCpf, telefone: depTel, data_nascimento: depDt, familia_id: novaFamilia.id, perfil: 'Dependente', ativo: true }]); }
             
-            btn.innerText = "Criar Família e Cadastrar Paciente";
-            alert("✅ Família criada e Paciente cadastrado com sucesso! Você entrará agora no painel da família.");
-            window.location.reload();
+            alert("✅ Família e Paciente criados!"); window.location.reload();
         }
 
-        // --- CARREGAMENTO DE PARÂMETROS CUSTOMIZADOS E PAINEL ---
+        // --- PAINEL PRINCIPAL ---
         async function carregarParametrosVitaisCustomizados() {
             if (!familiaIdAtual) return;
-            const { data, error } = await clienteSupabase.from('parametros_vitais').select('*').eq('familia_id', familiaIdAtual);
-            
+            const { data } = await clienteSupabase.from('parametros_vitais').select('*').eq('familia_id', familiaIdAtual);
             if (data && data.length > 0) {
                 data.forEach(p => {
-                    referenciasVitais[p.nome] = { 
-                        min: parseFloat(p.min_ideal), max: parseFloat(p.max_ideal), 
-                        formato: "num", desc: `${p.min_ideal} a ${p.max_ideal} ${p.unidade || ''}`, 
-                        isCustom: true, id: p.id 
-                    };
-                    if (!historicoDados[p.nome]) {
-                        historicoDados[p.nome] = { labels: [], dataset1: [], dataset2: [] };
-                    }
+                    referenciasVitais[p.nome] = { min: parseFloat(p.min_ideal), max: parseFloat(p.max_ideal), formato: "num", desc: `${p.min_ideal} a ${p.max_ideal} ${p.unidade || ''}`, isCustom: true, id: p.id };
+                    if (!historicoDados[p.nome]) historicoDados[p.nome] = { labels: [], dataset1: [], dataset2: [] };
                 });
             }
         }
 
         async function abrirPainelReal(userData) {
             familiaIdAtual = userData.familia_id;
-            
-            document.getElementById('lobby-view').style.display = 'none'; 
-            document.getElementById('auth-view').style.display = 'none'; 
-            document.getElementById('app-view').style.display = 'block'; 
+            document.getElementById('lobby-view').style.display = 'none'; document.getElementById('auth-view').style.display = 'none'; document.getElementById('app-view').style.display = 'block'; 
 
             document.getElementById('header-nome-familia').innerText = userData.familias?.nome_familia || "Painel da Família";
             if (userData.familias?.codigo_acesso) { document.getElementById('display-codigo-familia').innerText = userData.familias.codigo_acesso; }
             
-            const { data: membrosFam, error } = await clienteSupabase.from('usuarios').select('*').eq('familia_id', userData.familia_id);
+            const { data: membrosFam } = await clienteSupabase.from('usuarios').select('*').eq('familia_id', userData.familia_id);
             usuariosFamilia = membrosFam || [];
 
-            const listaUsuarios = document.getElementById('lista-usuarios');
-            listaUsuarios.innerHTML = ''; 
-            
-            const selFiltroRespRotina = document.getElementById('filtro-resp-rotina');
-            const selFiltroRespTimeline = document.getElementById('filtro-resp-timeline');
+            const listaUsuarios = document.getElementById('lista-usuarios'); listaUsuarios.innerHTML = ''; 
+            const selFiltroRespRotina = document.getElementById('filtro-resp-rotina'); const selFiltroRespTimeline = document.getElementById('filtro-resp-timeline');
             
             let respOptions = '<option value="">Todos os Responsáveis</option><option value="A Definir">A Definir</option>';
-            usuariosFamilia.filter(u => u.perfil !== 'Dependente').forEach(u => {
-                respOptions += `<option value="${u.nome}">${u.nome}</option>`;
-            });
-
-            if (selFiltroRespRotina) selFiltroRespRotina.innerHTML = respOptions;
-            if (selFiltroRespTimeline) selFiltroRespTimeline.innerHTML = respOptions;
+            usuariosFamilia.filter(u => u.perfil !== 'Dependente').forEach(u => { respOptions += `<option value="${u.nome}">${u.nome}</option>`; });
+            if (selFiltroRespRotina) selFiltroRespRotina.innerHTML = respOptions; if (selFiltroRespTimeline) selFiltroRespTimeline.innerHTML = respOptions;
 
             if (membrosFam) {
                 membrosFam.forEach(membro => {
                     const isAdm = membro.perfil === 'Administrador' ? 'true' : 'false';
-                    const classeInativo = membro.ativo === false ? 'inativo' : '';
                     const tagInativo = membro.ativo === false ? `<p class="status-tag" style="display: block; color: var(--danger);">🚫 Acesso Inativado</p>` : '';
-                    listaUsuarios.innerHTML += `
-                        <div class="card ${classeInativo}" data-id="${membro.id}" data-admin="${isAdm}" data-cpf="${membro.cpf || ''}" data-perfil="${membro.perfil}" data-nascimento="${membro.data_nascimento || ''}" style="border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top: 15px;">
-                            ${tagInativo}
-                            <strong>${membro.nome} (${membro.perfil})</strong>
-                            <p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">${membro.email}</span> • <span class="user-tel">${membro.telefone || '(Não informado)'}</span></p>
-                            <button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button>
-                        </div>
-                    `;
+                    listaUsuarios.innerHTML += `<div class="card ${membro.ativo===false?'inativo':''}" data-id="${membro.id}" data-admin="${isAdm}" data-cpf="${membro.cpf || ''}" data-perfil="${membro.perfil}" data-nascimento="${membro.data_nascimento || ''}" style="border-left: 3px solid var(--border); box-shadow: none; padding: 15px; margin-top: 15px;">${tagInativo}<strong>${membro.nome} (${membro.perfil})</strong><p style="font-size: 0.85rem; margin-top: 5px;"><span class="user-email">${membro.email}</span> • <span class="user-tel">${membro.telefone || '(Não informado)'}</span></p><button class="btn-outline" onclick="abrirPersonalizar(this)">Editar Cadastro</button></div>`;
                 });
             }
 
             window.scrollTo(0,0);
-            
-            await carregarParametrosVitaisCustomizados(); // Carrega customizados do banco
-            
+            await carregarParametrosVitaisCustomizados(); 
             carregarOpcoesSinaisVitais(); renderizarConfigVitais(); inicializarGraficos();
             carregarMedicamentos(); carregarSinaisVitais(); carregarTimeline(); 
-            
             await carregarRotinas();
 
-            // Lógica do Tour Guiado - Aciona se ainda não viu
-            if (!userData.tutorial_visto) {
-                setTimeout(() => iniciarTutorial(), 800);
-            }
+            if (!userData.tutorial_visto) setTimeout(() => iniciarTutorial(), 800);
         }
 
         function openTabApp(tabId) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-btn-app').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            
             if(tabId === 'timeline') { contadorNotificacoes = 0; document.getElementById('notificacao-badge').style.display = 'none'; }
             if(tabId === 'gestao') atualizarStatusRotina();
             
-            // Ativa o botão correto visualmente
-            if(event && event.currentTarget && event.currentTarget.classList.contains('tab-btn-app')) { 
-                event.currentTarget.classList.add('active'); 
-            } else {
-                // Força pela aba via ID se não vier de um clique nativo
+            if(event && event.currentTarget && event.currentTarget.classList.contains('tab-btn-app')) { event.currentTarget.classList.add('active'); } 
+            else {
                 const btns = document.querySelectorAll('.tab-btn-app');
                 if(tabId === 'timeline') btns[0].classList.add('active');
                 if(tabId === 'saude') btns[1].classList.add('active');
@@ -942,203 +904,35 @@
         function openModal(id) { 
             document.getElementById(id).style.display = 'flex'; 
             if (id === 'modal-itinerario') {
-                verificarFrequencia();
+                verificarFrequencia(); alternarCamposTarefa(); // Nova função de controle da interface
                 const selResp = document.getElementById('itin-responsavel');
                 selResp.innerHTML = '<option value="">A Definir (Lembrete 30 min antes)</option>';
-                usuariosFamilia.filter(u => u.perfil !== 'Dependente').forEach(u => {
-                    selResp.innerHTML += `<option value="${u.nome}">${u.nome}</option>`;
-                });
+                usuariosFamilia.filter(u => u.perfil !== 'Dependente').forEach(u => { selResp.innerHTML += `<option value="${u.nome}">${u.nome}</option>`; });
+                
+                // Preenche o Select Dinâmico de Sinais Vitais no agendamento
+                const selVital = document.getElementById('itin-vital-sel');
+                selVital.innerHTML = '';
+                for (let chave in referenciasVitais) { selVital.innerHTML += `<option value="${chave}">${chave}</option>`; }
             }
         }
+        
         function closeModal(id) { 
             document.getElementById(id).style.display = 'none'; 
             const modal = document.getElementById(id);
             modal.querySelectorAll('input').forEach(i => { if(i.type !== 'button' && i.type !== 'hidden' && i.type !== 'file') i.value = ''; });
             modal.querySelectorAll('input[type="file"]').forEach(i => { i.value = ''; });
             modal.querySelectorAll('textarea').forEach(t => t.value = '');
-            if(id === 'modal-itinerario') {
-                document.getElementById('grupo-itin-horas').style.display = 'none';
-                document.getElementById('grupo-itin-fim').style.display = 'none';
-                document.getElementById('itin-freq').selectedIndex = 0;
-                document.getElementById('itin-fim').selectedIndex = 0;
-            }
+            if(id === 'modal-itinerario') { document.getElementById('grupo-itin-horas').style.display = 'none'; document.getElementById('grupo-itin-fim').style.display = 'none'; document.getElementById('itin-freq').selectedIndex = 0; document.getElementById('itin-fim').selectedIndex = 0; }
         }
-
-        // =========================================================================================
-        // MOTOR DO TOUR GUIADO (TUTORIAL)
-        // =========================================================================================
-        const tourSteps = [
-            { type: 'modal', title: '👋 Bem-vindo ao CareBridge!', text: 'Gostaria de fazer um tour rápido para conhecer as principais funcionalidades do painel da família?', btnNext: 'Começar Tutorial' },
-            { tab: 'timeline', selector: '#timeline .section-title', title: 'Linha do Tempo', text: 'Aqui você acompanha tudo o que acontece na sua família em tempo real. Desde atualizações de saúde a tarefas concluídas.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'timeline', selector: '#tour-timeline-filters', title: 'Busca Inteligente', text: 'Use estes filtros para buscar históricos antigos pelo nome da atividade, selecionar responsáveis específicos ou filtrar por turno.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'saude', selector: '#saude .section-title', title: 'Prontuário Unificado', text: 'A aba Saúde concentra todo o histórico médico do paciente de forma organizada.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'saude', selector: '#card-vitais-tour', title: 'Sinais Vitais', text: 'Registre as medições diárias (Pressão, Glicemia, etc.). O sistema emitirá um alerta se algo for registrado fora do padrão seguro.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'saude', selector: '#card-meds-tour', title: 'Medicamentos Ativos', text: 'Gerencie os remédios de uso contínuo ou temporário que estão sendo administrados.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'gestao', selector: '#gestao .section-title', title: 'Escala Operacional', text: 'A aba de Turnos é onde organizamos as tarefas, banhos, medicações e a rotina da família.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'gestao', selector: '#btn-config-turno-tour', title: 'Configurar Novo Turno', text: 'Aqui você cria novas tarefas de rotina (únicas ou repetitivas) e já atribui quem será o responsável por elas.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'gestao', selector: '#tour-gestao-filtros', title: 'Acompanhamento e Filtros', text: 'Veja o contador de atualização em tempo real, e filtre a escala do dia por cada responsável.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'gestao', selector: '#btn-checkin-tour', title: 'Check-in de Tarefas', text: 'A cada tarefa concluída, o responsável clica aqui para confirmar, podendo até anexar fotos que vão direto para a linha do tempo.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'relatorios', selector: '#relatorios .section-title', title: 'Evolução Clínica', text: 'Todos os sinais vitais registrados viram gráficos dinâmicos automáticos, perfeitos para mostrar ao médico nas consultas.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'configuracoes', selector: '#card-codigo-tour', title: 'Código da Família', text: 'Na aba Configurações, você tem este código. Compartilhe-o com cuidadores ou outros familiares para que eles possam acessar este mesmo painel.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'configuracoes', selector: '#card-usuarios-tour', title: 'Gerenciamento de Usuários', text: 'Administre quem tem acesso ao painel, altere permissões ou inative cadastros antigos.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'configuracoes', selector: '#card-parametros-tour', title: 'Parâmetros Médicos', text: 'Ajuste quais são os limites considerados seguros para os sinais vitais do seu familiar, de forma totalmente personalizada.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { type: 'modal', title: '🎉 Tudo Pronto!', text: 'Sua conta está perfeitamente configurada. Agora é só convidar a família e começar a usar o CareBridge!', btnNext: 'Concluir Tutorial' }
-        ];
-
-        let currentTourStep = 0;
-
-        function iniciarTutorial(forcarRecomeco = false) {
-            currentTourStep = 0;
-            if(forcarRecomeco) openTabApp('timeline');
-            document.getElementById('tour-overlay').style.display = 'block';
-            document.getElementById('tour-spotlight').style.display = 'none';
-            document.getElementById('tour-tooltip').style.display = 'none';
-            document.body.classList.add('tour-active');
-            renderizarStepAtual();
-        }
-
-        async function finalizarTutorial() {
-            document.getElementById('tour-overlay').style.display = 'none';
-            document.getElementById('tour-modal').style.display = 'none';
-            document.getElementById('tour-spotlight').style.display = 'none';
-            document.getElementById('tour-tooltip').style.display = 'none';
-            document.body.classList.remove('tour-active');
-            
-            // Dispara Confetes
-            if (currentTourStep === tourSteps.length - 1) {
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            }
-            
-            // Marca no banco que já viu o tutorial
-            if (usuarioAtual && !usuarioAtual.tutorial_visto) {
-                await clienteSupabase.from('usuarios').update({ tutorial_visto: true }).eq('id', usuarioAtual.id);
-                usuarioAtual.tutorial_visto = true;
-            }
-            
-            openTabApp('timeline');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        async function pularTour() {
-            if (usuarioAtual && !usuarioAtual.tutorial_visto) {
-                await clienteSupabase.from('usuarios').update({ tutorial_visto: true }).eq('id', usuarioAtual.id);
-                usuarioAtual.tutorial_visto = true;
-            }
-            document.getElementById('tour-overlay').style.display = 'none';
-            document.getElementById('tour-modal').style.display = 'none';
-            document.body.classList.remove('tour-active');
-        }
-
-        function tourProximo() {
-            if (currentTourStep < tourSteps.length - 1) {
-                currentTourStep++;
-                renderizarStepAtual();
-            } else {
-                finalizarTutorial();
-            }
-        }
-
-        function tourAnterior() {
-            if (currentTourStep > 0) {
-                currentTourStep--;
-                renderizarStepAtual();
-            }
-        }
-
-        function renderizarStepAtual() {
-            const step = tourSteps[currentTourStep];
-            const modal = document.getElementById('tour-modal');
-            const spotlight = document.getElementById('tour-spotlight');
-            const tooltip = document.getElementById('tour-tooltip');
-
-            if (step.type === 'modal') {
-                spotlight.style.display = 'none';
-                tooltip.style.display = 'none';
-                
-                document.getElementById('tour-modal-title').innerText = step.title;
-                document.getElementById('tour-modal-text').innerText = step.text;
-                document.getElementById('tour-modal-btn-primary').innerText = step.btnNext;
-                
-                if (currentTourStep === 0) {
-                    document.getElementById('tour-modal-btn-secondary').style.display = 'block';
-                } else {
-                    document.getElementById('tour-modal-btn-secondary').style.display = 'none';
-                }
-                
-                modal.style.display = 'block';
-            } else {
-                modal.style.display = 'none';
-                
-                // Muda a aba se necessário
-                if (step.tab) openTabApp(step.tab);
-                
-                setTimeout(() => {
-                    const targetEl = document.querySelector(step.selector);
-                    if (targetEl) {
-                        // Rola até o elemento suavemente
-                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        
-                        setTimeout(() => {
-                            const rect = targetEl.getBoundingClientRect();
-                            const padding = 10;
-                            
-                            // Posiciona o Spotlight (Foco de Luz)
-                            spotlight.style.display = 'block';
-                            spotlight.style.top = `${rect.top - padding}px`;
-                            spotlight.style.left = `${rect.left - padding}px`;
-                            spotlight.style.width = `${rect.width + (padding*2)}px`;
-                            spotlight.style.height = `${rect.height + (padding*2)}px`;
-                            
-                            // Define Textos
-                            document.getElementById('tour-title').innerText = step.title;
-                            document.getElementById('tour-text').innerText = step.text;
-                            
-                            // Exibe para calcular o tamanho exato da caixa
-                            tooltip.style.display = 'block';
-                            const tooltipRect = tooltip.getBoundingClientRect();
-                            
-                            // Lógica Inteligente de Posicionamento da Caixa
-                            let tooltipTop = rect.bottom + padding + 15;
-                            let tooltipLeft = Math.max(10, rect.left);
-                            
-                            // Se a caixa passar para baixo da tela, joga ela pra cima do elemento iluminado
-                            if (tooltipTop + tooltipRect.height > window.innerHeight) {
-                                tooltipTop = rect.top - padding - tooltipRect.height - 15;
-                            }
-                            
-                            // Se a caixa passar para direita da tela, alinha a margem
-                            if (tooltipLeft + tooltipRect.width > window.innerWidth) {
-                                tooltipLeft = window.innerWidth - tooltipRect.width - 15;
-                            }
-                            
-                            tooltip.style.top = `${Math.max(10, tooltipTop)}px`;
-                            tooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
-                        }, 400); // Aguarda o término do scroll
-                    }
-                }, 150); // Aguarda a troca da aba no DOM
-            }
-        }
-        // =========================================================================================
 
         // --- SISTEMA DE TIMELINE ---
-        function limparFiltrosTimeline() { 
-            document.getElementById('filtro-texto-timeline').value = ''; 
-            document.getElementById('filtro-data-timeline').value = ''; 
-            document.getElementById('filtro-turno-timeline').value = '';
-            document.getElementById('filtro-resp-timeline').value = '';
-            carregarTimeline(); 
-        }
+        function limparFiltrosTimeline() { document.getElementById('filtro-texto-timeline').value = ''; document.getElementById('filtro-data-timeline').value = ''; document.getElementById('filtro-turno-timeline').value = ''; document.getElementById('filtro-resp-timeline').value = ''; carregarTimeline(); }
 
         async function carregarTimeline() {
             if(!familiaIdAtual) return;
-            const feed = document.getElementById('timeline-feed');
-            feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Carregando atualizações...</div>';
+            const feed = document.getElementById('timeline-feed'); feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Carregando atualizações...</div>';
             
-            const textoFiltro = document.getElementById('filtro-texto-timeline').value.toLowerCase(); 
-            const dataFiltro = document.getElementById('filtro-data-timeline').value;
-            const turnoFiltro = document.getElementById('filtro-turno-timeline').value.toLowerCase();
-            let respFiltro = document.getElementById('filtro-resp-timeline').value.toLowerCase();
-
+            const textoFiltro = document.getElementById('filtro-texto-timeline').value.toLowerCase(); const dataFiltro = document.getElementById('filtro-data-timeline').value; const turnoFiltro = document.getElementById('filtro-turno-timeline').value.toLowerCase(); let respFiltro = document.getElementById('filtro-resp-timeline').value.toLowerCase();
             const { data: timeline, error } = await clienteSupabase.from('linha_do_tempo').select('*').eq('familia_id', familiaIdAtual).order('criado_em', { ascending: false });
 
             if (error) { feed.innerHTML = '<div class="card alert">Erro ao carregar o histórico.</div>'; return; }
@@ -1146,55 +940,24 @@
 
             if(timeline) {
                 timeline.forEach(item => {
-                    const dataReg = new Date(item.criado_em);
-                    const horaStr = dataReg.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                    const dataReg = new Date(item.criado_em); const horaStr = dataReg.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                    let descFormatada = item.descricao.toLowerCase(); let passaFiltroTexto = item.titulo.toLowerCase().includes(textoFiltro) || descFormatada.includes(textoFiltro);
+                    let passaFiltroData = true; let passaFiltroTurno = turnoFiltro ? descFormatada.includes(turnoFiltro) : true; let passaFiltroResp = true;
                     
-                    let descFormatada = item.descricao.toLowerCase();
-                    let passaFiltroTexto = item.titulo.toLowerCase().includes(textoFiltro) || descFormatada.includes(textoFiltro);
-                    let passaFiltroData = true;
-                    let passaFiltroTurno = turnoFiltro ? descFormatada.includes(turnoFiltro) : true;
-                    
-                    let passaFiltroResp = true;
-                    if (respFiltro) {
-                        if (respFiltro === "a definir") passaFiltroResp = descFormatada.includes("a definir");
-                        else passaFiltroResp = descFormatada.includes(respFiltro);
-                    }
-
-                    if (dataFiltro) {
-                        const [ano, mes, dia] = dataFiltro.split('-');
-                        const dataFiltroFormatada = `${dia}/${mes}/${ano}`;
-                        passaFiltroData = (dataReg.toLocaleDateString('pt-BR') === dataFiltroFormatada);
-                    }
+                    if (respFiltro) { if (respFiltro === "a definir") passaFiltroResp = descFormatada.includes("a definir"); else passaFiltroResp = descFormatada.includes(respFiltro); }
+                    if (dataFiltro) { const [ano, mes, dia] = dataFiltro.split('-'); passaFiltroData = (dataReg.toLocaleDateString('pt-BR') === `${dia}/${mes}/${ano}`); }
 
                     if (passaFiltroTexto && passaFiltroData && passaFiltroTurno && passaFiltroResp) {
-                        temResultados = true;
-                        let classe = 'card'; let flag = '';
+                        temResultados = true; let classe = 'card'; let flag = '';
                         if(item.alerta) { classe = 'card alert'; flag = '🚨 '; } else if(item.retroativo) { classe = 'card warning'; flag = '⚠️ [Retroativo] '; }
-                        
-                        const isAdm = (usuarioAtual && usuarioAtual.perfil === 'Administrador');
-                        const btnDelete = isAdm ? `<button class="btn-trash" onclick="excluirItemTimeline('${item.id}')" title="Excluir da Timeline" style="margin-top:0;">🗑️</button>` : '';
-
-                        htmlContent += `<div class="${classe}" style="animation: fadeIn 0.4s; display: flex; justify-content: space-between; align-items: flex-start;">
-                            <div style="flex: 1; padding-right: 10px;">
-                                <strong>${flag}${item.titulo} <span style="font-size:0.85rem; font-weight:normal;">(${horaStr})</span></strong>
-                                <p>${item.descricao}</p>
-                                <span style="font-size:0.75rem; color:var(--border); display:block; margin-top:8px;">${dataReg.toLocaleDateString('pt-BR')}</span>
-                            </div>
-                            ${btnDelete}
-                        </div>`;
+                        const isAdm = (usuarioAtual && usuarioAtual.perfil === 'Administrador'); const btnDelete = isAdm ? `<button class="btn-trash" onclick="excluirItemTimeline('${item.id}')">🗑️</button>` : '';
+                        htmlContent += `<div class="${classe}" style="animation: fadeIn 0.4s; display: flex; justify-content: space-between; align-items: flex-start;"><div style="flex: 1; padding-right: 10px;"><strong>${flag}${item.titulo} <span style="font-size:0.85rem; font-weight:normal;">(${horaStr})</span></strong><p>${item.descricao}</p><span style="font-size:0.75rem; color:var(--border); display:block; margin-top:8px;">${dataReg.toLocaleDateString('pt-BR')}</span></div>${btnDelete}</div>`;
                     }
                 });
             }
 
             const filtroVazio = !textoFiltro && !dataFiltro && !turnoFiltro && !respFiltro;
-            const boasVindasMatch = "bem vindo carebridge".includes(textoFiltro);
-            if (filtroVazio || boasVindasMatch) {
-                temResultados = true;
-                htmlContent += `<div class="card" style="border-left-color: var(--success); background-color: var(--success-bg); animation: fadeIn 0.4s;">
-                        <strong>👋 Bem-vindo ao CareBridge!</strong><p>Sua linha do tempo está pronta. A partir de agora, todas as atualizações de saúde, rotinas e alertas da sua família aparecerão aqui automaticamente.</p>
-                    </div>`;
-            }
-
+            if (filtroVazio || "bem vindo carebridge".includes(textoFiltro)) { temResultados = true; htmlContent += `<div class="card" style="border-left-color: var(--success); background-color: var(--success-bg); animation: fadeIn 0.4s;"><strong>👋 Bem-vindo ao CareBridge!</strong><p>Sua linha do tempo está pronta. A partir de agora, todas as atualizações de saúde, rotinas e alertas aparecerão aqui.</p></div>`; }
             if(!temResultados) { feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma atualização encontrada para os filtros.</div>'; } 
             else { feed.innerHTML = htmlContent; }
         }
@@ -1208,35 +971,34 @@
         }
 
         async function excluirItemTimeline(id) {
-            if(!confirm("Deseja realmente excluir este evento do histórico da família?")) return;
+            if(!confirm("Deseja realmente excluir este evento do histórico?")) return;
             const { error } = await clienteSupabase.from('linha_do_tempo').delete().eq('id', id);
             if (error) alert("❌ Erro ao excluir registro: " + error.message); else carregarTimeline();
         }
 
-        // --- SISTEMA DE ROTINAS ---
+        // --- SISTEMA UNIFICADO DE ROTINAS (AGENDAMENTO DE SAÚDE + TAREFAS) ---
         async function carregarRotinas() {
             if(!familiaIdAtual) return;
-            const ul = document.getElementById('lista-tarefas');
-            ul.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Sincronizando tarefas com o servidor...</li>';
-
+            const ul = document.getElementById('lista-tarefas'); ul.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Sincronizando tarefas com o servidor...</li>';
             const { data, error } = await clienteSupabase.from('rotinas').select('*').eq('familia_id', familiaIdAtual);
-            if (error) { console.error(error); ul.innerHTML = '<li style="text-align:center; color:var(--danger); border:none;">Erro ao carregar rotinas.</li>'; return; }
+            if (error) { ul.innerHTML = '<li style="text-align:center; color:var(--danger); border:none;">Erro ao carregar rotinas.</li>'; return; }
             
             listaDeRotinas = data.map(r => ({
-                id: r.id, groupId: r.group_id, nome: r.nome, dataHora: new Date(r.data_hora),
-                status: r.status, obs: r.obs, freq: r.freq, hrExtra: r.hr_extra,
-                fimTipo: r.fim_tipo, tarefaBase: r.tarefa_base, responsavel: r.responsavel,
-                turno: r.turno, alertaRespEnviado: r.alerta_resp_enviado, concluidoPor: r.concluido_por,
-                fotoUrl: r.foto_url
+                id: r.id, groupId: r.group_id, nome: r.nome, dataHora: new Date(r.data_hora), status: r.status, obs: r.obs, freq: r.freq, hrExtra: r.hr_extra,
+                fimTipo: r.fim_tipo, tarefaBase: r.tarefa_base, responsavel: r.responsavel, turno: r.turno, alertaRespEnviado: r.alerta_resp_enviado, concluidoPor: r.concluido_por,
+                fotoUrl: r.foto_url, tipoTarefa: r.tipo_tarefa || 'Geral', valorMedido: r.valor_medido
             }));
             renderizarRotinas();
         }
         
-        function obterTurno(horaStr) {
-            const h = parseInt(horaStr.split(':')[0]);
-            if (h >= 6 && h < 12) return '☀️ Manhã';
-            if (h >= 12 && h < 18) return '☕ Tarde';
-            return '🌙 Noite';
+        function obterTurno(horaStr) { const h = parseInt(horaStr.split(':')[0]); if (h >= 6 && h < 12) return '☀️ Manhã'; if (h >= 12 && h < 18) return '☕ Tarde'; return '🌙 Noite'; }
+
+        // Alterna inputs de acordo com o tipo da Tarefa (Comum, Vital ou Medicação)
+        function alternarCamposTarefa() {
+            const tipo = document.getElementById('itin-tipo-tarefa').value;
+            document.getElementById('grupo-itin-geral').style.display = tipo === 'Geral' ? 'block' : 'none';
+            document.getElementById('grupo-itin-vital').style.display = tipo === 'Sinal Vital' ? 'block' : 'none';
+            document.getElementById('grupo-itin-med').style.display = tipo === 'Medicamento' ? 'block' : 'none';
         }
 
         function verificarFrequencia() { 
@@ -1258,145 +1020,40 @@
             if (freq === 'Único' || fim === 'manual') { grp.style.display = 'none'; } else { grp.style.display = 'block'; input.type = (fim === 'data') ? 'date' : 'number'; input.placeholder = (fim === 'data') ? '' : 'Ex: 10 vezes'; }
         }
 
-        function limparFiltroRotina() {
-            document.getElementById('filtro-data-rotina').value = ''; document.getElementById('filtro-turno-rotina').value = ''; document.getElementById('filtro-resp-rotina').value = '';
-            renderizarRotinas();
-        }
+        function limparFiltroRotina() { document.getElementById('filtro-data-rotina').value = ''; document.getElementById('filtro-status-rotina').value = 'pendentes'; document.getElementById('filtro-turno-rotina').value = ''; document.getElementById('filtro-resp-rotina').value = ''; renderizarRotinas(); }
 
         function calcularProximaData(dataAtual, freq, hrExtra) {
             let nd = new Date(dataAtual);
             if (freq === 'A cada X horas') nd.setHours(nd.getHours() + (hrExtra || 0)); else if (freq === 'Diariamente') nd.setDate(nd.getDate() + 1); else if (freq === 'Mensal') nd.setMonth(nd.getMonth() + 1); else if (freq === 'Anual') nd.setFullYear(nd.getFullYear() + 1);
             return nd;
         }
-        
-        function abrirModalEditarResp(id) {
-            const rotina = listaDeRotinas.find(r => r.id === id); if(!rotina) return;
-            document.getElementById('edit-resp-id').value = id;
-            const sel = document.getElementById('edit-resp-select');
-            sel.innerHTML = '<option value="">A Definir</option>';
-            usuariosFamilia.filter(u => u.perfil !== 'Dependente').forEach(u => {
-                sel.innerHTML += `<option value="${u.nome}" ${rotina.responsavel === u.nome ? 'selected' : ''}>${u.nome}</option>`;
-            });
-            openModal('modal-editar-resp');
-        }
-
-        async function salvarNovoResponsavel() {
-            const id = document.getElementById('edit-resp-id').value; const novoResp = document.getElementById('edit-resp-select').value;
-            const rotina = listaDeRotinas.find(r => r.id === id);
-            const btn = document.getElementById('btn-salvar-resp'); const txtOrig = btn.innerText; btn.innerText = "Salvando...";
-
-            const { error } = await clienteSupabase.from('rotinas').update({ responsavel: novoResp, alerta_resp_enviado: false }).eq('id', id);
-            btn.innerText = txtOrig;
-            if (error) { alert("❌ Erro ao atualizar responsável: " + error.message); return; }
-
-            if(rotina) adicionarNaTimeline(`Responsável Atualizado`, `A tarefa <strong>${rotina.nome}</strong> (Turno da ${rotina.turno}) agora está sob a responsabilidade de: <strong>${novoResp || 'A Definir'}</strong>.`);
-            closeModal('modal-editar-resp'); carregarRotinas(); 
-        }
-
-        function renderizarRotinas() {
-            const ul = document.getElementById('lista-tarefas'); const selCheckin = document.getElementById('checkin-tarefa');
-            const filtroData = document.getElementById('filtro-data-rotina').value; const filtroTurno = document.getElementById('filtro-turno-rotina').value; const filtroResp = document.getElementById('filtro-resp-rotina').value;
-            ul.innerHTML = ''; selCheckin.innerHTML = '';
-            
-            let rotinasFiltradas = listaDeRotinas.filter(r => {
-                let passaData = true;
-                if (filtroData) {
-                    const [ano, mes, dia] = filtroData.split('-');
-                    const dataFiltroFormatada = `${dia}/${mes}/${ano}`;
-                    passaData = (r.dataHora.toLocaleDateString('pt-BR') === dataFiltroFormatada);
-                }
-                let passaTurno = filtroTurno ? r.turno === filtroTurno : true;
-                let passaResp = true;
-                if (filtroResp === 'A Definir') passaResp = !r.responsavel || r.responsavel === '';
-                else if (filtroResp) passaResp = r.responsavel === filtroResp;
-                return passaData && passaTurno && passaResp;
-            });
-
-            if (rotinasFiltradas.length === 0) { ul.innerHTML = '<li style="text-align:center; color: var(--text-muted); border: none;">Nenhuma rotina para exibir para os filtros selecionados.</li>'; return; }
-
-            rotinasFiltradas.sort((a, b) => a.dataHora - b.dataHora);
-            let dataAtualAgrupamento = "";
-
-            rotinasFiltradas.forEach(rotina => {
-                const diaSemana = rotina.dataHora.toLocaleDateString('pt-BR', { weekday: 'long' });
-                const dataCurta = rotina.dataHora.toLocaleDateString('pt-BR');
-                const dataFormatada = `${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dataCurta}`;
-                const horaFormatada = rotina.dataHora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-
-                if (dataFormatada !== dataAtualAgrupamento) {
-                    ul.innerHTML += `<li style="background: var(--bg-color); font-size: 0.85rem; font-weight: bold; color: var(--primary); padding: 8px 10px; border-radius: 6px; margin-top: 15px; border-bottom: none;">📅 ${dataFormatada}</li>`;
-                    dataAtualAgrupamento = dataFormatada;
-                }
-                
-                const isAdm = (usuarioAtual && usuarioAtual.perfil === 'Administrador');
-
-                if(rotina.status === 'concluido') {
-                    const btnDeleteDone = isAdm ? `<button class="btn-trash" onclick="abrirModalExclusao('${rotina.id}')" title="Excluir rotina concluída">🗑️</button>` : '';
-                    
-                    const linkComprovante = rotina.fotoUrl ? `<br><a href="${rotina.fotoUrl}" target="_blank" style="background: var(--primary); color: var(--accent); padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold; display: inline-block; margin-top: 8px;">📷 Visualizar Foto</a>` : '';
-                    
-                    ul.innerHTML += `<li class="task-done" style="border-left: 4px solid var(--success); background-color: var(--success-bg); display:flex; justify-content:space-between; align-items:center;">
-                                        <div>
-                                            <span><s>${rotina.nome}</s> <span style="font-size:0.8rem;color:var(--text-main);">(${horaFormatada})</span> ${rotina.obs?`<br><span style="font-size:0.8rem;color:var(--text-main);">Obs: ${rotina.obs}</span>`:''}</span>
-                                            <br><span style="color: var(--success); font-weight:bold; font-size: 0.85rem;">✔ Concluído por: ${rotina.concluidoPor || 'Não informado'}</span>
-                                            ${linkComprovante}
-                                        </div>
-                                        ${btnDeleteDone}
-                                    </li>`;
-                } else {
-                    ul.innerHTML += `<li data-id="${rotina.id}" style="border-left: 4px solid transparent; padding-left: 10px; transition: all 0.3s ease; display:flex; justify-content:space-between; align-items: center;">
-                                        <div>
-                                            <span>⚙️ <strong>${rotina.nome}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
-                                            <br><span style="font-size:0.75rem; background: #e5e7eb; padding: 2px 6px; border-radius: 4px; display:inline-block; margin-top:4px; font-weight:600; color:var(--text-main);">${rotina.turno} | 👤 Resp: ${rotina.responsavel || 'A Definir'} <button class="btn-outline" style="padding: 2px 6px; font-size: 0.7rem; margin-top:0; margin-left: 5px; border-color:var(--border);" onclick="abrirModalEditarResp('${rotina.id}')">✏️ Editar</button></span>
-                                            <br><span class="status-texto" style="font-weight: 600; font-size: 0.85rem; margin-top:4px; display:inline-block;"></span>
-                                        </div>
-                                        <button class="btn-trash" onclick="abrirModalExclusao('${rotina.id}')" title="Excluir rotina">🗑️</button>
-                                    </li>`;
-                    selCheckin.innerHTML += `<option value="${rotina.id}">${rotina.nome} (${dataCurta} às ${horaFormatada})</option>`;
-                }
-            });
-
-            atualizarStatusRotina(); 
-        }
-
-        function atualizarStatusRotina() {
-            const agora = new Date(); const lis = document.querySelectorAll('#lista-tarefas li[data-id]');
-            
-            lis.forEach(li => {
-                const id = li.getAttribute('data-id'); const rotina = listaDeRotinas.find(r => r.id === id);
-                if(!rotina || rotina.status === 'concluido') return;
-                const spanStatus = li.querySelector('.status-texto');
-                const diffMinutos = (rotina.dataHora - agora) / (1000 * 60);
-
-                if (diffMinutos < 0) {
-                    li.style.borderLeftColor = 'var(--danger)'; li.style.backgroundColor = 'var(--danger-bg)';
-                    if(spanStatus) { spanStatus.innerText = '🔴 Atrasado'; spanStatus.style.color = 'var(--danger)'; }
-                } else if (diffMinutos <= 60) {
-                    li.style.borderLeftColor = 'var(--accent)'; li.style.backgroundColor = '#fffbeb';
-                    if(spanStatus) { spanStatus.innerText = '🟡 Próximo'; spanStatus.style.color = 'var(--accent-hover)'; }
-                    
-                    if (!rotina.responsavel && diffMinutos <= 30 && diffMinutos >= 0 && !rotina.alertaRespEnviado) {
-                        rotina.alertaRespEnviado = true;
-                        clienteSupabase.from('rotinas').update({ alerta_resp_enviado: true }).eq('id', rotina.id).then();
-                        adicionarNaTimeline(`🚨 Responsável Pendente`, `A tarefa <strong>${rotina.nome}</strong> (Turno da ${rotina.turno}) começa em menos de 30 minutos e ainda não tem um responsável (A Definir) atribuído!`, true);
-                    }
-                } else {
-                    li.style.borderLeftColor = 'var(--text-muted)'; li.style.backgroundColor = 'transparent';
-                    if(spanStatus) { spanStatus.innerText = '⚪ Futuro'; spanStatus.style.color = 'var(--text-muted)'; }
-                }
-            });
-        }
 
         async function salvarItinerario() {
             const dataStr = document.getElementById('itin-data').value; const horStr = document.getElementById('itin-horario').value; const responsavelStr = document.getElementById('itin-responsavel').value;
-            const freq = document.getElementById('itin-freq').value; const hrExtra = parseInt(document.getElementById('itin-freq-horas').value) || 0; const strTarefas = document.getElementById('itin-tarefas').value;
+            const freq = document.getElementById('itin-freq').value; const hrExtra = parseInt(document.getElementById('itin-freq-horas').value) || 0; 
             const fimTipo = document.getElementById('itin-fim').value; const fimValor = document.getElementById('itin-fim-valor').value;
+            
+            // Nova lógica de Nome e Tipo da Tarefa Unificada
+            const tipoTarefa = document.getElementById('itin-tipo-tarefa').value;
+            let nomeExtraido = '';
+            
+            if (tipoTarefa === 'Geral') {
+                nomeExtraido = document.getElementById('itin-tarefas').value;
+                if(!nomeExtraido) return alert("⚠️ Descreva a tarefa comum a ser realizada.");
+            } else if (tipoTarefa === 'Sinal Vital') {
+                const sv = document.getElementById('itin-vital-sel').value;
+                nomeExtraido = `Medir ${sv}`;
+            } else if (tipoTarefa === 'Medicamento') {
+                const med = document.getElementById('itin-med-nome').value;
+                if(!med) return alert("⚠️ Descreva o medicamento e a dosagem.");
+                nomeExtraido = `Dar Remédio: ${med}`;
+            }
 
-            if(!dataStr || !horStr || !strTarefas) return alert("⚠️ Preencha a data, o horário e as tarefas.");
+            if(!dataStr || !horStr) return alert("⚠️ Preencha a data e o horário base da tarefa.");
             const dataBase = new Date(`${dataStr}T${horStr}:00`);
-            if (dataBase < new Date()) return alert("⚠️ Bloqueado: Não é possível agendar novas rotinas no passado.");
+            if (dataBase < new Date()) return alert("⚠️ Não é possível agendar novas rotinas no passado.");
 
-            let tarefasArray = strTarefas.split(',').map(t => t.trim()).filter(t => t); const groupId = Date.now().toString();
+            let tarefasArray = nomeExtraido.split(',').map(t => t.trim()).filter(t => t); const groupId = Date.now().toString();
             let limitMax = 365; let count = 0; let curDate = new Date(dataBase);
 
             let condicao = () => {
@@ -1412,7 +1069,7 @@
             while(condicao() && count < limitMax) {
                 const h = curDate.getHours(); let turnoClassificado = obterTurno(`${h}:00`);
                 tarefasArray.forEach(tarefa => {
-                    batchInsert.push({ familia_id: familiaIdAtual, group_id: groupId, nome: tarefa, data_hora: curDate.toISOString(), freq: freq, hr_extra: hrExtra, fim_tipo: fimTipo, tarefa_base: tarefa, responsavel: responsavelStr, turno: turnoClassificado });
+                    batchInsert.push({ familia_id: familiaIdAtual, group_id: groupId, nome: tarefa, data_hora: curDate.toISOString(), freq: freq, hr_extra: hrExtra, fim_tipo: fimTipo, tarefa_base: tarefa, responsavel: responsavelStr, turno: turnoClassificado, tipo_tarefa: tipoTarefa });
                 });
                 curDate = calcularProximaData(curDate, freq, hrExtra); count++;
             }
@@ -1421,89 +1078,282 @@
             btn.innerText = txtOrig;
 
             if (error) { alert("❌ Erro ao salvar rotinas: " + error.message); return; }
-
-            adicionarNaTimeline(`Novas Rotinas Agendadas`, `Configuração salva a partir de ${dataBase.toLocaleDateString('pt-BR')}.`);
+            adicionarNaTimeline(`Agendamento Criado: ${tipoTarefa}`, `Uma nova série de eventos para '${nomeExtraido}' foi salva a partir de ${dataBase.toLocaleDateString('pt-BR')}.`);
             closeModal('modal-itinerario'); carregarRotinas(); 
         }
 
+        // Função mágica que expande e retrai dias específicos no Feed de Rotinas
+        window.toggleDayTasks = function(dayId) {
+            const hdr = document.getElementById('hdr-' + dayId);
+            hdr.classList.toggle('collapsed');
+            const tasks = document.querySelectorAll('.day-' + dayId);
+            tasks.forEach(t => { t.style.display = t.style.display === 'none' ? 'flex' : 'none'; });
+        }
+
+        function renderizarRotinas() {
+            const ul = document.getElementById('lista-tarefas'); const selCheckin = document.getElementById('checkin-tarefa');
+            const filtroData = document.getElementById('filtro-data-rotina').value; const filtroTurno = document.getElementById('filtro-turno-rotina').value; const filtroResp = document.getElementById('filtro-resp-rotina').value;
+            const filtroStatus = document.getElementById('filtro-status-rotina').value; // Puxa o status Ocultar Concluidas/Mostrar Todas
+            
+            ul.innerHTML = ''; selCheckin.innerHTML = '<option value="">-- Selecione a Tarefa --</option>';
+            
+            let rotinasFiltradas = listaDeRotinas.filter(r => {
+                let passaData = true;
+                if (filtroData) { const [ano, mes, dia] = filtroData.split('-'); passaData = (r.dataHora.toLocaleDateString('pt-BR') === `${dia}/${mes}/${ano}`); }
+                let passaTurno = filtroTurno ? r.turno === filtroTurno : true;
+                let passaResp = true;
+                if (filtroResp === 'A Definir') passaResp = !r.responsavel || r.responsavel === ''; else if (filtroResp) passaResp = r.responsavel === filtroResp;
+                
+                // NOVO FILTRO DE STATUS
+                let passaStatus = true;
+                if (filtroStatus === 'pendentes' && r.status === 'concluido') passaStatus = false;
+                if (filtroStatus === 'concluidas' && r.status !== 'concluido') passaStatus = false;
+
+                return passaData && passaTurno && passaResp && passaStatus;
+            });
+
+            if (rotinasFiltradas.length === 0) { ul.innerHTML = '<li style="text-align:center; color: var(--text-muted); border: none;">Nenhuma rotina exibida para estes filtros.</li>'; verificarTipoCheckin(); return; }
+
+            rotinasFiltradas.sort((a, b) => a.dataHora - b.dataHora);
+            let dataAtualAgrupamento = "";
+
+            rotinasFiltradas.forEach(rotina => {
+                const diaSemana = rotina.dataHora.toLocaleDateString('pt-BR', { weekday: 'long' });
+                const dataCurta = rotina.dataHora.toLocaleDateString('pt-BR');
+                const dataFormatada = `${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dataCurta}`;
+                const horaFormatada = rotina.dataHora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                const safeDayId = dataFormatada.replace(/[^a-zA-Z0-9]/g, ''); // Para a classe e ID
+
+                if (dataFormatada !== dataAtualAgrupamento) {
+                    ul.innerHTML += `<li class="date-header" onclick="toggleDayTasks('${safeDayId}')" id="hdr-${safeDayId}">📅 ${dataFormatada}</li>`;
+                    dataAtualAgrupamento = dataFormatada;
+                }
+                
+                const isAdm = (usuarioAtual && usuarioAtual.perfil === 'Administrador');
+
+                // Lógica de Ícones dinâmicos
+                let icone = '⚙️';
+                if(rotina.tipoTarefa === 'Sinal Vital') icone = '❤️';
+                else if (rotina.tipoTarefa === 'Medicamento') icone = '💊';
+
+                if(rotina.status === 'concluido') {
+                    const btnDeleteDone = isAdm ? `<button class="btn-trash" onclick="abrirModalExclusao('${rotina.id}')">🗑️</button>` : '';
+                    let obsVisual = rotina.obs ? `<br><span style="font-size:0.8rem;color:var(--text-main);">Obs: ${rotina.obs}</span>` : '';
+                    if (rotina.tipoTarefa === 'Sinal Vital' && rotina.valorMedido) obsVisual = `<br><span style="font-size:0.8rem;color:var(--accent-hover); font-weight: bold;">📊 Valor Aferido: ${rotina.valorMedido}</span>` + obsVisual;
+                    
+                    const linkComprovante = rotina.fotoUrl ? `<br><a href="${rotina.fotoUrl}" target="_blank" style="background: var(--primary); color: var(--accent); padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold; display: inline-block; margin-top: 8px;">📷 Visualizar Foto</a>` : '';
+                    
+                    ul.innerHTML += `<li class="task-done day-${safeDayId}" style="border-left: 4px solid var(--success); background-color: var(--success-bg); display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span>${icone} <s>${rotina.nome}</s> <span style="font-size:0.8rem;color:var(--text-main);">(${horaFormatada})</span> ${obsVisual}</span>
+                            <br><span style="color: var(--success); font-weight:bold; font-size: 0.85rem;">✔ Concluído por: ${rotina.concluidoPor || 'Não informado'}</span>
+                            ${linkComprovante}
+                        </div>
+                        ${btnDeleteDone}
+                    </li>`;
+                } else {
+                    ul.innerHTML += `<li data-id="${rotina.id}" class="day-${safeDayId}" style="border-left: 4px solid transparent; padding-left: 10px; transition: all 0.3s ease; display:flex; justify-content:space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                        <div>
+                            <span>${icone} <strong>${rotina.nome}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
+                            <br><span style="font-size:0.75rem; background: #e5e7eb; padding: 2px 6px; border-radius: 4px; display:inline-block; margin-top:4px; font-weight:600; color:var(--text-main);">${rotina.turno} | 👤 Resp: ${rotina.responsavel || 'A Definir'} <button class="btn-outline" style="padding: 2px 6px; font-size: 0.7rem; margin-top:0; margin-left: 5px; border-color:var(--border);" onclick="abrirModalEditarResp('${rotina.id}')">✏️</button></span>
+                            <br><span class="status-texto" style="font-weight: 600; font-size: 0.85rem; margin-top:4px; display:inline-block;"></span>
+                        </div>
+                        <button class="btn-trash" onclick="abrirModalExclusao('${rotina.id}')">🗑️</button>
+                    </li>`;
+                    selCheckin.innerHTML += `<option value="${rotina.id}">${icone} ${rotina.nome} (${dataCurta} às ${horaFormatada})</option>`;
+                }
+            });
+
+            atualizarStatusRotina(); 
+            verificarTipoCheckin();
+        }
+
+        function atualizarStatusRotina() {
+            const agora = new Date(); const lis = document.querySelectorAll('#lista-tarefas li[data-id]');
+            lis.forEach(li => {
+                const id = li.getAttribute('data-id'); const rotina = listaDeRotinas.find(r => r.id === id);
+                if(!rotina || rotina.status === 'concluido') return;
+                const spanStatus = li.querySelector('.status-texto');
+                const diffMinutos = (rotina.dataHora - agora) / (1000 * 60);
+
+                if (diffMinutos < 0) {
+                    li.style.borderLeftColor = 'var(--danger)'; li.style.backgroundColor = 'var(--danger-bg)';
+                    if(spanStatus) { spanStatus.innerText = '🔴 Atrasado'; spanStatus.style.color = 'var(--danger)'; }
+                } else if (diffMinutos <= 60) {
+                    li.style.borderLeftColor = 'var(--accent)'; li.style.backgroundColor = '#fffbeb';
+                    if(spanStatus) { spanStatus.innerText = '🟡 Próximo'; spanStatus.style.color = 'var(--accent-hover)'; }
+                    if (!rotina.responsavel && diffMinutos <= 30 && diffMinutos >= 0 && !rotina.alertaRespEnviado) {
+                        rotina.alertaRespEnviado = true;
+                        clienteSupabase.from('rotinas').update({ alerta_resp_enviado: true }).eq('id', rotina.id).then();
+                        adicionarNaTimeline(`🚨 Responsável Pendente`, `A tarefa <strong>${rotina.nome}</strong> (Turno da ${rotina.turno}) começa em menos de 30 minutos e está SEM responsável atribuído!`, true);
+                    }
+                } else {
+                    li.style.borderLeftColor = 'var(--text-muted)'; li.style.backgroundColor = 'transparent';
+                    if(spanStatus) { spanStatus.innerText = '⚪ Futuro'; spanStatus.style.color = 'var(--text-muted)'; }
+                }
+            });
+        }
+        
+        function abrirModalEditarResp(id) {
+            const rotina = listaDeRotinas.find(r => r.id === id); if(!rotina) return;
+            document.getElementById('edit-resp-id').value = id; const sel = document.getElementById('edit-resp-select');
+            sel.innerHTML = '<option value="">A Definir</option>';
+            usuariosFamilia.filter(u => u.perfil !== 'Dependente').forEach(u => { sel.innerHTML += `<option value="${u.nome}" ${rotina.responsavel === u.nome ? 'selected' : ''}>${u.nome}</option>`; });
+            openModal('modal-editar-resp');
+        }
+
+        async function salvarNovoResponsavel() {
+            const id = document.getElementById('edit-resp-id').value; const novoResp = document.getElementById('edit-resp-select').value;
+            const rotina = listaDeRotinas.find(r => r.id === id);
+            const btn = document.getElementById('btn-salvar-resp'); const txtOrig = btn.innerText; btn.innerText = "Salvando...";
+
+            const { error } = await clienteSupabase.from('rotinas').update({ responsavel: novoResp, alerta_resp_enviado: false }).eq('id', id);
+            btn.innerText = txtOrig; if (error) { alert("❌ Erro: " + error.message); return; }
+
+            if(rotina) adicionarNaTimeline(`Responsável Atualizado`, `A tarefa <strong>${rotina.nome}</strong> agora está sob a responsabilidade de: <strong>${novoResp || 'A Definir'}</strong>.`);
+            closeModal('modal-editar-resp'); carregarRotinas(); 
+        }
+
+        // --- CHECK-IN INTELIGENTE (Unifica Rotinas e Sinais Vitais) ---
         function abrirModalCheckin() {
-            if(document.getElementById('checkin-tarefa').options.length === 0) return alert("✅ Nenhuma tarefa pendente na fila!");
+            const opcoesValidas = document.getElementById('checkin-tarefa').options.length;
+            if(opcoesValidas <= 1) return alert("✅ Nenhuma tarefa pendente na fila!");
             openModal('modal-checkin');
+            verificarTipoCheckin();
+        }
+
+        function verificarTipoCheckin() {
+            const sel = document.getElementById('checkin-tarefa');
+            const idTarefa = sel.value;
+            const rotina = listaDeRotinas.find(r => r.id === idTarefa);
+            const grupoCheckinValor = document.getElementById('grupo-checkin-valor');
+            const inputValor = document.getElementById('checkin-valor');
+            
+            if (rotina && rotina.tipoTarefa === 'Sinal Vital') {
+                grupoCheckinValor.style.display = 'block';
+                // Extrair o nome do sinal da string base gerada "Medir Pressão Arterial" -> "Pressão Arterial"
+                const nomeDoSinal = rotina.tarefaBase.replace('Medir ', '');
+                const ref = referenciasVitais[nomeDoSinal];
+                document.getElementById('checkin-unidade-label').innerText = nomeDoSinal;
+                document.getElementById('checkin-hint-vital').innerText = ref ? `Referência Segura: ${ref.desc}` : '';
+                inputValor.value = ''; // Limpa o campo para a nova medição
+            } else {
+                grupoCheckinValor.style.display = 'none';
+                inputValor.value = '';
+            }
         }
 
         async function salvarCheckin() {
-            const sel = document.getElementById('checkin-tarefa'); const idTarefa = sel.value; const obs = document.getElementById('checkin-obs').value;
+            const sel = document.getElementById('checkin-tarefa'); const idTarefa = sel.value; 
+            if(!idTarefa) return alert("⚠️ Selecione uma tarefa.");
+            
+            const obs = document.getElementById('checkin-obs').value;
             const rotina = listaDeRotinas.find(r => r.id === idTarefa); if(!rotina) return;
             const btn = document.getElementById('btn-concluir-tarefa'); const txtOrig = btn.innerText; 
             
-            let fotoUrlFinal = null;
-            const inputFoto = document.getElementById('checkin-foto');
-            
-            if (inputFoto.files && inputFoto.files.length > 0) {
-                btn.innerText = "Enviando Foto...";
-                const file = inputFoto.files[0];
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}_${idTarefa}.${fileExt}`;
+            let valorInformado = null;
+            let alertaDisparado = false;
+            let refDoSinal = null;
+            let nomeDoSinalParaTabela = "";
+
+            // Se for de saúde, obriga o valor e já cruza com a tabela Sinais Vitais
+            if (rotina.tipoTarefa === 'Sinal Vital') {
+                valorInformado = document.getElementById('checkin-valor').value;
+                if(!valorInformado) return alert("⚠️ Como esta é uma tarefa de Sinal Vital, você precisa preencher o Valor Medido aferido pelo aparelho.");
                 
-                const { data, error: uploadError } = await clienteSupabase.storage.from('comprovantes').upload(fileName, file);
-                if (uploadError) {
-                    alert("⚠️ Aviso: Erro ao fazer upload da foto (" + uploadError.message + "). A tarefa será concluída sem a imagem.");
-                } else {
-                    const { data: publicData } = clienteSupabase.storage.from('comprovantes').getPublicUrl(fileName);
-                    fotoUrlFinal = publicData.publicUrl;
+                nomeDoSinalParaTabela = rotina.tarefaBase.replace('Medir ', '');
+                refDoSinal = referenciasVitais[nomeDoSinalParaTabela];
+                
+                // Verifica Regras do Sinal
+                if (refDoSinal) {
+                    try {
+                        if (refDoSinal.formato === "sist/diast") { 
+                            let p = valorInformado.split('/'); 
+                            if (p.length === 2) { 
+                                let s = parseInt(p[0]); let d = parseInt(p[1]); 
+                                if (s < refDoSinal.minSist || s > refDoSinal.maxSist || d < refDoSinal.minDiast || d > refDoSinal.maxDiast) alertaDisparado = true; 
+                            } else { return alert("⚠️ Formato de pressão inválido. Use Ex: 120/80"); } 
+                        } else { 
+                            let num = parseFloat(valorInformado.replace(',', '.')); 
+                            if (num < refDoSinal.min || num > refDoSinal.max) alertaDisparado = true; 
+                        }
+                    } catch(e) { console.log(e); }
                 }
             }
 
+            let fotoUrlFinal = null; const inputFoto = document.getElementById('checkin-foto');
+            if (inputFoto.files && inputFoto.files.length > 0) {
+                btn.innerText = "Enviando Foto..."; const file = inputFoto.files[0]; const fileExt = file.name.split('.').pop(); const fileName = `${Date.now()}_${idTarefa}.${fileExt}`;
+                const { data, error: uploadError } = await clienteSupabase.storage.from('comprovantes').upload(fileName, file);
+                if (uploadError) alert("⚠️ Aviso: Erro na foto. A tarefa será concluída sem imagem.");
+                else { const { data: publicData } = clienteSupabase.storage.from('comprovantes').getPublicUrl(fileName); fotoUrlFinal = publicData.publicUrl; }
+            }
+
             btn.innerText = "Registrando Conclusão...";
-            const { error } = await clienteSupabase.from('rotinas').update({ status: 'concluido', obs: obs, concluido_por: usuarioAtual.nome, foto_url: fotoUrlFinal }).eq('id', idTarefa);
+
+            // 1. O SALVAMENTO SIMULTÂNEO NA ABA SAÚDE
+            if (rotina.tipoTarefa === 'Sinal Vital' && nomeDoSinalParaTabela) {
+                const obsFormatada = obs ? `${obs} (Via Check-in de Rotina)` : `(Via Check-in de Rotina. Por: ${usuarioAtual.nome})`;
+                const { error: errSinal } = await clienteSupabase.from('sinais_vitais').insert([{ 
+                    familia_id: familiaIdAtual, tipo: nomeDoSinalParaTabela, valor: valorInformado, observacoes: obsFormatada, alerta: alertaDisparado 
+                }]);
+                if (errSinal) console.error("Erro sincronizando sinais", errSinal);
+            }
+
+            // 2. CONCLUI A TAREFA (Rotina) E SALVA O VALOR LÁ TAMBÉM
+            const { error } = await clienteSupabase.from('rotinas').update({ status: 'concluido', obs: obs, concluido_por: usuarioAtual.nome, foto_url: fotoUrlFinal, valor_medido: valorInformado }).eq('id', idTarefa);
             if (error) { btn.innerText = txtOrig; alert("❌ Erro ao concluir tarefa: " + error.message); return; }
 
+            // Gera Timeline Amigável
             let htmlTimeline = `A tarefa <strong>${rotina.nome}</strong> foi finalizada.<br><small>✅ Confirmado por: <strong>${usuarioAtual.nome}</strong></small>`;
+            if (valorInformado) htmlTimeline += `<br><span style="color:var(--accent-hover); font-weight:bold;">📊 Resultado Aferido: ${valorInformado}</span>`;
             if (obs) htmlTimeline += `<br><em>Obs: ${obs}</em>`;
-            
             if (fotoUrlFinal) htmlTimeline += `<br><a href="${fotoUrlFinal}" target="_blank" style="background: var(--primary); color: var(--accent); padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold; display: inline-block; margin-top: 8px;">📷 Visualizar Foto</a>`;
 
-            adicionarNaTimeline(`Tarefa Concluída`, htmlTimeline);
-            
+            let tagTituloTimeline = `Tarefa Concluída`;
+            if (alertaDisparado && refDoSinal) {
+                htmlTimeline = `<strong style="color:var(--danger);">🚨 ATENÇÃO: ${valorInformado} está FORA da referência segura (${refDoSinal.desc}).</strong><br>` + htmlTimeline;
+                tagTituloTimeline = `🚨 ALERTA: ${nomeDoSinalParaTabela}`;
+            }
+
+            adicionarNaTimeline(tagTituloTimeline, htmlTimeline, alertaDisparado);
+            if(alertaDisparado) alert(`🚨 ALERTA MÉDICO DISPARADO!\nO valor ${valorInformado} não está dentro do ideal configurado na aba de Parâmetros.`);
+
+            // Recria Próxima Tarefa se houver Repetição
             if (rotina.freq !== 'Único' && rotina.fimTipo === 'manual') {
-                const proxData = calcularProximaData(rotina.dataHora, rotina.freq, rotina.hrExtra);
-                let turnoProx = obterTurno(`${proxData.getHours()}:00`);
-                await clienteSupabase.from('rotinas').insert([{ familia_id: familiaIdAtual, group_id: rotina.groupId, nome: rotina.tarefaBase, data_hora: proxData.toISOString(), freq: rotina.freq, hr_extra: rotina.hrExtra, fim_tipo: rotina.fimTipo, tarefa_base: rotina.tarefaBase, responsavel: rotina.responsavel, turno: turnoProx }]);
+                const proxData = calcularProximaData(rotina.dataHora, rotina.freq, rotina.hrExtra); let turnoProx = obterTurno(`${proxData.getHours()}:00`);
+                await clienteSupabase.from('rotinas').insert([{ familia_id: familiaIdAtual, group_id: rotina.groupId, nome: rotina.tarefaBase, data_hora: proxData.toISOString(), freq: rotina.freq, hr_extra: rotina.hrExtra, fim_tipo: rotina.fimTipo, tarefa_base: rotina.tarefaBase, responsavel: rotina.responsavel, turno: turnoProx, tipo_tarefa: rotina.tipoTarefa }]);
             }
             
-            btn.innerText = txtOrig; closeModal('modal-checkin'); carregarRotinas();
+            btn.innerText = txtOrig; closeModal('modal-checkin'); carregarRotinas(); 
+            if (rotina.tipoTarefa === 'Sinal Vital') carregarSinaisVitais(); // Atualiza os gráficos
         }
 
+        async function executarExclusaoRotina(modo) {
+            if(!rotinaParaExcluir) return;
+            if(modo === 'serie') { 
+                const { error } = await clienteSupabase.from('rotinas').delete().eq('group_id', rotinaParaExcluir.groupId).eq('status', 'pendente');
+                if (error) return alert("Erro: " + error.message);
+                adicionarNaTimeline('Série Excluída', `A série de tarefas "${rotinaParaExcluir.nome}" foi apagada.`); 
+            } else { 
+                const { error } = await clienteSupabase.from('rotinas').delete().eq('id', rotinaParaExcluir.id);
+                if (error) return alert("Erro: " + error.message);
+                adicionarNaTimeline('Rotina Excluída', `A tarefa pontual "${rotinaParaExcluir.nome}" foi apagada.`); 
+            }
+            rotinaParaExcluir = null; closeModal('modal-excluir-rotina'); carregarRotinas();
+        }
         function abrirModalExclusao(id) {
             rotinaParaExcluir = listaDeRotinas.find(r => r.id === id); if(!rotinaParaExcluir) return;
             const repetiu = listaDeRotinas.filter(r => r.groupId === rotinaParaExcluir.groupId).length > 1 || rotinaParaExcluir.fimTipo === 'manual';
             if (repetiu) { openModal('modal-excluir-rotina'); } else { if(confirm(`Deseja excluir a tarefa pontual "${rotinaParaExcluir.nome}"?`)) executarExclusaoRotina('unica'); }
         }
 
-        async function executarExclusaoRotina(modo) {
-            if(!rotinaParaExcluir) return;
-            
-            if(modo === 'serie') { 
-                const { error } = await clienteSupabase.from('rotinas').delete().eq('group_id', rotinaParaExcluir.groupId).eq('status', 'pendente');
-                if (error) return alert("Erro ao excluir série: " + error.message);
-                adicionarNaTimeline('Série Excluída', `A série de tarefas futuras para "${rotinaParaExcluir.nome}" foi apagada.`); 
-            } 
-            else { 
-                const { error } = await clienteSupabase.from('rotinas').delete().eq('id', rotinaParaExcluir.id);
-                if (error) return alert("Erro ao excluir tarefa: " + error.message);
-                adicionarNaTimeline('Rotina Excluída', `A tarefa pontual "${rotinaParaExcluir.nome}" foi apagada.`); 
-            }
-            
-            rotinaParaExcluir = null; closeModal('modal-excluir-rotina'); carregarRotinas();
-        }
-
-        // --- LÓGICA DE FILTROS E SINAIS VITAIS (Com Banco de Dados) ---
+        // --- ABA SAÚDE LEGADO (Apenas para Registros Retroativos e Atualização de Gráficos) ---
         function aplicarFiltrosSaude() { carregarSinaisVitais(); carregarMedicamentos(); }
         function limparFiltrosSaude() { document.getElementById('filtro-texto-saude').value = ''; document.getElementById('filtro-data-saude').value = ''; aplicarFiltrosSaude(); }
         
         function carregarOpcoesSinaisVitais() { 
-            const sel = document.getElementById('vital-tipo'); 
-            sel.innerHTML = ''; 
+            const sel = document.getElementById('vital-tipo'); sel.innerHTML = ''; 
             for (let chave in referenciasVitais) sel.innerHTML += `<option value="${chave}">${chave}</option>`; 
             sel.addEventListener('change', (e) => { document.getElementById('vital-hint').innerText = `Referência segura: ${referenciasVitais[e.target.value].desc}`; }); 
             document.getElementById('vital-hint').innerText = `Referência segura: ${referenciasVitais["Pressão Arterial"].desc}`; 
@@ -1512,27 +1362,15 @@
         function renderizarConfigVitais() {
             const ul = document.getElementById('lista-config-vitais'); ul.innerHTML = ''; const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
             for (let chave in referenciasVitais) {
-                const isPadrao = padroes.includes(chave); 
-                const tag = isPadrao ? `<span style="background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 8px;">Padrão</span>` : '';
+                const isPadrao = padroes.includes(chave); const tag = isPadrao ? `<span style="background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 8px;">Padrão</span>` : '';
                 const btnDelete = !isPadrao ? `<button class="btn-danger" style="margin-top:0; padding:4px 10px; margin-left: 8px; font-size: 0.8rem; width: auto;" onclick="excluirSinalCustomizado('${chave}', '${referenciasVitais[chave].id}')">Excluir</button>` : '';
-
-                ul.innerHTML += `
-                <li>
-                    <div style="display: flex; flex-direction: column;">
-                        <div style="display: flex; align-items: center;"><strong>${chave}</strong>${tag}</div>
-                        <span style="font-size: 0.85rem; color: var(--text-muted);">Referência: ${referenciasVitais[chave].desc}</span>
-                    </div>
-                    <div style="display:flex;">
-                        <button class="btn-outline" style="margin-top:0; padding:4px 10px;" onclick="abrirEditarParametro('${chave}')">Editar</button>
-                        ${btnDelete}
-                    </div>
-                </li>`;
+                ul.innerHTML += `<li><div style="display: flex; flex-direction: column;"><div style="display: flex; align-items: center;"><strong>${chave}</strong>${tag}</div><span style="font-size: 0.85rem; color: var(--text-muted);">Referência: ${referenciasVitais[chave].desc}</span></div><div style="display:flex;"><button class="btn-outline" style="margin-top:0; padding:4px 10px;" onclick="abrirEditarParametro('${chave}')">Editar</button>${btnDelete}</div></li>`;
             }
         }
 
         function abrirEditarParametro(chave) {
             paramSendoEditado = chave; const ref = referenciasVitais[chave]; document.getElementById('param-titulo').innerText = `Editar Parâmetro`; const div = document.getElementById('param-inputs');
-            const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"]; const isPadrao = padroes.includes(chave); const disableName = isPadrao ? 'disabled title="Nomes padrões são fixos para manter os gráficos sincronizados."' : ''; const styleBlock = isPadrao ? 'background: #e5e7eb;' : '';
+            const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"]; const isPadrao = padroes.includes(chave); const disableName = isPadrao ? 'disabled title="Nomes padrões são fixos."' : ''; const styleBlock = isPadrao ? 'background: #e5e7eb;' : '';
             let un = ref.desc.split(' ').pop(); let htmlInputs = `<div class="form-group"><label>Nome do Sinal</label><input type="text" id="p-nome" value="${chave}" ${disableName} style="${styleBlock}"></div>`;
             if(ref.formato === "sist/diast") { htmlInputs += `<div class="flex-row"><div class="form-group flex-1"><label>Mín Sistólica</label><input type="number" id="p-minsist" value="${ref.minSist}"></div><div class="form-group flex-1"><label>Máx Sistólica</label><input type="number" id="p-maxsist" value="${ref.maxSist}"></div></div><div class="flex-row"><div class="form-group flex-1"><label>Mín Diastólica</label><input type="number" id="p-mindiast" value="${ref.minDiast}"></div><div class="form-group flex-1"><label>Máx Diastólica</label><input type="number" id="p-maxdiast" value="${ref.maxDiast}"></div></div><div class="form-group"><label>Unidade de Medida</label><input type="text" id="p-unidade" value="${un}"></div>`; } 
             else { htmlInputs += `<div class="flex-row"><div class="form-group flex-1"><label>Valor Mínimo</label><input type="number" step="0.1" id="p-min" value="${ref.min}"></div><div class="form-group flex-1"><label>Valor Máximo</label><input type="number" step="0.1" id="p-max" value="${ref.max}"></div></div><div class="form-group"><label>Unidade de Medida</label><input type="text" id="p-unidade" value="${un}"></div>`; }
@@ -1541,68 +1379,44 @@
 
         async function salvarParametro() {
             const novoNome = document.getElementById('p-nome').value; const un = document.getElementById('p-unidade').value; const ref = referenciasVitais[paramSendoEditado];
-            if(!novoNome || !un) return alert("⚠️ Preencha o nome e a unidade de medida.");
-            
+            if(!novoNome || !un) return alert("⚠️ Preencha nome e unidade.");
             let minVal, maxVal;
-            if(ref.formato === "sist/diast") { 
-                ref.minSist = parseInt(document.getElementById('p-minsist').value); ref.maxSist = parseInt(document.getElementById('p-maxsist').value); ref.minDiast = parseInt(document.getElementById('p-mindiast').value); ref.maxDiast = parseInt(document.getElementById('p-maxdiast').value); ref.desc = `${ref.minSist}/${ref.minDiast} a ${ref.maxSist}/${ref.maxDiast} ${un}`; 
-            } else { 
-                minVal = parseFloat(document.getElementById('p-min').value); maxVal = parseFloat(document.getElementById('p-max').value); 
-                ref.min = minVal; ref.max = maxVal; ref.desc = `${minVal} a ${maxVal} ${un}`; 
-            }
+            if(ref.formato === "sist/diast") { ref.minSist = parseInt(document.getElementById('p-minsist').value); ref.maxSist = parseInt(document.getElementById('p-maxsist').value); ref.minDiast = parseInt(document.getElementById('p-mindiast').value); ref.maxDiast = parseInt(document.getElementById('p-maxdiast').value); ref.desc = `${ref.minSist}/${ref.minDiast} a ${ref.maxSist}/${ref.maxDiast} ${un}`; } else { minVal = parseFloat(document.getElementById('p-min').value); maxVal = parseFloat(document.getElementById('p-max').value); ref.min = minVal; ref.max = maxVal; ref.desc = `${minVal} a ${maxVal} ${un}`; }
 
             if (ref.isCustom) {
                 const btn = event.target; const txt = btn.innerText; btn.innerText = "Atualizando...";
-                const { error } = await clienteSupabase.from('parametros_vitais').update({
-                    nome: novoNome, min_ideal: minVal, max_ideal: maxVal, unidade: un
-                }).eq('id', ref.id);
-                btn.innerText = txt;
-                if (error) return alert("❌ Erro ao atualizar no banco: " + error.message);
+                const { error } = await clienteSupabase.from('parametros_vitais').update({ nome: novoNome, min_ideal: minVal, max_ideal: maxVal, unidade: un }).eq('id', ref.id);
+                btn.innerText = txt; if (error) return alert("❌ Erro ao atualizar no banco: " + error.message);
             }
 
             if (novoNome !== paramSendoEditado) { referenciasVitais[novoNome] = ref; delete referenciasVitais[paramSendoEditado]; if (historicoDados[paramSendoEditado]) { historicoDados[novoNome] = historicoDados[paramSendoEditado]; delete historicoDados[paramSendoEditado]; } }
-            alert(`✅ Parâmetro atualizado com sucesso!`); renderizarConfigVitais(); carregarOpcoesSinaisVitais(); closeModal('modal-parametro');
+            alert(`✅ Parâmetro atualizado!`); renderizarConfigVitais(); carregarOpcoesSinaisVitais(); closeModal('modal-parametro');
         }
 
         async function salvarNovoSinal() {
-            const nome = document.getElementById('ns-nome').value; 
-            const min = parseFloat(document.getElementById('ns-min').value); 
-            const max = parseFloat(document.getElementById('ns-max').value); 
-            const un = document.getElementById('ns-unidade').value || '';
-            
-            if(!nome || isNaN(min) || isNaN(max)) return alert("⚠️ Preencha o nome, o mínimo e o máximo.");
-            if(!familiaIdAtual) return alert("⚠️ Id da família não encontrado.");
-
+            const nome = document.getElementById('ns-nome').value; const min = parseFloat(document.getElementById('ns-min').value); const max = parseFloat(document.getElementById('ns-max').value); const un = document.getElementById('ns-unidade').value || '';
+            if(!nome || isNaN(min) || isNaN(max)) return alert("⚠️ Preencha nome, mínimo e máximo.");
             const btn = event.target; const txt = btn.innerText; btn.innerText = "Salvando...";
-            const { data, error } = await clienteSupabase.from('parametros_vitais').insert([{
-                familia_id: familiaIdAtual, nome: nome, min_ideal: min, max_ideal: max, unidade: un
-            }]).select().single();
-
-            btn.innerText = txt;
-            if (error) return alert("❌ Erro ao salvar sinal vital customizado: " + error.message);
+            const { data, error } = await clienteSupabase.from('parametros_vitais').insert([{ familia_id: familiaIdAtual, nome: nome, min_ideal: min, max_ideal: max, unidade: un }]).select().single();
+            btn.innerText = txt; if (error) return alert("❌ Erro: " + error.message);
 
             referenciasVitais[nome] = { min: min, max: max, formato: "num", desc: `${min} a ${max} ${un}`, isCustom: true, id: data.id }; 
             historicoDados[nome] = { labels: [], dataset1: [], dataset2: [] };
-            
-            renderizarConfigVitais(); carregarOpcoesSinaisVitais(); 
-            alert(`✅ Parâmetro "${nome}" criado! Ele já está disponível no registro de Sinais Vitais.`); closeModal('modal-novo-sinal');
+            renderizarConfigVitais(); carregarOpcoesSinaisVitais(); alert(`✅ Parâmetro criado!`); closeModal('modal-novo-sinal');
         }
 
         async function excluirSinalCustomizado(chave, id) {
-            if(!confirm(`Deseja realmente excluir permanentemente o parâmetro de ${chave}? (Isto não apagará o histórico da saúde, mas removerá o parâmetro de limite e gráfico).`)) return;
+            if(!confirm(`Excluir permanentemente o parâmetro de ${chave}? (Não apagará os gráficos).`)) return;
             const { error } = await clienteSupabase.from('parametros_vitais').delete().eq('id', id);
-            if (error) return alert("❌ Erro ao excluir parâmetro: " + error.message);
-
-            delete referenciasVitais[chave]; delete historicoDados[chave];
-            renderizarConfigVitais(); carregarOpcoesSinaisVitais();
-            alert(`✅ Parâmetro "${chave}" removido com sucesso.`);
+            if (error) return alert("❌ Erro: " + error.message);
+            delete referenciasVitais[chave]; delete historicoDados[chave]; renderizarConfigVitais(); carregarOpcoesSinaisVitais(); alert(`✅ Removido.`);
         }
 
         async function carregarSinaisVitais() {
             const lista = document.getElementById('lista-vitais'); lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Carregando prontuário...</li>';
             const textoFiltro = document.getElementById('filtro-texto-saude').value.toLowerCase(); const dataFiltro = document.getElementById('filtro-data-saude').value;
             const { data: vitais, error } = await clienteSupabase.from('sinais_vitais').select('*').order('criado_em', { ascending: true });
-            if (error) { lista.innerHTML = '<li style="text-align:center; color:var(--danger); border:none;">Erro ao carregar histórico.</li>'; return; }
+            if (error) { lista.innerHTML = '<li style="text-align:center; color:var(--danger); border:none;">Erro.</li>'; return; }
             for (let chave in historicoDados) { historicoDados[chave] = { labels: [], dataset1: [], dataset2: [] }; }
             let htmlLista = ''; let listaVazia = true;
 
@@ -1615,136 +1429,91 @@
                         else { historicoDados[v.tipo].dataset1.push(parseFloat(v.valor.replace(',', '.'))); }
                     }
                     let passaFiltroTexto = v.tipo.toLowerCase().includes(textoFiltro) || (v.observacoes && v.observacoes.toLowerCase().includes(textoFiltro)); let passaFiltroData = true;
-                    
-                    if (dataFiltro) { 
-                        const [ano, mes, dia] = dataFiltro.split('-'); 
-                        const dataFiltroFormatada = `${dia}/${mes}/${ano}`;
-                        passaFiltroData = (dataStr === dataFiltroFormatada); 
-                    }
+                    if (dataFiltro) { const [ano, mes, dia] = dataFiltro.split('-'); passaFiltroData = (dataStr === `${dia}/${mes}/${ano}`); }
 
                     if (passaFiltroTexto && passaFiltroData) {
                         listaVazia = false;
-                        htmlLista = `<li><div><span style="color: var(--text-muted); font-size: 0.85rem;">📅 Registrado em: ${dataStr} às ${horaStr}</span><br><span>${v.tipo}: <strong style="color: ${cor}">${v.valor}</strong> ${v.observacoes ? `<br><span style="font-size:0.8rem; color:var(--text-muted);">Obs: ${v.observacoes}</span>` : ''}</span></div><button class="btn-trash" onclick="excluirSinalVital('${v.id}')" title="Excluir Registro">🗑️</button></li>` + htmlLista;
+                        htmlLista = `<li><div><span style="color: var(--text-muted); font-size: 0.85rem;">📅 Registrado em: ${dataStr} às ${horaStr}</span><br><span>${v.tipo}: <strong style="color: ${cor}">${v.valor}</strong> ${v.observacoes ? `<br><span style="font-size:0.8rem; color:var(--text-muted);">Obs: ${v.observacoes}</span>` : ''}</span></div><button class="btn-trash" onclick="excluirSinalVital('${v.id}')">🗑️</button></li>` + htmlLista;
                     }
                 });
             }
-            if(listaVazia) htmlLista = '<li style="text-align:center; color:var(--text-muted); border:none;">Nenhum registro encontrado para este filtro.</li>';
-            lista.innerHTML = htmlLista;
+            lista.innerHTML = listaVazia ? '<li style="text-align:center; color:var(--text-muted); border:none;">Nenhum registro encontrado para este filtro.</li>' : htmlLista;
             for (let chave in graficos) { if (graficos[chave]) graficos[chave].update(); }
         }
 
         async function salvarSinalVital() {
             const tipo = document.getElementById('vital-tipo').value; let valor = document.getElementById('vital-valor').value; const obs = document.getElementById('vital-obs').value;
-            if(!valor) return alert("⚠️ Preencha o valor medido."); if(!familiaIdAtual) return alert("⚠️ Erro de sessão: ID da Família não encontrado.");
-
+            if(!valor) return alert("⚠️ Preencha o valor medido."); 
             let foraRef = false, ref = referenciasVitais[tipo], s = null, d = null, num = null;
             try {
                 if (ref.formato === "sist/diast") { let p = valor.split('/'); if (p.length === 2) { s = parseInt(p[0]); d = parseInt(p[1]); if (s < ref.minSist || s > ref.maxSist || d < ref.minDiast || d > ref.maxDiast) foraRef = true; } else { return alert("⚠️ Formato inválido. Use Ex: 120/80"); } } 
                 else { num = parseFloat(valor.replace(',', '.')); if (num < ref.min || num > ref.max) foraRef = true; }
             } catch(e) {}
 
-            const btn = event.target; const txtOriginal = btn.innerText; btn.innerText = "Salvando na nuvem...";
-            const obsFinal = obs ? `${obs} (Reg. por: ${usuarioAtual.nome})` : `(Reg. por: ${usuarioAtual.nome})`;
-            
+            const btn = event.target; const txtOriginal = btn.innerText; btn.innerText = "Salvando...";
+            const obsFinal = obs ? `${obs} (Reg. Manual por: ${usuarioAtual.nome})` : `(Reg. Manual por: ${usuarioAtual.nome})`;
             const { error } = await clienteSupabase.from('sinais_vitais').insert([{ familia_id: familiaIdAtual, tipo: tipo, valor: valor, observacoes: obsFinal, alerta: foraRef }]);
-            btn.innerText = txtOriginal;
-            if (error) { return alert("❌ Erro ao salvar sinal vital: " + error.message); }
+            btn.innerText = txtOriginal; if (error) return alert("❌ Erro: " + error.message);
 
             let txtAlerta = foraRef ? `Atenção Clínica: ${tipo} (${valor}) fora da referência segura!` : `Sinal vital ${tipo} registrado: ${valor}.`;
             if (obs) txtAlerta += ` <br><em>Obs: ${obs}</em>`;
-            txtAlerta += ` <br><small>👨‍⚕️ Registrado por: <strong>${usuarioAtual.nome}</strong></small>`;
-            
-            adicionarNaTimeline(`Medição de ${tipo}`, txtAlerta, foraRef);
-            if(foraRef) alert(`🚨 ALERTA MÉDICO: A medição de ${tipo} está fora da referência segura configurada (${ref.desc}).`);
-
+            adicionarNaTimeline(`Histórico Retroativo Adicionado`, txtAlerta, foraRef, true);
             closeModal('modal-vitais'); carregarSinaisVitais();
         }
 
-        async function excluirSinalVital(id) {
-            if(!confirm("Deseja realmente excluir este registro do prontuário? Essa ação atualizará os gráficos.")) return;
-            const { error } = await clienteSupabase.from('sinais_vitais').delete().eq('id', id);
-            if (error) { alert("❌ Erro ao excluir: " + error.message); } else { adicionarNaTimeline('Registro Excluído', 'Uma medição de sinal vital foi removida do histórico.'); carregarSinaisVitais(); }
-        }
+        async function excluirSinalVital(id) { if(confirm("Deseja excluir este registro do prontuário? O gráfico mudará.")) { await clienteSupabase.from('sinais_vitais').delete().eq('id', id); carregarSinaisVitais(); } }
 
-        // --- SISTEMA DE MEDICAMENTOS ---
         async function carregarMedicamentos() {
-            const lista = document.getElementById('lista-medicamentos'); lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Carregando medicamentos...</li>';
+            const lista = document.getElementById('lista-medicamentos'); lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Carregando...</li>';
             const textoFiltro = document.getElementById('filtro-texto-saude').value.toLowerCase(); const dataFiltro = document.getElementById('filtro-data-saude').value;
             const { data: meds, error } = await clienteSupabase.from('medicamentos').select('*').order('criado_em', { ascending: false });
-            if (error) { lista.innerHTML = '<li style="text-align:center; color:var(--danger); border:none;">Erro ao carregar lista.</li>'; return; }
-            lista.innerHTML = ''; let listaVazia = true;
+            if (error) return; lista.innerHTML = ''; let listaVazia = true;
 
             if (meds) {
                 meds.forEach(m => {
                     const dataReg = m.criado_em ? new Date(m.criado_em) : new Date(); const dataStr = dataReg.toLocaleDateString('pt-BR'); const horaRegStr = dataReg.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}); const horaFormatada = m.horario_primeiro_consumo.substring(0, 5);
                     let passaFiltroTexto = m.nome_dosagem.toLowerCase().includes(textoFiltro) || (m.observacoes && m.observacoes.toLowerCase().includes(textoFiltro)); let passaFiltroData = true;
-                    if (dataFiltro) { 
-                        const [ano, mes, dia] = dataFiltro.split('-'); 
-                        const dataFiltroFormatada = `${dia}/${mes}/${ano}`;
-                        passaFiltroData = (dataStr === dataFiltroFormatada); 
-                    }
-                    
+                    if (dataFiltro) { const [ano, mes, dia] = dataFiltro.split('-'); passaFiltroData = (dataStr === `${dia}/${mes}/${ano}`); }
                     if (passaFiltroTexto && passaFiltroData) {
                         listaVazia = false;
-                        lista.innerHTML += `<li><div><span style="color: var(--text-muted); font-size: 0.85rem;">📅 Registrado em: ${dataStr} às ${horaRegStr}</span><br><strong>${m.nome_dosagem}</strong><br><span style="font-size:0.8rem; color:var(--text-muted);">${m.observacoes ? `Obs: ${m.observacoes}` : ''}</span></div><div style="display:flex; align-items:center; gap: 15px; flex-direction: column;"><span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: -10px;">Início às</span><span style="color: var(--primary); font-weight:600; font-size: 1.1rem;">${horaFormatada}</span><button class="btn-trash" onclick="excluirMedicamento('${m.id}')" title="Excluir Remédio">🗑️</button></div></li>`;
+                        lista.innerHTML += `<li><div><span style="color: var(--text-muted); font-size: 0.85rem;">📅 Registrado em: ${dataStr}</span><br><strong>${m.nome_dosagem}</strong><br><span style="font-size:0.8rem; color:var(--text-muted);">${m.observacoes ? `Obs: ${m.observacoes}` : ''}</span></div><div style="display:flex; align-items:center; gap: 15px; flex-direction: column;"><span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: -10px;">Início às</span><span style="color: var(--primary); font-weight:600; font-size: 1.1rem;">${horaFormatada}</span><button class="btn-trash" onclick="excluirMedicamento('${m.id}')">🗑️</button></div></li>`;
                     }
                 });
             }
-            if(listaVazia) lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Nenhum medicamento encontrado para este filtro.</li>';
+            if(listaVazia) lista.innerHTML = '<li style="text-align:center; color:var(--text-muted); border:none;">Nenhum medicamento encontrado.</li>';
         }
 
         async function salvarMedicamento() {
             const nm = document.getElementById('med-nome').value; const hr = document.getElementById('med-hora').value; const obs = document.getElementById('med-obs').value;
-            if(!nm || !hr) return alert("⚠️ Preencha o nome do medicamento e o horário."); if(!familiaIdAtual) return alert("⚠️ Erro de sessão: ID da Família não encontrado.");
-            const btn = event.target; const txtOriginal = btn.innerText; btn.innerText = "Salvando na nuvem...";
-            
+            if(!nm || !hr) return alert("⚠️ Preencha nome e horário."); 
+            const btn = event.target; const txtOriginal = btn.innerText; btn.innerText = "Salvando...";
             const obsFinal = obs ? `${obs} (Reg. por: ${usuarioAtual.nome})` : `(Reg. por: ${usuarioAtual.nome})`;
-
             const { error } = await clienteSupabase.from('medicamentos').insert([{ familia_id: familiaIdAtual, nome_dosagem: nm, horario_primeiro_consumo: hr, observacoes: obsFinal }]);
-            btn.innerText = txtOriginal;
-            if (error) { return alert("❌ Erro ao salvar medicamento: " + error.message); }
+            btn.innerText = txtOriginal; if (error) return alert("❌ Erro: " + error.message);
             
-            const agora = new Date(); const [h, m] = hr.split(':').map(Number); const retroativo = (h * 60 + m) < (agora.getHours() * 60 + agora.getMinutes());
-            
-            let textoTimeline = retroativo ? `${nm} adicionado à lista (Horário base: ${hr}).` : `Novo medicamento programado: ${nm} às ${hr}.`;
-            if(obs) textoTimeline += ` Obs: ${obs}`;
-            textoTimeline += ` <br><small>👨‍⚕️ Registrado por: <strong>${usuarioAtual.nome}</strong></small>`;
-            
-            adicionarNaTimeline(`Medicação Cadastrada`, textoTimeline, false, retroativo);
-            alert("✅ Medicamento cadastrado com sucesso!"); closeModal('modal-medicamento'); carregarMedicamentos();
+            adicionarNaTimeline(`Remédio Histórico Cadastrado`, `Medicamento legado adicionado: ${nm} às ${hr}.`, false, true);
+            alert("✅ Medicamento salvo!"); closeModal('modal-medicamento'); carregarMedicamentos();
         }
 
-        async function excluirMedicamento(id) {
-            if(!confirm("Deseja realmente remover este medicamento do prontuário?")) return;
-            const { error } = await clienteSupabase.from('medicamentos').delete().eq('id', id);
-            if (error) { alert("❌ Erro ao excluir: " + error.message); } else { adicionarNaTimeline('Medicamento Removido', 'Um medicamento foi removido da lista ativa.'); carregarMedicamentos(); }
-        }
+        async function excluirMedicamento(id) { if(confirm("Deseja remover este medicamento da lista ativa?")) { await clienteSupabase.from('medicamentos').delete().eq('id', id); carregarMedicamentos(); } }
 
         // --- 9. GRÁFICOS (CHART.JS) ---
         function inicializarGraficos() {
-            const container = document.getElementById('charts-container'); 
-            container.innerHTML = ''; 
+            const container = document.getElementById('charts-container'); container.innerHTML = ''; 
             const padroes = ["Pressão Arterial", "Glicemia", "Temperatura", "SpO2 (Saturação)", "Frequência Cardíaca"];
-            
             for(let chave of padroes) {
                 if(!historicoDados[chave]) historicoDados[chave] = { labels: [], dataset1: [], dataset2: [] };
                 container.innerHTML += `<div class="card"><strong>${chave}</strong><p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Evolução das últimas medições</p><div class="chart-container"><canvas id="chart-${chave.replace(/\s+/g, '')}"></canvas></div></div>`;
             }
-            
             setTimeout(() => {
                 for(let chave of padroes) {
-                    const canvas = document.getElementById(`chart-${chave.replace(/\s+/g, '')}`);
-                    if (!canvas) continue;
-                    
+                    const canvas = document.getElementById(`chart-${chave.replace(/\s+/g, '')}`); if (!canvas) continue;
                     const ctx = canvas.getContext('2d'); 
                     let config = { type: 'line', data: { labels: historicoDados[chave].labels, datasets: [] }, options: { responsive: true, maintainAspectRatio: false } };
-                    
                     if(referenciasVitais[chave] && referenciasVitais[chave].formato === "sist/diast") { 
                         config.data.datasets.push({ label: 'Sistólica', data: historicoDados[chave].dataset1, borderColor: '#d32f2f', backgroundColor: '#d32f2f', tension: 0.3 }); 
                         config.data.datasets.push({ label: 'Diastólica', data: historicoDados[chave].dataset2, borderColor: '#1976d2', backgroundColor: '#1976d2', tension: 0.3 }); 
-                    } else { 
-                        config.data.datasets.push({ label: 'Valor', data: historicoDados[chave].dataset1, borderColor: '#ffc107', backgroundColor: '#ffc107', tension: 0.3 }); 
-                    }
+                    } else { config.data.datasets.push({ label: 'Valor', data: historicoDados[chave].dataset1, borderColor: '#ffc107', backgroundColor: '#ffc107', tension: 0.3 }); }
                     graficos[chave] = new Chart(ctx, config);
                 }
             }, 100);
@@ -1756,43 +1525,27 @@
             const tel = document.getElementById('usr-telefone').value; const em = document.getElementById('usr-email').value; const sn = document.getElementById('usr-senha').value; const prf = document.getElementById('usr-perfil').value;
             const btn = document.getElementById('btn-salvar-user');
             
-            if(!nm || !tel || !em || !sn || !dt) return alert("⚠️ Preencha os campos obrigatórios.");
-            if(cpf && !validarCPF(cpf)) return alert("⚠️ CPF inválido."); if(!validarTelefone(tel)) return alert("⚠️ Telefone incompleto."); if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
+            // TELEFONE REMOVIDO AQUI
+            if(!nm || !em || !sn || !dt) return alert("⚠️ Preencha Nome, E-mail, Senha e Nascimento.");
+            if(cpf && !validarCPF(cpf)) return alert("⚠️ CPF inválido."); if(tel && !validarTelefone(tel)) return alert("⚠️ Telefone incompleto."); if(!validarEmail(em)) return alert("⚠️ E-mail inválido.");
             
-            if(prf === 'Administrador') { const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length; if(qtdAdmins >= 2) return alert("⚠️ Limite atingido: O plano atual permite apenas 2 Administradores."); }
-            const cards = Array.from(document.querySelectorAll('#lista-usuarios .card')); const duplicado = cards.some(c => (cpf && c.getAttribute('data-cpf') === cpf) || c.querySelector('.user-email').innerText === em || c.querySelector('.user-tel').innerText === tel);
-            if(duplicado) return alert("⚠️ Cadastro Bloqueado: Já existe um usuário cadastrado com este E-mail, CPF ou Telefone.");
+            if(prf === 'Administrador') { const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length; if(qtdAdmins >= 2) return alert("⚠️ Limite atingido: Apenas 2 Administradores permitidos."); }
 
-            btn.innerText = "Verificando Segurança...";
-            if (await verificarSenhaVazada(sn)) {
-                btn.innerText = "Finalizar Cadastro";
-                return alert("⚠️ ALERTA DE SEGURANÇA: Esta senha já foi exposta em vazamentos de dados na internet. Escolha outra para proteger a conta.");
-            }
+            btn.innerText = "Verificando...";
+            if (await verificarSenhaVazada(sn)) { btn.innerText = "Finalizar Cadastro"; return alert("⚠️ Senha vazada. Escolha outra."); }
             
             btn.innerText = "Criando Usuário...";
             const { data: novoAuth, error } = await supabaseTemp.auth.signUp({ email: em, password: sn, options: { data: { full_name: nm, cpf: cpf, perfil: prf, telefone: tel, data_nascimento: dt, familia_id: familiaIdAtual } } });
+            if(error) { btn.innerText = "Finalizar Cadastro"; return alert("❌ Erro Supabase: " + error.message); }
             
-            if(error) {
-                btn.innerText = "Finalizar Cadastro";
-                return alert("❌ Erro ao salvar no banco de dados Supabase: " + error.message);
-            }
-            
-            if (novoAuth.user) {
-                const { error: errDb } = await clienteSupabase.from('usuarios').upsert([{ id: novoAuth.user.id, email: em, nome: nm, cpf: cpf, telefone: tel, data_nascimento: dt, familia_id: familiaIdAtual, perfil: prf, ativo: true, tutorial_visto: false }]);
-                if (errDb) {
-                    btn.innerText = "Finalizar Cadastro";
-                    return alert("❌ Usuário criado na base Auth, mas houve erro ao vinculá-lo à família: " + errDb.message);
-                }
-            }
+            if (novoAuth.user) { await clienteSupabase.from('usuarios').upsert([{ id: novoAuth.user.id, email: em, nome: nm, cpf: cpf, telefone: tel, data_nascimento: dt, familia_id: familiaIdAtual, perfil: prf, ativo: true, tutorial_visto: false }]); }
 
-            btn.innerText = "Finalizar Cadastro";
-            alert(`✅ Usuário ${nm} cadastrado com sucesso e vinculado à sua família!`);
-            closeModal('modal-usuario'); window.location.reload(); 
+            btn.innerText = "Finalizar Cadastro"; alert(`✅ Usuário ${nm} cadastrado com sucesso!`); closeModal('modal-usuario'); window.location.reload(); 
         }
 
         function abrirPersonalizar(btn) {
             cartaoSendoEditado = btn.closest('.card');
-            const nmRaw = cartaoSendoEditado.querySelector('strong').innerText; const nm = nmRaw.split(' (')[0]; 
+            const nm = cartaoSendoEditado.querySelector('strong').innerText.split(' (')[0]; 
             const em = cartaoSendoEditado.querySelector('.user-email').innerText; const tl = cartaoSendoEditado.querySelector('.user-tel').innerText;
             const cpf = cartaoSendoEditado.getAttribute('data-cpf') || ''; const perfil = cartaoSendoEditado.getAttribute('data-perfil') || 'Cuidador'; const nasc = cartaoSendoEditado.getAttribute('data-nascimento') || '';
             
@@ -1816,49 +1569,109 @@
             const nm = document.getElementById('edit-nome').value; const cpf = document.getElementById('edit-cpf').value; const em = document.getElementById('edit-email').value;
             const tl = document.getElementById('edit-telefone').value; const dt = document.getElementById('edit-nascimento').value; const perfil = document.getElementById('edit-perfil').value;
             
-            if(!nm || !em) return alert("⚠️ Nome e E-mail são obrigatórios."); if(cpf && !validarCPF(cpf)) return alert("⚠️ CPF inválido."); if(tl && !validarTelefone(tl)) return alert("⚠️ Telefone inválido.");
-            const isJaAdmin = cartaoSendoEditado.getAttribute('data-admin') === 'true'; if (perfil === 'Administrador' && !isJaAdmin) { const qtdAdmins = document.querySelectorAll('.card[data-admin="true"]').length; if (qtdAdmins >= 2) return alert("⚠️ Limite atingido: Você já possui o máximo de 2 Administradores."); }
-
+            if(!nm || !em) return alert("⚠️ Nome e E-mail obrigatórios."); if(cpf && !validarCPF(cpf)) return alert("⚠️ CPF inválido."); if(tl && !validarTelefone(tl)) return alert("⚠️ Telefone inválido.");
+            
             const userId = cartaoSendoEditado.getAttribute('data-id'); const btn = event.target; const txtOriginal = btn.innerText; btn.innerText = "Salvando...";
             const { error } = await clienteSupabase.from('usuarios').update({ nome: nm, cpf: cpf, email: em, telefone: tl, perfil: perfil, data_nascimento: dt }).eq('id', userId);
-            btn.innerText = txtOriginal; if (error) return alert("❌ Erro ao salvar no banco de dados: " + error.message);
+            btn.innerText = txtOriginal; if (error) return alert("❌ Erro: " + error.message);
 
             cartaoSendoEditado.setAttribute('data-cpf', cpf); cartaoSendoEditado.setAttribute('data-perfil', perfil); cartaoSendoEditado.setAttribute('data-nascimento', dt); cartaoSendoEditado.setAttribute('data-admin', perfil === 'Administrador' ? 'true' : 'false');
             cartaoSendoEditado.querySelector('strong').innerText = perfil === 'Administrador' ? `${nm} (Administrador)` : nm; cartaoSendoEditado.querySelector('.user-email').innerText = em; cartaoSendoEditado.querySelector('.user-tel').innerText = tl;
             
             if(perfil === 'Administrador') document.getElementById('secao-inativar').style.display = 'none';
-            alert("✅ Cadastro atualizado com sucesso!"); closeModal('modal-personalizar');
+            alert("✅ Atualizado!"); closeModal('modal-personalizar');
         }
 
         async function enviarLinkSenha(doPainel = false) {
-            const em = document.getElementById('edit-email').value; if(!em || !validarEmail(em)) return alert("⚠️ E-mail atual é inválido para recebimento do link.");
+            const em = document.getElementById('edit-email').value; if(!em || !validarEmail(em)) return alert("⚠️ E-mail inválido.");
             const { error } = await clienteSupabase.auth.resetPasswordForEmail(em, { redirectTo: window.location.origin + window.location.pathname });
-            if (error) { alert("❌ Erro ao enviar link: " + error.message); } else { alert(`✅ Um link oficial de redefinição de senha foi enviado para ${em}.`); }
+            if (error) { alert("❌ Erro: " + error.message); } else { alert(`✅ Link de senha enviado para ${em}.`); }
         }
 
         async function alternarStatusUsuario() {
             const inativo = cartaoSendoEditado.classList.contains('inativo'); 
             let tag = cartaoSendoEditado.querySelector('.status-tag');
-            const userId = cartaoSendoEditado.getAttribute('data-id');
-            const btnStat = document.getElementById('btn-status-usuario');
-            const txtOriginal = btnStat.innerText;
+            const userId = cartaoSendoEditado.getAttribute('data-id'); const btnStat = document.getElementById('btn-status-usuario'); const txtOriginal = btnStat.innerText;
 
-            if(inativo && confirm("Deseja restaurar o acesso deste usuário?")) { 
-                btnStat.innerText = "Restaurando...";
-                const { error } = await clienteSupabase.from('usuarios').update({ ativo: true }).eq('id', userId);
-                if (error) { alert("Erro ao restaurar: " + error.message); btnStat.innerText = txtOriginal; return; }
-                cartaoSendoEditado.classList.remove('inativo'); 
-                if(tag) tag.style.display = 'none'; 
+            if(inativo && confirm("Restaurar acesso?")) { 
+                btnStat.innerText = "Restaurando..."; const { error } = await clienteSupabase.from('usuarios').update({ ativo: true }).eq('id', userId);
+                if (error) { alert("Erro: " + error.message); btnStat.innerText = txtOriginal; return; }
+                cartaoSendoEditado.classList.remove('inativo'); if(tag) tag.style.display = 'none'; 
             } 
-            else if (!inativo && confirm("Deseja bloquear o acesso deste usuário imediatamente?")) {
-                btnStat.innerText = "Bloqueando...";
-                const { error } = await clienteSupabase.from('usuarios').update({ ativo: false }).eq('id', userId);
-                if (error) { alert("Erro ao inativar: " + error.message); btnStat.innerText = txtOriginal; return; }
+            else if (!inativo && confirm("Bloquear acesso agora?")) {
+                btnStat.innerText = "Bloqueando..."; const { error } = await clienteSupabase.from('usuarios').update({ ativo: false }).eq('id', userId);
+                if (error) { alert("Erro: " + error.message); btnStat.innerText = txtOriginal; return; }
                 cartaoSendoEditado.classList.add('inativo');
                 if(!tag) { tag = document.createElement('p'); tag.className = 'status-tag'; tag.style = "display: block; color: var(--danger);"; cartaoSendoEditado.insertBefore(tag, cartaoSendoEditado.querySelector('button')); }
                 tag.style.display = 'block'; tag.style.color = 'var(--danger)'; tag.innerText = '🚫 Acesso Inativado';
             }
             closeModal('modal-personalizar');
+        }
+
+        // =========================================================================================
+        // MOTOR DO TOUR GUIADO 2.0 (Com jornada de agendamento inclusa)
+        // =========================================================================================
+        const tourSteps = [
+            { type: 'modal', title: '👋 Atualizações Chegaram!', text: 'O CareBridge ficou mais inteligente. Gostaria de ver o novo sistema de agendamento de Saúde que unificamos com os Turnos?', btnNext: 'Ver Novidades' },
+            { tab: 'timeline', selector: '.btn-filter-toggle', title: 'Filtros Ocultos (Para limpar a tela)', text: 'Organizamos a visualização! Agora as opções de busca inteligente de datas, status e nome estão guardadas dentro deste botão clicável em todas as telas.', btnPrev: 'Voltar', btnNext: 'Próximo' },
+            { tab: 'saude', selector: '#saude .section-title', title: 'O Fim do Prontuário Desorganizado', text: 'Você não precisa mais lançar manualmente o histórico de saúde. Agora a inteligência mora no agendamento...', btnPrev: 'Voltar', btnNext: 'Próximo' },
+            { tab: 'gestao', selector: '#btn-config-turno-tour', title: 'O Agendamento Unificado', text: 'Tudo agora nasce aqui! Ao agendar uma Tarefa, você vai poder escolher no sistema se ela é Comum, um Sinal Vital a ser medido, ou uma Medicação.', btnPrev: 'Voltar', btnNext: 'Próximo' },
+            { tab: 'gestao', selector: '#btn-checkin-tour', title: 'Check-in Inteligente', text: 'Ao clicar neste botão para cumprir uma tarefa agendada de saúde (ex: Medir Pressão), o sistema vai exigir que você digite a medição e automaticamente criará o gráfico para o médico.', btnPrev: 'Voltar', btnNext: 'Próximo' },
+            { tab: 'gestao', selector: '#filtros-rotina', title: 'Visão Limpa: Ocultando Concluídas', text: 'Para sua lista de tarefas não virar uma bagunça no final do dia, adicionamos um filtro que oculta tudo que já foi feito, deixando visível apenas as pendências.', btnPrev: 'Voltar', btnNext: 'Próximo' },
+            { type: 'modal', title: '🎉 Tudo Pronto!', text: 'Sua Escala Operacional e seus Registros de Saúde agora trabalham juntos! Aproveite a fluidez do novo CareBridge.', btnNext: 'Fechar Tour' }
+        ];
+
+        let currentTourStep = 0;
+
+        function iniciarTutorial(forcarRecomeco = false) {
+            currentTourStep = 0; if(forcarRecomeco) openTabApp('timeline');
+            document.getElementById('tour-overlay').style.display = 'block'; document.getElementById('tour-spotlight').style.display = 'none'; document.getElementById('tour-tooltip').style.display = 'none'; document.body.classList.add('tour-active');
+            renderizarStepAtual();
+        }
+
+        async function finalizarTutorial() {
+            document.getElementById('tour-overlay').style.display = 'none'; document.getElementById('tour-modal').style.display = 'none'; document.getElementById('tour-spotlight').style.display = 'none'; document.getElementById('tour-tooltip').style.display = 'none'; document.body.classList.remove('tour-active');
+            if (currentTourStep === tourSteps.length - 1) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            
+            if (usuarioAtual && !usuarioAtual.tutorial_visto) { await clienteSupabase.from('usuarios').update({ tutorial_visto: true }).eq('id', usuarioAtual.id); usuarioAtual.tutorial_visto = true; }
+            openTabApp('timeline'); window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function pularTour() {
+            if (usuarioAtual && !usuarioAtual.tutorial_visto) { await clienteSupabase.from('usuarios').update({ tutorial_visto: true }).eq('id', usuarioAtual.id); usuarioAtual.tutorial_visto = true; }
+            document.getElementById('tour-overlay').style.display = 'none'; document.getElementById('tour-modal').style.display = 'none'; document.body.classList.remove('tour-active');
+        }
+
+        function tourProximo() { if (currentTourStep < tourSteps.length - 1) { currentTourStep++; renderizarStepAtual(); } else { finalizarTutorial(); } }
+        function tourAnterior() { if (currentTourStep > 0) { currentTourStep--; renderizarStepAtual(); } }
+
+        function renderizarStepAtual() {
+            const step = tourSteps[currentTourStep]; const modal = document.getElementById('tour-modal'); const spotlight = document.getElementById('tour-spotlight'); const tooltip = document.getElementById('tour-tooltip');
+
+            if (step.type === 'modal') {
+                spotlight.style.display = 'none'; tooltip.style.display = 'none';
+                document.getElementById('tour-modal-title').innerText = step.title; document.getElementById('tour-modal-text').innerText = step.text; document.getElementById('tour-modal-btn-primary').innerText = step.btnNext;
+                if (currentTourStep === 0) document.getElementById('tour-modal-btn-secondary').style.display = 'block'; else document.getElementById('tour-modal-btn-secondary').style.display = 'none';
+                modal.style.display = 'block';
+            } else {
+                modal.style.display = 'none'; if (step.tab) openTabApp(step.tab);
+                setTimeout(() => {
+                    const targetEl = document.querySelector(step.selector);
+                    if (targetEl) {
+                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        setTimeout(() => {
+                            const rect = targetEl.getBoundingClientRect(); const padding = 10;
+                            spotlight.style.display = 'block'; spotlight.style.top = `${rect.top - padding}px`; spotlight.style.left = `${rect.left - padding}px`; spotlight.style.width = `${rect.width + (padding*2)}px`; spotlight.style.height = `${rect.height + (padding*2)}px`;
+                            document.getElementById('tour-title').innerText = step.title; document.getElementById('tour-text').innerText = step.text;
+                            tooltip.style.display = 'block'; const tooltipRect = tooltip.getBoundingClientRect();
+                            let tooltipTop = rect.bottom + padding + 15; let tooltipLeft = Math.max(10, rect.left);
+                            if (tooltipTop + tooltipRect.height > window.innerHeight) tooltipTop = rect.top - padding - tooltipRect.height - 15;
+                            if (tooltipLeft + tooltipRect.width > window.innerWidth) tooltipLeft = window.innerWidth - tooltipRect.width - 15;
+                            tooltip.style.top = `${Math.max(10, tooltipTop)}px`; tooltip.style.left = `${Math.max(10, tooltipLeft)}px`;
+                        }, 400); 
+                    }
+                }, 150);
+            }
         }
     </script>
 </body>
