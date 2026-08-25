@@ -335,7 +335,7 @@
         <main id="timeline" class="tab-content active">
             <h2 class="section-title">Últimas Atualizações</h2>
 
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px;">
+            <div id="tour-timeline-filters" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px;">
                 <input type="text" id="filtro-texto-timeline" placeholder="Buscar atualizações..." oninput="carregarTimeline()" style="flex: 1; min-width: 150px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
                 <input type="date" id="filtro-data-timeline" onchange="carregarTimeline()" style="padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
                 
@@ -380,7 +380,7 @@
                 <button class="btn-outline" id="btn-config-turno-tour" style="width: 100%; border-style: dashed;" onclick="openModal('modal-itinerario')">+ Configurar Novo Turno</button>
             </div>
             
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+            <div id="tour-gestao-filtros" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                     <label style="font-size: 0.9rem; font-weight: 600;">Filtros:</label>
                     <input type="date" id="filtro-data-rotina" onchange="renderizarRotinas()" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
@@ -970,11 +970,13 @@
         const tourSteps = [
             { type: 'modal', title: '👋 Bem-vindo ao CareBridge!', text: 'Gostaria de fazer um tour rápido para conhecer as principais funcionalidades do painel da família?', btnNext: 'Começar Tutorial' },
             { tab: 'timeline', selector: '#timeline .section-title', title: 'Linha do Tempo', text: 'Aqui você acompanha tudo o que acontece na sua família em tempo real. Desde atualizações de saúde a tarefas concluídas.', btnPrev: 'Voltar', btnNext: 'Próximo' },
+            { tab: 'timeline', selector: '#tour-timeline-filters', title: 'Busca Inteligente', text: 'Use estes filtros para buscar históricos antigos pelo nome da atividade, selecionar responsáveis específicos ou filtrar por turno.', btnPrev: 'Voltar', btnNext: 'Próximo' },
             { tab: 'saude', selector: '#saude .section-title', title: 'Prontuário Unificado', text: 'A aba Saúde concentra todo o histórico médico do paciente de forma organizada.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'saude', selector: '#card-vitais-tour', title: 'Sinais Vitais', text: 'Registre as medições diárias (Pressão, Glicemia, etc.). O sistema emitirá um alerta vermelho se algo for registrado fora do padrão seguro.', btnPrev: 'Voltar', btnNext: 'Próximo' },
+            { tab: 'saude', selector: '#card-vitais-tour', title: 'Sinais Vitais', text: 'Registre as medições diárias (Pressão, Glicemia, etc.). O sistema emitirá um alerta se algo for registrado fora do padrão seguro.', btnPrev: 'Voltar', btnNext: 'Próximo' },
             { tab: 'saude', selector: '#card-meds-tour', title: 'Medicamentos Ativos', text: 'Gerencie os remédios de uso contínuo ou temporário que estão sendo administrados.', btnPrev: 'Voltar', btnNext: 'Próximo' },
             { tab: 'gestao', selector: '#gestao .section-title', title: 'Escala Operacional', text: 'A aba de Turnos é onde organizamos as tarefas, banhos, medicações e a rotina da família.', btnPrev: 'Voltar', btnNext: 'Próximo' },
             { tab: 'gestao', selector: '#btn-config-turno-tour', title: 'Configurar Novo Turno', text: 'Aqui você cria novas tarefas de rotina (únicas ou repetitivas) e já atribui quem será o responsável por elas.', btnPrev: 'Voltar', btnNext: 'Próximo' },
+            { tab: 'gestao', selector: '#tour-gestao-filtros', title: 'Acompanhamento e Filtros', text: 'Veja o contador de atualização em tempo real, e filtre a escala do dia por cada responsável.', btnPrev: 'Voltar', btnNext: 'Próximo' },
             { tab: 'gestao', selector: '#btn-checkin-tour', title: 'Check-in de Tarefas', text: 'A cada tarefa concluída, o responsável clica aqui para confirmar, podendo até anexar fotos que vão direto para a linha do tempo.', btnPrev: 'Voltar', btnNext: 'Próximo' },
             { tab: 'relatorios', selector: '#relatorios .section-title', title: 'Evolução Clínica', text: 'Todos os sinais vitais registrados viram gráficos dinâmicos automáticos, perfeitos para mostrar ao médico nas consultas.', btnPrev: 'Voltar', btnNext: 'Próximo' },
             { tab: 'configuracoes', selector: '#card-codigo-tour', title: 'Código da Família', text: 'Na aba Configurações, você tem este código. Compartilhe-o com cuidadores ou outros familiares para que eles possam acessar este mesmo painel.', btnPrev: 'Voltar', btnNext: 'Próximo' },
