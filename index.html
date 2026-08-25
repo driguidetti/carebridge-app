@@ -335,7 +335,8 @@
         <main id="timeline" class="tab-content active">
             <h2 class="section-title">Últimas Atualizações</h2>
 
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px;">
+            <button class="btn-outline" style="margin-top: 0; margin-bottom: 15px;" onclick="toggleFiltros('filtros-timeline', this)">Filtros ▾</button>
+            <div id="filtros-timeline" style="display: none; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px;">
                 <input type="text" id="filtro-texto-timeline" placeholder="Buscar atualizações..." oninput="carregarTimeline()" style="flex: 1; min-width: 150px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
                 <input type="date" id="filtro-data-timeline" onchange="carregarTimeline()" style="padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
                 
@@ -358,7 +359,8 @@
         <main id="saude" class="tab-content">
             <h2 class="section-title">Prontuário Unificado</h2>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <button class="btn-outline" style="margin-top: 0; margin-bottom: 15px;" onclick="toggleFiltros('filtros-saude', this)">Filtros ▾</button>
+            <div id="filtros-saude" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                 <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 200px;">
                     <input type="text" id="filtro-texto-saude" placeholder="Buscar registros ou remédios..." oninput="aplicarFiltrosSaude()" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
                 </div>
@@ -380,19 +382,29 @@
                 <button class="btn-outline" id="btn-config-turno-tour" style="width: 100%; border-style: dashed;" onclick="openModal('modal-itinerario')">+ Configurar Novo Turno</button>
             </div>
             
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+            <button class="btn-outline" style="margin-top: 0; margin-bottom: 15px;" onclick="toggleFiltros('filtros-rotina', this)">Filtros ▾</button>
+            <div id="filtros-rotina" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                     <label style="font-size: 0.9rem; font-weight: 600;">Filtros:</label>
                     <input type="date" id="filtro-data-rotina" onchange="renderizarRotinas()" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; background: var(--surface);">
+                    
                     <select id="filtro-turno-rotina" onchange="renderizarRotinas()" style="padding: 6px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
                         <option value="">Todos os Turnos</option>
                         <option value="☀️ Manhã">☀️ Manhã (06h - 11h59)</option>
                         <option value="☕ Tarde">☕ Tarde (12h - 17h59)</option>
                         <option value="🌙 Noite">🌙 Noite (18h - 05h59)</option>
                     </select>
+                    
                     <select id="filtro-resp-rotina" onchange="renderizarRotinas()" style="padding: 6px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
                         <option value="">Todos os Responsáveis</option>
                     </select>
+
+                    <select id="filtro-status-rotina" onchange="renderizarRotinas()" style="padding: 6px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
+                        <option value="pendentes" selected>Pendentes e Atrasadas</option>
+                        <option value="concluidas">Concluídas</option>
+                        <option value="todas">Todas as Tarefas</option>
+                    </select>
+
                     <button class="btn-outline" style="margin-top: 0; padding: 6px 10px;" onclick="limparFiltroRotina()">Limpar</button>
                 </div>
                 <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500; background: #e5e7eb; padding: 4px 10px; border-radius: 12px;">
@@ -400,7 +412,7 @@
                 </div>
             </div>
 
-            <div class="card"><strong>Rotina Pendente / Concluída</strong><ul class="list-clean" id="lista-tarefas"></ul><button class="btn-main" id="btn-checkin-tour" onclick="abrirModalCheckin()">📷 Fazer Check-in de Tarefa</button></div>
+            <div class="card"><strong>Lista de Tarefas</strong><ul class="list-clean" id="lista-tarefas"></ul><button class="btn-main" id="btn-checkin-tour" onclick="abrirModalCheckin()">📷 Fazer Check-in de Tarefa</button></div>
         </main>
 
         <main id="relatorios" class="tab-content">
@@ -418,7 +430,7 @@
             </div>
 
             <div class="card" id="card-usuarios-tour">
-                <strong>Gerenciamento de Usuários</strong>
+                <strong id="titulo-usuarios-tour">Gerenciamento de Usuários</strong>
                 <div id="lista-usuarios"></div>
                 <button class="btn-main" onclick="openModal('modal-usuario')">Cadastrar Novo Usuário +</button>
             </div>
@@ -583,6 +595,30 @@
         let historicoDados = {};
         let graficos = {};
         let contadorNotificacoes = 0;
+
+        // --- FUNÇÕES DE INTERFACE (TOGGLES E FILTROS VISUAIS) ---
+        function toggleFiltros(containerId, btn) {
+            const container = document.getElementById(containerId);
+            if (container.style.display === 'none') {
+                container.style.display = 'flex';
+                btn.innerText = 'Filtros ▴';
+            } else {
+                container.style.display = 'none';
+                btn.innerText = 'Filtros ▾';
+            }
+        }
+
+        function toggleDateGroup(groupId, evt) {
+            const tarefas = document.querySelectorAll(`li[data-date-group="${groupId}"]`);
+            tarefas.forEach(t => {
+                if (t.style.display === 'none') t.style.display = 'flex';
+                else t.style.display = 'none';
+            });
+            const seta = evt.currentTarget.querySelector('.seta-toggle');
+            if(seta) {
+                seta.innerText = seta.innerText === '▾' ? '▴' : '▾';
+            }
+        }
 
         // --- VALIDADORES E SEGURANÇA ---
         function mascaraCPF(c) { let v=c.value.replace(/\D/g,""); v=v.replace(/(\d{3})(\d)/,"$1.$2"); v=v.replace(/(\d{3})(\d)/,"$1.$2"); c.value=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2"); }
@@ -810,7 +846,7 @@
             if(depEm && !validarEmail(depEm)) return alert("⚠️ E-mail inválido.");
             if(depSn !== conf) return alert("⚠️ As senhas do paciente não coincidem.");
 
-            // Gerador de e-mail fictício caso o campo esteja vazio (Auth do Supabase exige e-mail)
+            // Gerador de e-mail fictício caso o campo esteja vazio
             if(!depEm) {
                 const numAleatorio = Math.floor(Math.random() * 10000);
                 const nomeLimpo = depNm.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
@@ -978,7 +1014,7 @@
             { tab: 'gestao', selector: '#btn-checkin-tour', title: 'Check-in de Tarefas', text: 'A cada tarefa concluída, o responsável clica aqui para confirmar, podendo até anexar fotos que vão direto para a linha do tempo.', btnPrev: 'Voltar', btnNext: 'Próximo' },
             { tab: 'relatorios', selector: '#relatorios .section-title', title: 'Evolução Clínica', text: 'Todos os sinais vitais registrados viram gráficos dinâmicos automáticos, perfeitos para mostrar ao médico nas consultas.', btnPrev: 'Voltar', btnNext: 'Próximo' },
             { tab: 'configuracoes', selector: '#card-codigo-tour', title: 'Código da Família', text: 'Na aba Configurações, você tem este código. Compartilhe-o com cuidadores ou outros familiares para que eles possam acessar este mesmo painel.', btnPrev: 'Voltar', btnNext: 'Próximo' },
-            { tab: 'configuracoes', selector: '#card-usuarios-tour', title: 'Gerenciamento de Usuários', text: 'Administre quem tem acesso ao painel, altere permissões ou inative cadastros antigos.', btnPrev: 'Voltar', btnNext: 'Próximo' },
+            { tab: 'configuracoes', selector: '#titulo-usuarios-tour', title: 'Gerenciamento de Usuários', text: 'Administre quem tem acesso ao painel, altere permissões ou inative cadastros antigos.', btnPrev: 'Voltar', btnNext: 'Próximo' },
             { tab: 'configuracoes', selector: '#card-parametros-tour', title: 'Parâmetros Médicos', text: 'Ajuste quais são os limites considerados seguros para os sinais vitais do seu familiar, de forma totalmente personalizada.', btnPrev: 'Voltar', btnNext: 'Próximo' },
             { type: 'modal', title: '🎉 Tudo Pronto!', text: 'Sua conta está perfeitamente configurada. Agora é só convidar a família e começar a usar o CareBridge!', btnNext: 'Concluir Tutorial' }
         ];
@@ -1257,7 +1293,10 @@
         }
 
         function limparFiltroRotina() {
-            document.getElementById('filtro-data-rotina').value = ''; document.getElementById('filtro-turno-rotina').value = ''; document.getElementById('filtro-resp-rotina').value = '';
+            document.getElementById('filtro-data-rotina').value = ''; 
+            document.getElementById('filtro-turno-rotina').value = ''; 
+            document.getElementById('filtro-resp-rotina').value = '';
+            document.getElementById('filtro-status-rotina').value = 'pendentes';
             renderizarRotinas();
         }
 
@@ -1293,7 +1332,11 @@
 
         function renderizarRotinas() {
             const ul = document.getElementById('lista-tarefas'); const selCheckin = document.getElementById('checkin-tarefa');
-            const filtroData = document.getElementById('filtro-data-rotina').value; const filtroTurno = document.getElementById('filtro-turno-rotina').value; const filtroResp = document.getElementById('filtro-resp-rotina').value;
+            const filtroData = document.getElementById('filtro-data-rotina').value; 
+            const filtroTurno = document.getElementById('filtro-turno-rotina').value; 
+            const filtroResp = document.getElementById('filtro-resp-rotina').value;
+            const filtroStatus = document.getElementById('filtro-status-rotina').value || 'pendentes';
+            
             ul.innerHTML = ''; selCheckin.innerHTML = '';
             
             let rotinasFiltradas = listaDeRotinas.filter(r => {
@@ -1307,7 +1350,12 @@
                 let passaResp = true;
                 if (filtroResp === 'A Definir') passaResp = !r.responsavel || r.responsavel === '';
                 else if (filtroResp) passaResp = r.responsavel === filtroResp;
-                return passaData && passaTurno && passaResp;
+                
+                let passaStatus = true;
+                if (filtroStatus === 'pendentes') passaStatus = (r.status !== 'concluido');
+                else if (filtroStatus === 'concluidas') passaStatus = (r.status === 'concluido');
+                
+                return passaData && passaTurno && passaResp && passaStatus;
             });
 
             if (rotinasFiltradas.length === 0) { ul.innerHTML = '<li style="text-align:center; color: var(--text-muted); border: none;">Nenhuma rotina para exibir para os filtros selecionados.</li>'; return; }
@@ -1320,9 +1368,10 @@
                 const dataCurta = rotina.dataHora.toLocaleDateString('pt-BR');
                 const dataFormatada = `${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dataCurta}`;
                 const horaFormatada = rotina.dataHora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                const groupId = "date-" + dataFormatada.replace(/[^a-zA-Z0-9]/g, '');
 
                 if (dataFormatada !== dataAtualAgrupamento) {
-                    ul.innerHTML += `<li style="background: var(--bg-color); font-size: 0.85rem; font-weight: bold; color: var(--primary); padding: 8px 10px; border-radius: 6px; margin-top: 15px; border-bottom: none;">📅 ${dataFormatada}</li>`;
+                    ul.innerHTML += `<li onclick="toggleDateGroup('${groupId}', event)" style="cursor: pointer; background: var(--bg-color); font-size: 0.85rem; font-weight: bold; color: var(--primary); padding: 8px 10px; border-radius: 6px; margin-top: 15px; border-bottom: none; display: flex; justify-content: space-between;">📅 ${dataFormatada} <span class="seta-toggle">▾</span></li>`;
                     dataAtualAgrupamento = dataFormatada;
                 }
                 
@@ -1333,7 +1382,7 @@
                     
                     const linkComprovante = rotina.fotoUrl ? `<br><a href="${rotina.fotoUrl}" target="_blank" style="background: var(--primary); color: var(--accent); padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold; display: inline-block; margin-top: 8px;">📷 Visualizar Foto</a>` : '';
                     
-                    ul.innerHTML += `<li class="task-done" style="border-left: 4px solid var(--success); background-color: var(--success-bg); display:flex; justify-content:space-between; align-items:center;">
+                    ul.innerHTML += `<li class="task-done" data-date-group="${groupId}" style="border-left: 4px solid var(--success); background-color: var(--success-bg); display:flex; justify-content:space-between; align-items:center;">
                                         <div>
                                             <span><s>${rotina.nome}</s> <span style="font-size:0.8rem;color:var(--text-main);">(${horaFormatada})</span> ${rotina.obs?`<br><span style="font-size:0.8rem;color:var(--text-main);">Obs: ${rotina.obs}</span>`:''}</span>
                                             <br><span style="color: var(--success); font-weight:bold; font-size: 0.85rem;">✔ Concluído por: ${rotina.concluidoPor || 'Não informado'}</span>
@@ -1342,7 +1391,7 @@
                                         ${btnDeleteDone}
                                     </li>`;
                 } else {
-                    ul.innerHTML += `<li data-id="${rotina.id}" style="border-left: 4px solid transparent; padding-left: 10px; transition: all 0.3s ease; display:flex; justify-content:space-between; align-items: center;">
+                    ul.innerHTML += `<li data-id="${rotina.id}" data-date-group="${groupId}" style="border-left: 4px solid transparent; padding-left: 10px; transition: all 0.3s ease; display:flex; justify-content:space-between; align-items: center;">
                                         <div>
                                             <span>⚙️ <strong>${rotina.nome}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${horaFormatada})</span></span>
                                             <br><span style="font-size:0.75rem; background: #e5e7eb; padding: 2px 6px; border-radius: 4px; display:inline-block; margin-top:4px; font-weight:600; color:var(--text-main);">${rotina.turno} | 👤 Resp: ${rotina.responsavel || 'A Definir'} <button class="btn-outline" style="padding: 2px 6px; font-size: 0.7rem; margin-top:0; margin-left: 5px; border-color:var(--border);" onclick="abrirModalEditarResp('${rotina.id}')">✏️ Editar</button></span>
